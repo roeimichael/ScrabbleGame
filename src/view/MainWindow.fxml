@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19" fx:controller="application.MainWindowController">
+   <top>
+      <HBox fx:id="buttonContainer" alignment="CENTER">
+         <children>
+            <Button fx:id="helpButton" mnemonicParsing="false" text="Help" onAction="#showHelp" />
+            <Button fx:id="restartButton" mnemonicParsing="false" text="Restart Game" onAction="#restartGame" />
+         </children>
+      </HBox>
+   </top>
+   <center>
+      <GridPane fx:id="gameBoard" BorderPane.alignment="CENTER">
+         <!-- This grid will be populated in the controller -->
+      </GridPane>
+   </center>
+</BorderPane>
