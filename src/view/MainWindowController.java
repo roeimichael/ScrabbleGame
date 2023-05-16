@@ -1,12 +1,18 @@
 package view;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-public class MainWindowController {
+import viewmodel.ViewModel;
 
+public class MainWindowController implements Observer  {
+    ViewModel vm;
+    
     @FXML
     private Button helpButton;
 
@@ -15,7 +21,7 @@ public class MainWindowController {
 
     @FXML
     private GridPane gameBoard;
-
+    
     private TextField[][] slots;
 
     @FXML
@@ -31,6 +37,11 @@ public class MainWindowController {
             }
         }
     }
+    
+    public void setViewModel(ViewModel vm) {
+        this.vm = vm;
+        vm.addObserver(this);
+    }
 
     @FXML
     public void showHelp() {
@@ -45,5 +56,10 @@ public class MainWindowController {
             }
         }
         // other logic for resetting the game here
+    }
+	
+    @Override
+    public void update(Observable o, Object arg) {
+        // TODO Auto-generated method stub
     }
 }
