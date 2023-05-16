@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19" fx:controller="application.MainWindowController">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/19" fx:controller="view.MainWindowController">
    <top>
       <HBox fx:id="buttonContainer" alignment="CENTER">
          <children>
@@ -19,4 +21,9 @@
          <!-- This grid will be populated in the controller -->
       </GridPane>
    </center>
+   <right>
+      <VBox>
+         <ListView fx:id="letterList" />
+      </VBox>
+   </right>
 </BorderPane>
