@@ -1,9 +1,10 @@
 package model;
 import java.util.Observable;
-import java.util.Observer;
 
 public class Model extends Observable {
-	   private String boardState;
+		private String boardState;
+		String result;
+		String letter;
 
 	    public Model() {
 	        this.boardState = "";
@@ -14,4 +15,22 @@ public class Model extends Observable {
 	        setChanged();
 	        notifyObservers(this.boardState);
 	    }
+		public void applyString(String s) // apply string s to result and notify observers
+		{
+			result = s;
+			setChanged();
+			notifyObservers(result);
+		}
+		public String getResult() {
+			return result;
+		}
+		public String getLetter() {
+			return letter;
+		}
+
+	public void letterSelected(String letter) {
+		this.letter = letter;
+		setChanged();
+		notifyObservers(this.letter);
 	}
+}
