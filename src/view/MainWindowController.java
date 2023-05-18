@@ -5,6 +5,8 @@ import java.util.Observer;
 
 import java.util.Observable;
 import java.util.Observer;
+
+import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,8 +14,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ListView;
 import javafx.scene.input.*;
 import javafx.collections.FXCollections;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 
+import javafx.scene.paint.Color;
 import viewmodel.ViewModel;
 
 public class MainWindowController implements Observer  {
@@ -39,6 +44,8 @@ public class MainWindowController implements Observer  {
     @FXML
     private Label letterSelected;
     private TextField[][] slots;
+    private IntegerProperty[][] bonusData;
+
 
     @FXML
     public void initialize() {
@@ -99,12 +106,39 @@ public class MainWindowController implements Observer  {
     
     public void setViewModel(ViewModel vm) {
         this.vm = vm;
+        bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
+        bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
+        showBonus(); // shows the bonus tiles on the board
         resLabel.textProperty().bind(vm.res); // binds reslabel to the res string in the viewmodel
         letterSelected.textProperty().bind(vm.letter); // binds letterSelected to the letterSelected string in the viewmodel
         vm.addObserver(this);
     }
 
-
+    public void showBonus() // shows the bonus tiles on the board
+    {
+        for(int i=0; i<15; i++)
+        {
+            for(int j=0; j<15; j++)
+            {
+                if(bonusData[i][j].getValue() == 2)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+                }
+                else if(bonusData[i][j].getValue() == 3)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
+                }
+                else if(bonusData[i][j].getValue() == 20)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
+                }
+                else if(bonusData[i][j].getValue() == 30)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
+                }
+            }
+        }
+    }
 
     @FXML
     public void showHelp() {
@@ -122,6 +156,25 @@ public class MainWindowController implements Observer  {
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 slots[i][j].clear();
+                if(bonusData[i][j].getValue() == 2)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+                }
+                else if(bonusData[i][j].getValue() == 3)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
+                }
+                else if(bonusData[i][j].getValue() == 20)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
+                }
+                else if(bonusData[i][j].getValue() == 30)
+                {
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
+                }
+                else
+                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+
             }
         }
         // other logic for resetting the game here

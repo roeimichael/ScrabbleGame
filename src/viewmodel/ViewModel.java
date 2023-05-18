@@ -10,10 +10,14 @@ public class ViewModel extends Observable implements Observer {
 	Model m;
 	public IntegerProperty inputkey = new SimpleIntegerProperty();
 	public StringProperty x,res, letter;
+	public IntegerProperty[][] bonus_vm;
+
 
 	public ViewModel(Model m) {
 		this.m = m;
 		m.addObserver(this);
+		bonus_vm = new IntegerProperty[15][15];
+		setBonus_vm(m.getBonus());
 
 		//x = new SimpleStringProperty();
 		res = new SimpleStringProperty(); // contains the text for the help button
@@ -25,6 +29,18 @@ public class ViewModel extends Observable implements Observer {
 			m.updateBoardState(move);
 		}
 
+	public void setBonus_vm(byte[][] bonus) {
+		for(int i=0;i<15;i++)
+			for(int j=0;j<15;j++)
+			{
+				bonus_vm[i][j] = new SimpleIntegerProperty();
+				bonus_vm[i][j].set(bonus[i][j]);
+			}
+
+	}
+	public IntegerProperty[][] getBonus_vm() {
+		return bonus_vm;
+	}
 	public void applyString() {
 		m.applyString("this is help"); // activates the applyString function in the model
 	}

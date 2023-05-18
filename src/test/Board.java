@@ -257,4 +257,8 @@ public class Board {
 			System.out.println();
 		}
 	}
+
+	public byte[][] getBonus() {
+		return bonus;
+	}
 }
