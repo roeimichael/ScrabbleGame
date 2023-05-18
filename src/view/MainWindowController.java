@@ -3,8 +3,6 @@ package view;
 import java.util.Observable;
 import java.util.Observer;
 
-import java.util.Observable;
-import java.util.Observer;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
@@ -21,7 +19,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import viewmodel.ViewModel;
 
-public class MainWindowController implements Observer  {
+public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
     
     @FXML
@@ -29,7 +27,10 @@ public class MainWindowController implements Observer  {
 
     @FXML
     private Button restartButton;
-    
+
+    @FXML
+    private Button confirmButton;
+
     @FXML
     private ListView<String> letterList;
     
@@ -41,18 +42,41 @@ public class MainWindowController implements Observer  {
 
     @FXML
     private Label letterSelected;
+    @FXML
+    private Label confirmSelected;
+    @FXML
+    private Label wordAdded;
+    @FXML
+    private Label rowSelected;
+    @FXML
+    private Label colSelected;
+    @FXML
+    private Label wordDirection;
+
     private TextField[][] slots;
 
     private IntegerProperty[][] bonusData;
+    private String clean="clean";
 
+    public void setViewModel(ViewModel vm) {
+        this.vm = vm;
+
+        bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
+        bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
+        showBonus(); // shows the bonus tiles on the board
+
+        confirmSelected.textProperty().bind(vm.confirm); // binds confirm to the confirm string in the viewmodel
+        resLabel.textProperty().bind(vm.res); // binds reslabel to the res string in the viewmodel
+        letterSelected.textProperty().bind(vm.letter); // binds letterSelected to the letterSelected string in the viewmodel
+        wordAdded.textProperty().bind(vm.wordSelected); // binds wordAdded to the wordSelected string in the viewmodel
+        colSelected.textProperty().bind(vm.col); // binds indexSelected to the x string in the viewmodel
+        rowSelected.textProperty().bind(vm.row); // binds indexSelected to the x string in the viewmodel
+        wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
+        vm.addObserver(this);
+    }
     @FXML
     public void initialize() {
         slots = new TextField[15][15];
-
-//        Background dl = new Background(new BackgroundFill(Color.LIGHTBLUE, null, null));
-//        Background tl = new Background(new BackgroundFill(Color.DARKBLUE, null, null));
-//        Background dw = new Background(new BackgroundFill(Color.LIGHTGREEN, null, null));
-//        Background tw = new Background(new BackgroundFill(Color.DARKGREEN, null, null));
 
         // Let's say these are the letters available
         letterList.setItems(FXCollections.observableArrayList("A", "B", "C", "D", "E"));
@@ -81,8 +105,10 @@ public class MainWindowController implements Observer  {
                     boolean success = false;
                     if (db.hasString()) {
                         tf.setText(db.getString());
+
                         success = true;
                         // Set the background color of the text field to indicate that a letter has been dropped
+                        this.showLetterSelected(tf.getText(), GridPane.getRowIndex(tf), GridPane.getColumnIndex(tf));
                         slots[GridPane.getRowIndex(tf)][GridPane.getColumnIndex(tf)].setBackground(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null)));
                     }
                     event.setDropCompleted(success);
@@ -90,14 +116,16 @@ public class MainWindowController implements Observer  {
                 });
             }
         }
-        
+        gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
+
         // Allow dragging a letter from the list
         letterList.setOnDragDetected(event -> {
+
             String letter = letterList.getSelectionModel().getSelectedItem();
             System.out.println("Drag detected: " + letter);
 
             if (letter != null) {
-                this.showLetterSelected(letter);
+                //this.showLetterSelected(letter);
                 Dragboard db = letterList.startDragAndDrop(TransferMode.ANY);
                 ClipboardContent content = new ClipboardContent();
                 content.putString(letter);
@@ -111,17 +139,7 @@ public class MainWindowController implements Observer  {
 
     }
     
-    public void setViewModel(ViewModel vm) {
-        this.vm = vm;
 
-        bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
-        bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
-        showBonus(); // shows the bonus tiles on the board
-
-        resLabel.textProperty().bind(vm.res); // binds reslabel to the res string in the viewmodel
-        letterSelected.textProperty().bind(vm.letter); // binds letterSelected to the letterSelected string in the viewmodel
-        vm.addObserver(this);
-    }
 
     public void showBonus() // shows the bonus tiles on the board
     {
@@ -156,9 +174,17 @@ public class MainWindowController implements Observer  {
         System.out.println("Help button pressed"); // just a check to see if the button works
         vm.applyString(); // activates the applyString function from the viewmodel
     }
+    @FXML
+    public void showConfirm() {
+        // logic to display random number here
+        System.out.println("Confirm button pressed"); // just a check to see if the button works
+        vm.confirmSelected(); // activates the applyString function from the viewmodel
+    }
 
-    public void showLetterSelected(String letter) {
-        vm.letterSelected(letter);
+    public void showLetterSelected(String letter, int row, int col) {
+        System.out.println("letter:"+ letter);
+        System.out.println(" index: " + row + ", " + col);
+        vm.letterSelected(letter, row, col);
     }
 
     @FXML
@@ -186,6 +212,11 @@ public class MainWindowController implements Observer  {
                     slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
             }
         }
+        gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
+        // let the viewmodel and view know that the game is restarting
+        setChanged();
+        notifyObservers("restart");
+
         // other logic for resetting the game here
     }
 
