@@ -29,7 +29,7 @@ public class MainWindowController implements Observer  {
 
     @FXML
     private Button restartButton;
-    
+
     @FXML
     private ListView<String> letterList;
     
@@ -53,7 +53,7 @@ public class MainWindowController implements Observer  {
         
         // Let's say these are the letters available
         letterList.setItems(FXCollections.observableArrayList("A", "B", "C", "D", "E"));
-        
+
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 TextField tf = new TextField();
@@ -83,7 +83,9 @@ public class MainWindowController implements Observer  {
                 });
             }
         }
-        
+        gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
+
+
         // Allow dragging a letter from the list
         letterList.setOnDragDetected(event -> {
             String letter = letterList.getSelectionModel().getSelectedItem();
@@ -177,10 +179,12 @@ public class MainWindowController implements Observer  {
 
             }
         }
+        gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
+
         // other logic for resetting the game here
     }
 
-	
+
     @Override
     public void update(Observable o, Object arg) {
     	

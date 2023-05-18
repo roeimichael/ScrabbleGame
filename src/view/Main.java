@@ -13,7 +13,6 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-
 			FXMLLoader fxl = new FXMLLoader();
 			BorderPane root = (BorderPane)fxl.load(getClass().getResource("MainWindow.fxml").openStream());
 

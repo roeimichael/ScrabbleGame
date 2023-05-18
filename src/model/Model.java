@@ -1,18 +1,30 @@
 package model;
 import java.util.Observable;
-import test.Board;
+import test.*;
+import java.util.ArrayList;
+
 
 public class Model extends Observable {
-		private String boardState;
-		String result;
-		String letter;
-		private Board board;
+	private String boardState;
+	private String result;
+	private String letter;
+	private Board board;
+	private ArrayList<Player> players;
+	private GameManager gameManager;
+	private Tile.Bag tileBag;
 
 
 	public Model() {
 	    this.board = new Board();
 		this.boardState = "";
-	    }
+		this.tileBag = new Tile.Bag();
+		this.players = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			players.add(new Player(i, tileBag));
+		}
+		this.gameManager = new GameManager(board, players, tileBag);
+
+	}
 
 	    public void updateBoardState(String newBoardState) {
 	        this.boardState = newBoardState;
