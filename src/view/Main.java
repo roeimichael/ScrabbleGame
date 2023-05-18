@@ -25,7 +25,7 @@ public class Main extends Application {
 			mwc.setViewModel(vm); // setting the view model in the view
 			vm.addObserver(mwc); // adding the view as an observer to the view model
 
-			Scene scene = new Scene(root,400,400);
+			Scene scene = new Scene(root,500,500);
 
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);

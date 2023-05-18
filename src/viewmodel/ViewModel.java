@@ -9,7 +9,8 @@ import view.MainWindowController;
 public class ViewModel extends Observable implements Observer {
 	Model m;
 	public IntegerProperty inputkey = new SimpleIntegerProperty();
-	public StringProperty x,res, letter;
+	public IntegerProperty[][] bonus_vm;
+	public StringProperty x, res, letter;
 
 	public ViewModel(Model m) {
 		this.m = m;
@@ -18,6 +19,8 @@ public class ViewModel extends Observable implements Observer {
 		//x = new SimpleStringProperty();
 		res = new SimpleStringProperty(); // contains the text for the help button
 		letter = new SimpleStringProperty(); // contains the text for the letter button
+		bonus_vm = new IntegerProperty[15][15];
+		setBonus_vm(m.getBonus());
 
 	//		inputkey.addListener((o,ov,nv)->m.setInputKey((int)nv));
 	}
@@ -34,6 +37,18 @@ public class ViewModel extends Observable implements Observer {
 		m.letterSelected(letter);
 	}
 
+	public void setBonus_vm(byte[][] bonus) {
+		for(int i=0;i<15;i++)
+			for(int j=0;j<15;j++)
+			{
+				bonus_vm[i][j] = new SimpleIntegerProperty();
+				bonus_vm[i][j].set(bonus[i][j]);
+			}
+
+	}
+	public IntegerProperty[][] getBonus_vm() {
+		return bonus_vm;
+	}
 
 	 @Override
 		public void update(Observable obs, Object obj) {

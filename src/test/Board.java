@@ -1,8 +1,12 @@
 package test;
 
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 
-public class Board {
+public class Board extends Canvas {
 
 	
 	// indexes
@@ -36,8 +40,12 @@ public class Board {
 	public Board() {
 		tiles=new Tile[15][15];
 		isEmpty=true;
+		redraw();
 	}	
-	
+
+	public byte[][] getBonus() {
+		return bonus;
+	}
 	public Tile[][] getTiles() {
 		return tiles.clone();
 	}
@@ -243,6 +251,7 @@ public class Board {
 			isEmpty=false;
 			bonus[7][7]=0;
 		}
+		redraw();
 		return sum;
 	}
 
@@ -257,4 +266,30 @@ public class Board {
 			System.out.println();
 		}
 	}
+
+	public void redraw()
+	{ // redraw the board after a play
+
+		double W = getWidth();
+		double H = getHeight();
+		double w = W/15;
+		double h = H/15;
+
+		GraphicsContext gc = getGraphicsContext2D();
+		for(int i=0;i<15;i++)
+			for(int j=0;j<15;j++)
+				if(tiles[i][j]!=null)
+				{ // if no tile is set on a square, it is null then we can show the bonus on this square
+					if (bonus[i][j]!=0)
+					{
+						gc.setFill(Color.LIGHTBLUE);
+						gc.fillRect(j*w, i*h, w, h);
+					}
+				}
+				else
+				{ // tile is set on square so we want to show the tile
+					gc.fillRect(j*w, i*h, w, h);
+				}
+	}
+
 }

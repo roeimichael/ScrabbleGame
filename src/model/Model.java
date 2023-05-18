@@ -1,13 +1,18 @@
 package model;
+import test.Board;
+
 import java.util.Observable;
 
 public class Model extends Observable {
 		private String boardState;
+
+		private Board board;
 		String result;
 		String letter;
 
 	    public Model() {
-	        this.boardState = "";
+	        board = new Board();
+			this.boardState = "";
 	    }
 
 	    public void updateBoardState(String newBoardState) {
@@ -21,6 +26,12 @@ public class Model extends Observable {
 			setChanged();
 			notifyObservers(result);
 		}
+		public void letterSelected(String letter) {
+			this.letter = letter;
+			setChanged();
+			notifyObservers(this.letter);
+		}
+
 		public String getResult() {
 			return result;
 		}
@@ -28,9 +39,9 @@ public class Model extends Observable {
 			return letter;
 		}
 
-	public void letterSelected(String letter) {
-		this.letter = letter;
-		setChanged();
-		notifyObservers(this.letter);
-	}
+		public byte[][] getBonus() {
+			return board.getBonus();
+		}
+
+
 }

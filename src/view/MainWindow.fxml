@@ -10,7 +10,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindowController">
    <top>
-      <HBox fx:id="buttonContainer" alignment="CENTER">
+      <HBox fx:id="buttonContainer" alignment="CENTER" prefHeight="14.0" prefWidth="505.0">
          <children>
             <Label fx:id="resLabel" prefHeight="18.0" prefWidth="36.0" text="Label" />
             <Button fx:id="helpButton" mnemonicParsing="false" onAction="#showHelp" text="Help" />
@@ -26,7 +26,7 @@
    </center>
    <right>
       <VBox>
-         <ListView fx:id="letterList" minHeight="390.0" minWidth="84.0" prefHeight="390.0" prefWidth="84.0" />
+         <ListView fx:id="letterList" minHeight="179.0" minWidth="84.0" prefHeight="179.0" prefWidth="84.0" />
       </VBox>
    </right>
 </BorderPane>
