@@ -2,209 +2,208 @@ package model;
 import java.util.*;
 
 import test.Board;
-import test.CharacterData; // this is the class that holds the string and its location
+import test.CharacterData;
 import test.Tile;
 import test.Word;
 
 public class Model extends Observable {
-		private String boardState;
+	private String boardState, help, confirm;
+	private char letter;
+	private Board board;
+	private HashMap<Character, Integer> letterScores = new HashMap<>();
+	private ArrayList<CharacterData> characterList = new ArrayList<>();
+	private Vector<Tile> wordTiles = new Vector<>();
+	private int rowCur = -1, colCur = -1;
+	String wordSelected="";
 
-		private Board board;
-		String help , confirm;
-		char letter;
-		HashMap<Character, Integer> letterScores = new HashMap<>(); // save for evey letter its scrabble score
+	public Model() {
+		board = new Board();
+		assignLetterScores();
+		this.boardState = "";
+	}
 
-	// characterList will hold all the characters of the word selected by the user with their indices
-		ArrayList<CharacterData> characterList = new ArrayList<>();
-		Vector<Tile> wordTiles; // will hold the word selected by the user
+	private void assignLetterScores() {
+		letterScores.put('A', 1);
+		letterScores.put('B', 3);
+		letterScores.put('C', 3);
+		letterScores.put('D', 2);
+		letterScores.put('E',1);
+		letterScores.put('G',2);
+		letterScores.put('H',4);
+		letterScores.put('I',1);
+		letterScores.put('J',8);
+		letterScores.put('K',5);
+		letterScores.put('L',1);
+		letterScores.put('M',3);
+		letterScores.put('N',1);
+		letterScores.put('O',1);
+		letterScores.put('P',3);
+		letterScores.put('Q',10);
+		letterScores.put('R',1);
+		letterScores.put('S',1);
+		letterScores.put('T',1);
+		letterScores.put('U',1);
+		letterScores.put('V',4);
+		letterScores.put('W',4);
+		letterScores.put('X',8);
+		letterScores.put('Y',4);
+		letterScores.put('Z',10);
+		letterScores.put('F',4);
+	}
 
-		// the following are used to save the word selected by the user
-		String wordSelected="";
-		int row=-1, col=-1;
-		int rowCur=-1, colCur=-1;
+	public void updateBoardState(String newBoardState) {
+		this.boardState = newBoardState;
+		setChanged();
+		notifyObservers(this.boardState);
+	}
 
+	public void applyString(String s) {
+		help = s;
+		setChanged();
+		notifyObservers("help");
+	}
 
+	public void addLetter(CharacterData cd) {
+		characterList.stream()
+				.filter(c -> c.compareIndex(cd))
+				.findFirst()
+				.ifPresentOrElse(
+						existingCharacter -> existingCharacter.setLetter(cd.getLetter()),
+						() -> characterList.add(cd)
+				);
+	}
 
-	    public Model() {
-	        board = new Board();
-			wordTiles = new Vector<>();
-			letterScores.put('A', 1);
-			letterScores.put('B', 3);
-			letterScores.put('C', 3);
-			letterScores.put('D', 2);
-			letterScores.put('E',1);
-			letterScores.put('G',2);
-			letterScores.put('H',4);
-			letterScores.put('I',1);
-			letterScores.put('J',8);
-			letterScores.put('K',5);
-			letterScores.put('L',1);
-			letterScores.put('M',3);
-			letterScores.put('N',1);
-			letterScores.put('O',1);
-			letterScores.put('P',3);
-			letterScores.put('Q',10);
-			letterScores.put('R',1);
-			letterScores.put('S',1);
-			letterScores.put('T',1);
-			letterScores.put('U',1);
-			letterScores.put('V',4);
-			letterScores.put('W',4);
-			letterScores.put('X',8);
-			letterScores.put('Y',4);
-			letterScores.put('Z',10);
-			letterScores.put('F',4);
-			this.boardState = "";
-	    }
-
-	    public void updateBoardState(String newBoardState) {
-	        this.boardState = newBoardState;
-	        setChanged();
-	        notifyObservers(this.boardState);
-	    }
-		public void applyString(String s) // apply string s to help and notify observers
-		{
-			help = s;
+	public void letterSelected(char letter, int row, int col) {
+		addLetter(new CharacterData(letter, row, col));
+		System.out.println(characterList);
+		this.letter = letter;
+		if(this.rowCur == -1 && this.colCur == -1) {
+			this.rowCur = row;
+			this.colCur = col;
 			setChanged();
-			notifyObservers("help");
+			notifyObservers("clear");
 		}
-		public void addLetter(CharacterData cd)
+		setChanged();
+		notifyObservers(this.letter);
+	}
+
+	public void confirmSelected() {
+		this.confirm = "confirmed";
+		setChanged();
+		notifyObservers(this.confirm);
+	}
+
+	public String getHelp() {
+		return help;
+	}
+	public char getLetter() {
+		return letter;
+	}
+	public String getConfirm() {
+		return confirm;
+	}
+	public String getRow() {
+		if(characterList.size() != 0) {
+			return String.valueOf(characterList.get(0).getRow());
+		}
+		return "";
+	}
+	public String getCol() {
+		if(characterList.size() != 0) {
+			return String.valueOf(characterList.get(0).getColumn());
+		}
+		return "";
+	}
+	public byte[][] getBonus() {
+		return board.getBonus();
+	}
+
+	public void cleanList() {
+		characterList.clear();
+		wordTiles.clear();
+	}
+
+
+	public void undoSelected() {
+		if(characterList.size() > 0) {
+			characterList.remove(characterList.size() - 1);
+		}
+		setChanged();
+		notifyObservers("undo");
+	}
+
+	public String getWordSelected() {
+		// transfer the word from the list to the actual word
+		if (characterList.size()==0)
+			return "";
+
+		// checck if the list is horizontal or vertical
+		if(getWordDirection().equals("horizontal"))
 		{
-			// check if the letter is already in the list
-			for (CharacterData c : characterList)
-				if (c.compareIndex(cd))
+			for (int i=0; i<characterList.size()-1; i++)
+			{
+				CharacterData ch = characterList.get(i); // get the i item in the list
+				CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
+				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+				wordTiles.add(t);
+				wordSelected += String.valueOf(ch.getLetter());
+				if (ch.getColumn()+1 != ch1.getColumn())
 				{
-					c.setLetter(cd.getLetter());
-					return;
+					wordTiles.add(null); // means that there is an already existing letter in the board in the word
 				}
-			// if not then add it
-			characterList.add(cd);
+			}
+			CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
+			Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+			wordTiles.add(t);
+			wordSelected += String.valueOf(ch.getLetter());
+
 		}
-		public void letterSelected(char letter, int row, int col) {
-			addLetter(new CharacterData(letter, row, col)); // adding the new letter to the list
-			System.out.println(characterList);
-			this.letter = letter;
-			if(this.rowCur == -1 && this.colCur == -1)
-			{ // means that is the first letter so we need to save the row and col
-				this.rowCur = row;
-				this.colCur = col;
+		else if(getWordDirection().equals("vertical"))
+		{
+			for (int i=0; i<characterList.size()-1; i++)
+			{
+				CharacterData ch = characterList.get(i); // get the i item in the list
+				CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
+				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+				wordTiles.add(t);
+				wordSelected += String.valueOf(ch.getLetter());
+				if (ch.getRow()+1 != ch1.getRow())
+				{
+					wordTiles.add(null); // means that there is an already existing letter in the board in the word
+				}
+			}
+			CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
+			Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+			wordTiles.add(t);
+			wordSelected += String.valueOf(ch.getLetter());
+		}
+		else{
+			// not continuous word
+			return "";
+		}
+		System.out.println(wordTiles);
+
+		Tile[] array = new Tile[wordTiles.size()];
+		wordTiles.toArray(array);
+		Word word = new Word(array, characterList.get(0).getRow(), characterList.get(0).getColumn(), isVerticalWord(characterList));
+		int score = board.tryPlaceWord(word);// if score is 0 then the word is not valid
+		if (score==0) {
+			for(int i=0; i<wordTiles.size(); i++)
+			{
 				setChanged();
-				notifyObservers("clear");
+				notifyObservers("undo");
 			}
-			setChanged();
-			notifyObservers(this.letter);
 		}
-		public void confirmSelected() {
-			this.confirm = "confirmed";
-			setChanged();
-			notifyObservers(this.confirm);
-		}
+		board.print();
 
-		public String getHelp() {
-			return help;
-		}
-		public char getLetter() {
-			return letter;
-		}
-
-		public String getConfirm() {
-			return confirm;
-		}
-
-		public String getWordSelected() {
-			// transfer the word from the list to the actual word
-			if (characterList.size()==0)
-				return "";
-
-			// checck if the list is horizontal or vertical
-			if(getWordDirection().equals("horizontal"))
-			{
-				for (int i=0; i<characterList.size()-1; i++)
-				{
-					CharacterData ch = characterList.get(i); // get the i item in the list
-					CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
-					Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
-					wordTiles.add(t);
-					wordSelected += String.valueOf(ch.getLetter());
-					if (ch.getColumn()+1 != ch1.getColumn())
-					{
-						wordTiles.add(null); // means that there is an already existing letter in the board in the word
-					}
-				}
-				CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
-				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
-				wordTiles.add(t);
-				wordSelected += String.valueOf(ch.getLetter());
-
-			}
-			else if(getWordDirection().equals("vertical"))
-			{
-				for (int i=0; i<characterList.size()-1; i++)
-				{
-					CharacterData ch = characterList.get(i); // get the i item in the list
-					CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
-					Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
-					wordTiles.add(t);
-					wordSelected += String.valueOf(ch.getLetter());
-					if (ch.getRow()+1 != ch1.getRow())
-					{
-						wordTiles.add(null); // means that there is an already existing letter in the board in the word
-					}
-				}
-				CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
-				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
-				wordTiles.add(t);
-				wordSelected += String.valueOf(ch.getLetter());
-			}
-			else{
-				// not continuous word
-				return "";
-			}
-			System.out.println(wordTiles);
-
-			Tile[] array = new Tile[wordTiles.size()];
-			wordTiles.toArray(array);
-			Word word = new Word(array, characterList.get(0).getRow(), characterList.get(0).getColumn(), isVerticalWord(characterList));
-			int score = board.tryPlaceWord(word);// if score is 0 then the word is not valid
-			if (score==0) {
-				for(int i=0; i<wordTiles.size(); i++)
-				{
-					setChanged();
-					notifyObservers("undo");
-				}
-			}
-			board.print();
-
-			return wordSelected;
-		}
-		public String getRow() {
-			if(characterList.size()==0)
-				return "";
-			else
-				row=characterList.get(0).getRow();
-			rowCur=-1;
-			return ""+row;
-		}
-		public String getCol() {
-			if(characterList.size()==0)
-				return "";
-			else
-				col=characterList.get(0).getColumn();
-			colCur=-1;
-			return ""+col;
-		}
-
-		public byte[][] getBonus() {
-			return board.getBonus();
-		}
-
+		return wordSelected;
+	}
 
 	public void restart() {
 		// function that restarts the model variables of the current state of the board
 		System.out.println("New Game");
 		characterList.clear();
 		wordSelected="";
-		row=-1; col=-1;
 		rowCur=-1; colCur=-1;
 		this.board = new Board();
 
@@ -279,19 +278,7 @@ public class Model extends Observable {
 
 	}
 
-	public void cleanList() {
-		// function that cleans the list of the characters of the word
-		wordSelected="";
-		characterList.clear();
-		wordTiles.clear();
-	}
 
-	public void undoSelected() {
-		// we need to remove the last letter added to the word
-		if(characterList.size()>0) {
-			characterList.remove(characterList.size()-1);
-		}
-		setChanged();
-		notifyObservers("undo");
-	}
+
+
 }

@@ -25,39 +25,17 @@ import viewmodel.ViewModel;
 
 public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
-    
-    @FXML
-    private Button helpButton;
 
     @FXML
-    private Button restartButton;
-
-    @FXML
-    private Button confirmButton;
-    @FXML
-    private Button undoButton;
+    private Button helpButton, restartButton, confirmButton, undoButton;
 
     @FXML
     private ListView<String> letterList;
-    
     @FXML
     private GridPane gameBoard;
 
     @FXML
-    private Label resLabel;
-
-    @FXML
-    private Label letterSelected;
-    @FXML
-    private Label confirmSelected;
-    @FXML
-    private Label wordAdded;
-    @FXML
-    private Label rowSelected;
-    @FXML
-    private Label colSelected;
-    @FXML
-    private Label wordDirection;
+    private Label resLabel, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
 
     private TextField[][] slots;
 
@@ -68,7 +46,6 @@ public class MainWindowController extends Observable implements Observer   {
     private ListProperty<CharacterData> userInput = new SimpleListProperty<>();// list of all the letters the user has selected in the last turn
     public void setViewModel(ViewModel vm) {
         this.vm = vm;
-
         bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
         bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
         restartGame(); // shows the bonus tiles on the board
@@ -81,6 +58,7 @@ public class MainWindowController extends Observable implements Observer   {
         rowSelected.textProperty().bind(vm.row); // binds indexSelected to the x string in the viewmodel
         wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
         userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
+
         for(int i=0;i<15;i++)
             for(int j=0;j<15;j++)
             {
@@ -93,28 +71,20 @@ public class MainWindowController extends Observable implements Observer   {
     @FXML
     public void initialize() {
         slots = new TextField[15][15];
-
-        // Let's say these are the letters available
         letterList.setItems(FXCollections.observableArrayList("A", "B", "C", "D", "E"));
-        
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
-
                 TextField tf = new TextField();
                 tf.setPrefWidth(30);  // Set preferred width as per your requirement
                 tf.setPrefHeight(30); // Set preferred height as per your requirement
                 slots[i][j] = tf;
-
                 gameBoard.add(tf, j, i);
-
-                // Allow dropping a letter onto the text field
                 tf.setOnDragOver(event -> {
                     if (event.getGestureSource() != tf && event.getDragboard().hasString()) {
                         event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                     }
                     event.consume();
                 });
-                
                 tf.setOnDragDropped(event -> {
                     //System.out.println("Dropped");
                     Dragboard db = event.getDragboard();
@@ -137,15 +107,9 @@ public class MainWindowController extends Observable implements Observer   {
             }
         }
         gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
-
-        // Allow dragging a letter from the list
         letterList.setOnDragDetected(event -> {
-
             String letter = letterList.getSelectionModel().getSelectedItem();
-            //System.out.println("Drag detected: " + letter);
-
             if (letter != null) {
-                //this.showLetterSelected(letter);
                 Dragboard db = letterList.startDragAndDrop(TransferMode.ANY);
                 ClipboardContent content = new ClipboardContent();
                 content.putString(letter);
@@ -153,33 +117,23 @@ public class MainWindowController extends Observable implements Observer   {
             }
             event.consume();
             gameBoard.requestLayout(); // Refresh the layout of the GridPane
-
         });
-
-
     }
-
 
     @FXML
     public void showHelp() {
-        // logic to display help here
         System.out.println("Help button pressed"); // just a check to see if the button works
         vm.applyString(); // activates the applyString function from the viewmodel
     }
     @FXML
     public void showConfirm() {
-        // logic to display random number here
         System.out.println("Confirm button pressed"); // just a check to see if the button works
         vm.confirmSelected(); // activates the confirmSelected function from the viewmodel
-        //userInput.clear(); // clears the list of letters the user has selected
+        userInput.clear(); // clears the list of letters the user has selected
     }
     public void undo() {
-        // logic to display random number here
         System.out.println("Undo button pressed"); // just a check to see if the button works
         vm.undoSelected(); // activates the undoSelected function from the viewmodel
-        //showBonus();
-
-
     }
 
     public void showLetterSelected(char letter, int row, int col) {
@@ -190,22 +144,6 @@ public class MainWindowController extends Observable implements Observer   {
 
     @FXML
     public void restartGame() {
-//        for (int i = 0; i < 15; i++) {
-//            for (int j = 0; j < 15; j++) {
-//                slots[i][j].clear();
-//                switch (bonusData[i][j].getValue()) {
-//                    case 2 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-//                    case 3 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
-//                    case 20 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
-//                    case 30 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
-//                    default -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-//                }
-//            }
-            //gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
-            // let the viewmodel and view know that the game is restarting
-
-            // other logic for resetting the game here
-        //}
         vm.restartGame();
     }
     public void showBonus() {
@@ -213,7 +151,6 @@ public class MainWindowController extends Observable implements Observer   {
             for (int j = 0; j < 15; j++) {
                 if (slots[i][j].getText().isBlank()) {
                     switch (bonusData[i][j].getValue()) {
-
                         case 2 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
                         case 3 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
                         case 20 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
@@ -221,14 +158,11 @@ public class MainWindowController extends Observable implements Observer   {
                         default -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
                     }
                 }
-
             }
         }
     }
 
-	
     @Override
     public void update(Observable o, Object arg) {
-    	
 	    }
 }
