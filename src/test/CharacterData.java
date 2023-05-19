@@ -1,17 +1,17 @@
 package test;
 
 public class CharacterData {
-    private String character;
+    private char character;
     private int row;
     private int column;
 
-    public CharacterData(String character, int row, int column) {
+    public CharacterData(char character, int row, int column) {
         this.character = character;
         this.row = row;
         this.column = column;
     }
 
-    public String getLetter() {
+    public char getLetter() {
         return character;
     }
 
@@ -23,7 +23,7 @@ public class CharacterData {
         return column;
     }
 
-    public void setLetter(String letter) {
+    public void setLetter(char letter) {
         this.character = letter;
     }
     public void setRow(int row) {
@@ -33,6 +33,10 @@ public class CharacterData {
         this.column = column;
     }
 
+    public String toString()
+    {
+    	return "Character: "+character+" Row: "+row+" Column: "+column;
+    }
 
     public boolean compareIndex(CharacterData other)
     { // function that compares the index of two characters

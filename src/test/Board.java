@@ -40,7 +40,7 @@ public class Board extends Canvas {
 	public Board() {
 		tiles=new Tile[15][15];
 		isEmpty=true;
-		redraw();
+//		redraw();
 	}	
 
 	public byte[][] getBonus() {
@@ -231,12 +231,19 @@ public class Board extends Canvas {
 		int sum=0;				
 		if(boardLegal(test) ) {
 			ArrayList<Word> newWords=getWords(test);
+			System.out.println("newWords: "+newWords);
+
 			for(Word nw : newWords) {				
 				if(dictionaryLegal(nw))
 					sum+=getScore(nw);
 				else
 					return 0;
 			}			
+		}
+		else{
+			System.out.println("Illegal");
+			return 0;
+
 		}
 
 		// the placement
@@ -251,7 +258,7 @@ public class Board extends Canvas {
 			isEmpty=false;
 			bonus[7][7]=0;
 		}
-		redraw();
+		System.out.println("Score: "+sum);
 		return sum;
 	}
 
@@ -267,29 +274,29 @@ public class Board extends Canvas {
 		}
 	}
 
-	public void redraw()
-	{ // redraw the board after a play
-
-		double W = getWidth();
-		double H = getHeight();
-		double w = W/15;
-		double h = H/15;
-
-		GraphicsContext gc = getGraphicsContext2D();
-		for(int i=0;i<15;i++)
-			for(int j=0;j<15;j++)
-				if(tiles[i][j]!=null)
-				{ // if no tile is set on a square, it is null then we can show the bonus on this square
-					if (bonus[i][j]!=0)
-					{
-						gc.setFill(Color.LIGHTBLUE);
-						gc.fillRect(j*w, i*h, w, h);
-					}
-				}
-				else
-				{ // tile is set on square so we want to show the tile
-					gc.fillRect(j*w, i*h, w, h);
-				}
-	}
+//	public void redraw()
+//	{ // redraw the board after a play
+//
+//		double W = getWidth();
+//		double H = getHeight();
+//		double w = W/15;
+//		double h = H/15;
+//
+//		GraphicsContext gc = getGraphicsContext2D();
+//		for(int i=0;i<15;i++)
+//			for(int j=0;j<15;j++)
+//				if(tiles[i][j]!=null)
+//				{ // if no tile is set on a square, it is null then we can show the bonus on this square
+//					if (bonus[i][j]!=0)
+//					{
+//						gc.setFill(Color.LIGHTBLUE);
+//						gc.fillRect(j*w, i*h, w, h);
+//					}
+//				}
+//				else
+//				{ // tile is set on square so we want to show the tile
+//					gc.fillRect(j*w, i*h, w, h);
+//				}
+//	}
 
 }

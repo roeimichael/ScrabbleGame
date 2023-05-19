@@ -8,7 +8,7 @@ public class Tile {
 	public final char letter;
 	public final int score;
 	
-	private Tile(char letter, int score) {
+	public Tile(char letter, int score) {
 		super();
 		this.letter = letter;
 		this.score = score;
@@ -29,6 +29,10 @@ public class Tile {
 			return false;
 		Tile other = (Tile) obj;
 		return letter == other.letter && score == other.score;
+	}
+
+	public String toString() {
+		return "("+letter+", "+score+")";
 	}
 	
 	public static class Bag{

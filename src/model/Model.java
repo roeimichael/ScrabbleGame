@@ -1,20 +1,22 @@
 package model;
-import java.util.ArrayList; // import the ArrayList class
+import java.util.*;
 
 import test.Board;
 import test.CharacterData; // this is the class that holds the string and its location
-
-import java.util.Comparator;
-import java.util.Observable;
+import test.Tile;
+import test.Word;
 
 public class Model extends Observable {
 		private String boardState;
 
 		private Board board;
-		String help, letter, confirm;
+		String help , confirm;
+		char letter;
+		HashMap<Character, Integer> letterScores = new HashMap<>(); // save for evey letter its scrabble score
 
-		// characterList will hold all the characters of the word selected by the user with their indices
+	// characterList will hold all the characters of the word selected by the user with their indices
 		ArrayList<CharacterData> characterList = new ArrayList<>();
+		Vector<Tile> wordTiles; // will hold the word selected by the user
 
 		// the following are used to save the word selected by the user
 		String wordSelected="";
@@ -22,10 +24,36 @@ public class Model extends Observable {
 		int rowCur=-1, colCur=-1;
 
 
-		int rand;
 
 	    public Model() {
 	        board = new Board();
+			wordTiles = new Vector<>();
+			letterScores.put('A', 1);
+			letterScores.put('B', 3);
+			letterScores.put('C', 3);
+			letterScores.put('D', 2);
+			letterScores.put('E',1);
+			letterScores.put('G',2);
+			letterScores.put('H',4);
+			letterScores.put('I',1);
+			letterScores.put('J',8);
+			letterScores.put('K',5);
+			letterScores.put('L',1);
+			letterScores.put('M',3);
+			letterScores.put('N',1);
+			letterScores.put('O',1);
+			letterScores.put('P',3);
+			letterScores.put('Q',10);
+			letterScores.put('R',1);
+			letterScores.put('S',1);
+			letterScores.put('T',1);
+			letterScores.put('U',1);
+			letterScores.put('V',4);
+			letterScores.put('W',4);
+			letterScores.put('X',8);
+			letterScores.put('Y',4);
+			letterScores.put('Z',10);
+			letterScores.put('F',4);
 			this.boardState = "";
 	    }
 
@@ -52,10 +80,9 @@ public class Model extends Observable {
 			// if not then add it
 			characterList.add(cd);
 		}
-		public void letterSelected(String letter, int row, int col) {
+		public void letterSelected(char letter, int row, int col) {
 			addLetter(new CharacterData(letter, row, col)); // adding the new letter to the list
-			//characterList.add(new CharacterData(letter, row, col));
-			System.out.println("letter selected:"+characterList.size());
+			System.out.println(characterList);
 			this.letter = letter;
 			if(this.rowCur == -1 && this.colCur == -1)
 			{ // means that is the first letter so we need to save the row and col
@@ -76,32 +103,78 @@ public class Model extends Observable {
 		public String getHelp() {
 			return help;
 		}
-		public String getLetter() {
+		public char getLetter() {
 			return letter;
 		}
 
 		public String getConfirm() {
 			return confirm;
 		}
+
 		public String getWordSelected() {
 			// transfer the word from the list to the actual word
 			if (characterList.size()==0)
 				return "";
-			// sort the list according to the row and col
+
+			// checck if the list is horizontal or vertical
 			if(getWordDirection().equals("horizontal"))
-				characterList.sort(Comparator.comparing(CharacterData::getColumn));
+			{
+				for (int i=0; i<characterList.size()-1; i++)
+				{
+					CharacterData ch = characterList.get(i); // get the i item in the list
+					CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
+					Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+					wordTiles.add(t);
+					wordSelected += String.valueOf(ch.getLetter());
+					if (ch.getColumn()+1 != ch1.getColumn())
+					{
+						wordTiles.add(null); // means that there is an already existing letter in the board in the word
+					}
+				}
+				CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
+				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+				wordTiles.add(t);
+				wordSelected += String.valueOf(ch.getLetter());
+
+			}
 			else if(getWordDirection().equals("vertical"))
 			{
-				characterList.sort(Comparator.comparing(CharacterData::getRow));
+				for (int i=0; i<characterList.size()-1; i++)
+				{
+					CharacterData ch = characterList.get(i); // get the i item in the list
+					CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
+					Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+					wordTiles.add(t);
+					wordSelected += String.valueOf(ch.getLetter());
+					if (ch.getRow()+1 != ch1.getRow())
+					{
+						wordTiles.add(null); // means that there is an already existing letter in the board in the word
+					}
+				}
+				CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
+				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
+				wordTiles.add(t);
+				wordSelected += String.valueOf(ch.getLetter());
 			}
 			else{
 				// not continuous word
-				//characterList.clear();
 				return "";
 			}
-			for (CharacterData ch : characterList) {
-				wordSelected += ch.getLetter();
+			System.out.println(wordTiles);
+
+			Tile[] array = new Tile[wordTiles.size()];
+			wordTiles.toArray(array);
+			Word word = new Word(array, characterList.get(0).getRow(), characterList.get(0).getColumn(), isVerticalWord(characterList));
+			int score = board.tryPlaceWord(word);// if score is 0 then the word is not valid
+			if (score==0) {
+				for(int i=0; i<wordTiles.size(); i++)
+				{
+					setChanged();
+					notifyObservers("undo");
+				}
 			}
+			board.print();
+
 			return wordSelected;
 		}
 		public String getRow() {
@@ -128,15 +201,18 @@ public class Model extends Observable {
 
 	public void restart() {
 		// function that restarts the model variables of the current state of the board
+		System.out.println("New Game");
 		characterList.clear();
 		wordSelected="";
 		row=-1; col=-1;
 		rowCur=-1; colCur=-1;
+		this.board = new Board();
 
 	}
 
 	private static boolean isHorizontalWord(ArrayList<CharacterData> characterList) {
 		// return true if the word is horizontal
+		characterList.sort(Comparator.comparing(CharacterData::getColumn));
 		int row = characterList.get(0).getRow();
 		for (CharacterData data : characterList) {
 			if (data.getRow() != row) {
@@ -148,6 +224,7 @@ public class Model extends Observable {
 
 	private static boolean isVerticalWord(ArrayList<CharacterData> characterList) {
 		// return true if the word is vertical
+		characterList.sort(Comparator.comparing(CharacterData::getRow));
 		int column = characterList.get(0).getColumn();
 		for (CharacterData data : characterList) {
 			if (data.getColumn() != column) {
@@ -190,15 +267,15 @@ public class Model extends Observable {
 	public String getWordDirection() {
 			// return the direction of the word
 			if(isHorizontalWord(characterList)) {
-				if(isContinuous(characterList, true)) {
+				//if(isContinuous(characterList, true)) {
 					return "horizontal";
-				}
+				//}
 			} else if(isVerticalWord(characterList)) {
-				if (isContinuous(characterList, false)) {
+				//if (isContinuous(characterList, false)) {
 					return "vertical";
-				}
+				//}
 			}
-		return "not accepted";
+		return "Illegal";
 
 	}
 
@@ -206,5 +283,15 @@ public class Model extends Observable {
 		// function that cleans the list of the characters of the word
 		wordSelected="";
 		characterList.clear();
+		wordTiles.clear();
+	}
+
+	public void undoSelected() {
+		// we need to remove the last letter added to the word
+		if(characterList.size()>0) {
+			characterList.remove(characterList.size()-1);
+		}
+		setChanged();
+		notifyObservers("undo");
 	}
 }

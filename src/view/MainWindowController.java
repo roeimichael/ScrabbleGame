@@ -1,10 +1,13 @@
 package view;
 
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -17,6 +20,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 
 import javafx.scene.paint.Color;
+import test.CharacterData;
 import viewmodel.ViewModel;
 
 public class MainWindowController extends Observable implements Observer   {
@@ -30,6 +34,8 @@ public class MainWindowController extends Observable implements Observer   {
 
     @FXML
     private Button confirmButton;
+    @FXML
+    private Button undoButton;
 
     @FXML
     private ListView<String> letterList;
@@ -57,13 +63,15 @@ public class MainWindowController extends Observable implements Observer   {
 
     private IntegerProperty[][] bonusData;
     private String clean="clean";
+    private boolean legal;
 
+    private ListProperty<CharacterData> userInput = new SimpleListProperty<>();// list of all the letters the user has selected in the last turn
     public void setViewModel(ViewModel vm) {
         this.vm = vm;
 
         bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
         bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
-        showBonus(); // shows the bonus tiles on the board
+        restartGame(); // shows the bonus tiles on the board
 
         confirmSelected.textProperty().bind(vm.confirm); // binds confirm to the confirm string in the viewmodel
         resLabel.textProperty().bind(vm.res); // binds reslabel to the res string in the viewmodel
@@ -72,6 +80,14 @@ public class MainWindowController extends Observable implements Observer   {
         colSelected.textProperty().bind(vm.col); // binds indexSelected to the x string in the viewmodel
         rowSelected.textProperty().bind(vm.row); // binds indexSelected to the x string in the viewmodel
         wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
+        userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
+        for(int i=0;i<15;i++)
+            for(int j=0;j<15;j++)
+            {
+                slots[i][j].textProperty().bind(vm.board[i][j]); // binds the text in the textfield to the board array in the viewmodel
+                slots[i][j].backgroundProperty().bind(vm.background[i][j]); // binds the background in the textfield to the background array in the viewmodel
+            }
+
         vm.addObserver(this);
     }
     @FXML
@@ -100,17 +116,21 @@ public class MainWindowController extends Observable implements Observer   {
                 });
                 
                 tf.setOnDragDropped(event -> {
-                    System.out.println("Dropped");
+                    //System.out.println("Dropped");
                     Dragboard db = event.getDragboard();
                     boolean success = false;
-                    if (db.hasString()) {
-                        tf.setText(db.getString());
+                    if (db.hasString() && tf.getText()==null || tf.getText().isBlank()) {
+                        //tf.setText(db.getString());
+                        char letter = db.getString().charAt(0);
+                        //slots[GridPane.getRowIndex(tf)][GridPane.getColumnIndex(tf)].setBackground(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null)));
+                        this.showLetterSelected(letter, GridPane.getRowIndex(tf), GridPane.getColumnIndex(tf));
 
                         success = true;
                         // Set the background color of the text field to indicate that a letter has been dropped
-                        this.showLetterSelected(tf.getText(), GridPane.getRowIndex(tf), GridPane.getColumnIndex(tf));
-                        slots[GridPane.getRowIndex(tf)][GridPane.getColumnIndex(tf)].setBackground(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null)));
+
+                        //userInput.add(new CharacterData(letter, GridPane.getRowIndex(tf), GridPane.getColumnIndex(tf))); // save the user's choice
                     }
+                    //System.out.println("userInput: " + userInput);
                     event.setDropCompleted(success);
                     event.consume();
                 });
@@ -122,7 +142,7 @@ public class MainWindowController extends Observable implements Observer   {
         letterList.setOnDragDetected(event -> {
 
             String letter = letterList.getSelectionModel().getSelectedItem();
-            System.out.println("Drag detected: " + letter);
+            //System.out.println("Drag detected: " + letter);
 
             if (letter != null) {
                 //this.showLetterSelected(letter);
@@ -138,34 +158,6 @@ public class MainWindowController extends Observable implements Observer   {
 
 
     }
-    
-
-
-    public void showBonus() // shows the bonus tiles on the board
-    {
-        for(int i=0; i<15; i++)
-        {
-            for(int j=0; j<15; j++)
-            {
-                if(bonusData[i][j].getValue() == 2)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-                }
-                else if(bonusData[i][j].getValue() == 3)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
-                }
-                else if(bonusData[i][j].getValue() == 20)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
-                }
-                else if(bonusData[i][j].getValue() == 30)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
-                }
-            }
-        }
-    }
 
 
     @FXML
@@ -178,10 +170,19 @@ public class MainWindowController extends Observable implements Observer   {
     public void showConfirm() {
         // logic to display random number here
         System.out.println("Confirm button pressed"); // just a check to see if the button works
-        vm.confirmSelected(); // activates the applyString function from the viewmodel
+        vm.confirmSelected(); // activates the confirmSelected function from the viewmodel
+        //userInput.clear(); // clears the list of letters the user has selected
+    }
+    public void undo() {
+        // logic to display random number here
+        System.out.println("Undo button pressed"); // just a check to see if the button works
+        vm.undoSelected(); // activates the undoSelected function from the viewmodel
+        //showBonus();
+
+
     }
 
-    public void showLetterSelected(String letter, int row, int col) {
+    public void showLetterSelected(char letter, int row, int col) {
         System.out.println("letter:"+ letter);
         System.out.println(" index: " + row + ", " + col);
         vm.letterSelected(letter, row, col);
@@ -189,35 +190,40 @@ public class MainWindowController extends Observable implements Observer   {
 
     @FXML
     public void restartGame() {
+//        for (int i = 0; i < 15; i++) {
+//            for (int j = 0; j < 15; j++) {
+//                slots[i][j].clear();
+//                switch (bonusData[i][j].getValue()) {
+//                    case 2 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+//                    case 3 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
+//                    case 20 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
+//                    case 30 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
+//                    default -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+//                }
+//            }
+            //gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
+            // let the viewmodel and view know that the game is restarting
+
+            // other logic for resetting the game here
+        //}
+        vm.restartGame();
+    }
+    public void showBonus() {
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
-                slots[i][j].clear();
-                if(bonusData[i][j].getValue() == 2)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+                if (slots[i][j].getText().isBlank()) {
+                    switch (bonusData[i][j].getValue()) {
+
+                        case 2 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+                        case 3 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
+                        case 20 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
+                        case 30 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
+                        default -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+                    }
                 }
-                else if(bonusData[i][j].getValue() == 3)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
-                }
-                else if(bonusData[i][j].getValue() == 20)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
-                }
-                else if(bonusData[i][j].getValue() == 30)
-                {
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
-                }
-                else
-                    slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+
             }
         }
-        gameBoard.setGridLinesVisible(true); // Add this line to make grid lines visible
-        // let the viewmodel and view know that the game is restarting
-        setChanged();
-        notifyObservers("restart");
-
-        // other logic for resetting the game here
     }
 
 	
