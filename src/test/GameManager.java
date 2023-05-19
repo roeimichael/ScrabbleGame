@@ -23,7 +23,6 @@ public class GameManager {
     public void nextTurn() {
         Player currentPlayer = players.get(currentPlayerIndex);
         currentPlayer.setTurn(false);
-
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
         currentPlayer.refillBag(tileBag);
@@ -42,5 +41,4 @@ public class GameManager {
         return false;
     }
 
-    // Other game related methods...
 }

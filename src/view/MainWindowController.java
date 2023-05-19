@@ -1,10 +1,6 @@
 package view;
-
-import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -18,7 +14,6 @@ import javafx.collections.FXCollections;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
-
 import javafx.scene.paint.Color;
 import test.CharacterData;
 import viewmodel.ViewModel;
@@ -28,17 +23,13 @@ public class MainWindowController extends Observable implements Observer   {
 
     @FXML
     private Button helpButton, restartButton, confirmButton, undoButton;
-
     @FXML
     private ListView<String> letterList;
     @FXML
     private GridPane gameBoard;
-
     @FXML
     private Label resLabel, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
-
     private TextField[][] slots;
-
     private IntegerProperty[][] bonusData;
     private String clean="clean";
     private boolean legal;
@@ -86,21 +77,13 @@ public class MainWindowController extends Observable implements Observer   {
                     event.consume();
                 });
                 tf.setOnDragDropped(event -> {
-                    //System.out.println("Dropped");
                     Dragboard db = event.getDragboard();
                     boolean success = false;
                     if (db.hasString() && tf.getText()==null || tf.getText().isBlank()) {
-                        //tf.setText(db.getString());
                         char letter = db.getString().charAt(0);
-                        //slots[GridPane.getRowIndex(tf)][GridPane.getColumnIndex(tf)].setBackground(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null)));
                         this.showLetterSelected(letter, GridPane.getRowIndex(tf), GridPane.getColumnIndex(tf));
-
                         success = true;
-                        // Set the background color of the text field to indicate that a letter has been dropped
-
-                        //userInput.add(new CharacterData(letter, GridPane.getRowIndex(tf), GridPane.getColumnIndex(tf))); // save the user's choice
                     }
-                    //System.out.println("userInput: " + userInput);
                     event.setDropCompleted(success);
                     event.consume();
                 });
