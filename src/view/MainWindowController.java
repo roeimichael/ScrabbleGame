@@ -31,6 +31,7 @@ public class MainWindowController extends Observable implements Observer   {
     private Label resLabel, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
+    private ListProperty<String>  currentHand = new SimpleListProperty<>();
     private String clean="clean";
     private boolean legal;
 
@@ -49,6 +50,8 @@ public class MainWindowController extends Observable implements Observer   {
         rowSelected.textProperty().bind(vm.row); // binds indexSelected to the x string in the viewmodel
         wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
         userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
+        currentHand.bind(vm.letterList); // binds the letterList to the letterList in the viewmodel
+        letterList.setItems(currentHand.get());
 
         for(int i=0;i<15;i++)
             for(int j=0;j<15;j++)
@@ -62,7 +65,6 @@ public class MainWindowController extends Observable implements Observer   {
     @FXML
     public void initialize() {
         slots = new TextField[15][15];
-        letterList.setItems(FXCollections.observableArrayList("A", "B", "C", "D", "E"));
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 TextField tf = new TextField();
@@ -129,22 +131,6 @@ public class MainWindowController extends Observable implements Observer   {
     public void restartGame() {
         vm.restartGame();
     }
-    public void showBonus() {
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                if (slots[i][j].getText().isBlank()) {
-                    switch (bonusData[i][j].getValue()) {
-                        case 2 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-                        case 3 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
-                        case 20 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
-                        case 30 -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.DARKRED, null, null)));
-                        default -> slots[i][j].setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public void update(Observable o, Object arg) {
 	    }

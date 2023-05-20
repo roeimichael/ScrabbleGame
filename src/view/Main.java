@@ -8,6 +8,9 @@ import javafx.fxml.FXMLLoader;
 import model.Model;
 import viewmodel.ViewModel;
 
+
+import java.util.ArrayList;
+
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {

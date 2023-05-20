@@ -1,10 +1,6 @@
 package model;
 import java.util.*;
-
-import test.Board;
-import test.CharacterData;
-import test.Tile;
-import test.Word;
+import test.*;
 
 public class Model extends Observable {
 	private String boardState, help, confirm;
@@ -15,41 +11,48 @@ public class Model extends Observable {
 	private Vector<Tile> wordTiles = new Vector<>();
 	private int rowCur = -1, colCur = -1;
 	String wordSelected="";
+//	if(isHost)
+//	{
+	private GameManager gamemanger;
+//	}
 
 	public Model() {
-		board = new Board();
-		assignLetterScores();
+		gamemanger = new GameManager();
+		gamemanger.addPlayer(new Player(1));
+		gamemanger.startGame();
+		board = gamemanger.getBoard();
+//		assignLetterScores();
 		this.boardState = "";
 	}
 
-	private void assignLetterScores() {
-		letterScores.put('A', 1);
-		letterScores.put('B', 3);
-		letterScores.put('C', 3);
-		letterScores.put('D', 2);
-		letterScores.put('E',1);
-		letterScores.put('G',2);
-		letterScores.put('H',4);
-		letterScores.put('I',1);
-		letterScores.put('J',8);
-		letterScores.put('K',5);
-		letterScores.put('L',1);
-		letterScores.put('M',3);
-		letterScores.put('N',1);
-		letterScores.put('O',1);
-		letterScores.put('P',3);
-		letterScores.put('Q',10);
-		letterScores.put('R',1);
-		letterScores.put('S',1);
-		letterScores.put('T',1);
-		letterScores.put('U',1);
-		letterScores.put('V',4);
-		letterScores.put('W',4);
-		letterScores.put('X',8);
-		letterScores.put('Y',4);
-		letterScores.put('Z',10);
-		letterScores.put('F',4);
-	}
+//	private void assignLetterScores() {
+//		letterScores.put('A', 1);
+//		letterScores.put('B', 3);
+//		letterScores.put('C', 3);
+//		letterScores.put('D', 2);
+//		letterScores.put('E',1);
+//		letterScores.put('F',4);
+//		letterScores.put('G',2);
+//		letterScores.put('H',4);
+//		letterScores.put('I',1);
+//		letterScores.put('J',8);
+//		letterScores.put('K',5);
+//		letterScores.put('L',1);
+//		letterScores.put('M',3);
+//		letterScores.put('N',1);
+//		letterScores.put('O',1);
+//		letterScores.put('P',3);
+//		letterScores.put('Q',10);
+//		letterScores.put('R',1);
+//		letterScores.put('S',1);
+//		letterScores.put('T',1);
+//		letterScores.put('U',1);
+//		letterScores.put('V',4);
+//		letterScores.put('W',4);
+//		letterScores.put('X',8);
+//		letterScores.put('Y',4);
+//		letterScores.put('Z',10);
+//	}
 
 	public void updateBoardState(String newBoardState) {
 		this.boardState = newBoardState;
@@ -200,13 +203,13 @@ public class Model extends Observable {
 	}
 
 	public void restart() {
-		// function that restarts the model variables of the current state of the board
 		System.out.println("New Game");
 		characterList.clear();
 		wordSelected="";
 		rowCur=-1; colCur=-1;
-		this.board = new Board();
-
+		gamemanger.restartGame();
+		setChanged();
+		notifyObservers("started");
 	}
 
 	private static boolean isHorizontalWord(ArrayList<CharacterData> characterList) {
@@ -279,6 +282,7 @@ public class Model extends Observable {
 	}
 
 
-
-
+	public Player getCurrentPlayer() {
+		return gamemanger.getCurrentPlayer();
+	}
 }

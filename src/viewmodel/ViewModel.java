@@ -1,8 +1,10 @@
 package viewmodel;
 import javafx.beans.property.*;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.stream.Collectors;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,7 +23,7 @@ public class ViewModel extends Observable implements Observer {
 	public StringProperty wordSelected, res, letter, confirm, row, col, wordDirection;
 	public SimpleStringProperty[][] board;
 	public ObjectProperty<Background>[][] background;
-
+	public ListProperty<String> letterList;
 
 	public ViewModel(Model m) {
 		this.m = m;
@@ -78,23 +80,22 @@ public class ViewModel extends Observable implements Observer {
 		System.out.println("ViewModel: " + newBoardState);
 
 		switch (newBoardState) {
-			case "help":
-				handleHelpRequest();
-				break;
-			case "clear":
-				handleClearRequest();
-				break;
-			case "confirmed":
-				handleConfirmation();
-				break;
-			case "undo":
-				handleUndoRequest();
-				break;
-			default:
+			case "help" -> handleHelpRequest();
+			case "clear" -> handleClearRequest();
+			case "confirmed" -> handleConfirmation();
+			case "undo" -> handleUndoRequest();
+			case "started" -> handleGameStarted();
+			default -> {
 				if (obj instanceof Character) {
 					handleLetterSelection();
 				}
+			}
 		}
+	}
+
+	private void handleGameStarted() {
+		test.Player currentPlayer = m.getCurrentPlayer();
+		letterList.set(FXCollections.observableArrayList(currentPlayer.gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
 	}
 
 	private String getBoardState(Object obj) {
@@ -201,6 +202,7 @@ public class ViewModel extends Observable implements Observer {
 		col = new SimpleStringProperty();
 		wordDirection = new SimpleStringProperty();
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
+		letterList = new SimpleListProperty<String>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
 		setBonus_vm(m.getBonus());
