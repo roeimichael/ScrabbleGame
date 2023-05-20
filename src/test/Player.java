@@ -1,6 +1,8 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Vector;
 
 public class Player {
 
@@ -52,5 +54,50 @@ public class Player {
         	{
         		hand.remove(t);
         	}
+    }
+
+    public int choice()
+    {   Scanner Scanner = new Scanner(System.in);
+        System.out.println("Player "+id+" turn");
+        System.out.println(hand);
+        System.out.println("1. Place a word, 2.pass");
+        return Scanner.nextInt();
+    }
+
+    public Word getWord() {
+
+        Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
+        Scanner Scanner = new Scanner(System.in);
+        int input;
+        while (true) {
+            System.out.println(hand);
+            System.out.println("Enter the index of the char (enter '0' to stop):");
+            input = Scanner.nextInt();
+            if (input == 0) {
+                break;
+            } else {
+                wordTiles.add(hand.get(input-1));
+            }
+        }
+        System.out.println("Enter row");
+        int row = Scanner.nextInt();
+
+        System.out.println("Enter col");
+        int col = Scanner.nextInt();
+        System.out.println("Enter vertical or horizontal (1 for vertical, 2 for horizontal)");
+        int dir = Scanner.nextInt();
+        boolean vert;
+        if(dir==1)
+        {
+            vert=true;
+        }
+        else
+        {
+            vert=false;
+        }
+        Tile[] array = new Tile[wordTiles.size()];
+        wordTiles.toArray(array);
+        return new Word(array,row,col,vert);
+
     }
 }

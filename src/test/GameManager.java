@@ -9,11 +9,13 @@ public class GameManager {
     private int currentPlayerIndex; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
 
+    private int numPassed; // number of players who have passed their turn
     public GameManager() {
         this.board =  new Board();
         this.players = new ArrayList<>();
         this.currentPlayerIndex = 0;
         this.tileBag =  new Tile.Bag();
+        this.numPassed=0;
     }
     public void updateBoard(Board board) {
         this.board = board;
@@ -39,6 +41,8 @@ public class GameManager {
     }
 
     public void nextTurn() {
+        // refill the player's hand
+        // then advance to the next player's turn
         players.get(currentPlayerIndex).refillBag(tileBag);
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
@@ -67,10 +71,15 @@ public class GameManager {
 
     private boolean isGameOver()
     { // need to check if any of the players have a word to place
+        if(numPassed == 2*players.size())
+            return true;
+        if(tileBag.size()==0)
+            return true;
         for(Player p:players)
         {
             if(p.gethand().size()==0)
                 return true;
+
         }
         return false;
     }
@@ -78,7 +87,33 @@ public class GameManager {
     public void runGame()
     {
         restartGame();
-
+        while(!isGameOver())
+        {
+            // get the current player
+            Player currentPlayer = getCurrentPlayer();
+            board.print();
+            if(currentPlayer.choice()==1)
+            {
+                Word word = currentPlayer.getWord();
+                while(!placeWord(word))
+                {
+                    word = currentPlayer.getWord();
+                }
+                numPassed=0;
+            }
+            else
+            {
+                numPassed++;
+                if(numPassed==players.size())
+                {
+                    // if all players pass then the game is over
+                    break;
+                }
+            }
+            printScores();
+        }
+        Player winner = determineWinner();
+        System.out.println("The winner is player " + winner.getId() + " with a score of " + winner.getScore());
     }
 
     private Player determineWinner() {
@@ -91,7 +126,15 @@ public class GameManager {
         return winner;
     }
 
-    public void refillBag() {
+    public void refillBag()
+    {
         players.get(currentPlayerIndex).refillBag(tileBag);
+    }
+    public void printScores()
+    {
+        for(Player p:players)
+        {
+            System.out.println("Player " + p.getId() + " has a score of " + p.getScore());
+        }
     }
 }
