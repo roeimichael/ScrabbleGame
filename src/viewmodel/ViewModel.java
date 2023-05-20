@@ -1,6 +1,7 @@
 package viewmodel;
 import javafx.beans.property.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -16,14 +17,14 @@ import model.Model;
 import test.CharacterData;
 
 public class ViewModel extends Observable implements Observer {
-	public ListProperty<CharacterData> userInput;
+
 	Model m;
-	public IntegerProperty inputkey = new SimpleIntegerProperty();
-	public IntegerProperty[][] bonus_vm;
-	public StringProperty wordSelected, res, letter, confirm, row, col, wordDirection;
-	public SimpleStringProperty[][] board;
-	public ObjectProperty<Background>[][] background;
-	public ListProperty<String> letterList;
+	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
+	public StringProperty wordSelected, res, letter, confirm, row, col, wordDirection; // all strings that binded to labels in the view
+	public SimpleStringProperty[][] board; // saves the letters on the board
+	public ObjectProperty<Background>[][] background; // saves the background of the board
+	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
+	public ListProperty<CharacterData> userInput; // saves the letters the user has selected in the current turn
 
 	public ViewModel(Model m) {
 		this.m = m;
@@ -43,6 +44,9 @@ public class ViewModel extends Observable implements Observer {
 	public void letterSelected(char letter, int row, int col) {
 		board[row][col].set(Character.toString(letter)); // updates the board with the letter the user has selected
 		userInput.add(new CharacterData(letter, row, col)); // adds the letter to the list of letters the user has selected
+		background[row][col].set(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null))); // changes the background of the letter to light blue
+		//userBoardList.add(Character.toString(letter)); // adds the letter to the list of letters the user has selected
+		letterList.remove(Character.toString(letter)); // removes the letter from the list of letters the user has in his hand
 		m.letterSelected(letter, row, col);
 	}
 
@@ -127,9 +131,11 @@ public class ViewModel extends Observable implements Observer {
 		col.set(m.getCol());
 		System.out.println("word selected: " + wordSelected.get());
 
-		if (!wordSelected.get().equals("") ) {
+		if (!wordSelected.get().equals("") )
+		{
 			wordDirection.set(m.getWordDirection());
-		} else {
+		}
+		else {
 			int wordSize = userInput.size();
 			for (int i = 0; i < wordSize; i++) {
 				m.undoSelected();
@@ -137,6 +143,7 @@ public class ViewModel extends Observable implements Observer {
 		}
 		userInput.clear();
 		m.cleanList();
+		handleGameStarted();
 	}
 
 	private void handleUndoRequest() {
@@ -144,6 +151,7 @@ public class ViewModel extends Observable implements Observer {
 			int index = userInput.size() - 1;
 			int i = userInput.get(index).getRow();
 			int j = userInput.get(index).getColumn();
+			letterList.add(Character.toString(userInput.get(index).getLetter()));
 			userInput.remove(index);
 			board[i][j].set("");
 			setBackground(i, j);
@@ -203,6 +211,7 @@ public class ViewModel extends Observable implements Observer {
 		wordDirection = new SimpleStringProperty();
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
+		//userBoardList = new ArrayList<>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
 		setBonus_vm(m.getBonus());

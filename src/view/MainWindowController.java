@@ -24,14 +24,14 @@ public class MainWindowController extends Observable implements Observer   {
     @FXML
     private Button helpButton, restartButton, confirmButton, undoButton;
     @FXML
-    private ListView<String> letterList;
+    private ListView<String> letterList; // shows the letters the user has in his hand, right upper corner
     @FXML
     private GridPane gameBoard;
     @FXML
     private Label resLabel, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
-    private ListProperty<String>  currentHand = new SimpleListProperty<>();
+    private ListProperty<String>  currentHand = new SimpleListProperty<>(); // list of all the letters the user has in his hand, binds to letterList in vm
     private String clean="clean";
     private boolean legal;
 
@@ -50,8 +50,8 @@ public class MainWindowController extends Observable implements Observer   {
         rowSelected.textProperty().bind(vm.row); // binds indexSelected to the x string in the viewmodel
         wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
         userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
-        currentHand.bind(vm.letterList); // binds the letterList to the letterList in the viewmodel
-        letterList.setItems(currentHand.get());
+        letterList.itemsProperty().bind(vm.letterList); // binds the letterList to the letterList in the viewmodel
+        //letterList.setItems(currentHand.get());
 
         for(int i=0;i<15;i++)
             for(int j=0;j<15;j++)
@@ -114,7 +114,10 @@ public class MainWindowController extends Observable implements Observer   {
     public void showConfirm() {
         System.out.println("Confirm button pressed"); // just a check to see if the button works
         vm.confirmSelected(); // activates the confirmSelected function from the viewmodel
+
         userInput.clear(); // clears the list of letters the user has selected
+        //letterList.setItems(currentHand.get());
+
     }
     public void undo() {
         System.out.println("Undo button pressed"); // just a check to see if the button works

@@ -32,7 +32,7 @@ public class Tile {
 	}
 
 	public String toString() {
-		return "("+letter+", "+score+")";
+		return String.valueOf(letter);
 	}
 	
 	public static class Bag{

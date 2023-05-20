@@ -6,14 +6,15 @@ public class Model extends Observable {
 	private String boardState, help, confirm;
 	private char letter;
 	private Board board;
-	private HashMap<Character, Integer> letterScores = new HashMap<>();
-	private ArrayList<CharacterData> characterList = new ArrayList<>();
-	private Vector<Tile> wordTiles = new Vector<>();
+	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
+	private ArrayList<CharacterData> characterList = new ArrayList<>(); // saves the letters the user has selected to put on the board in the current turn
+	private Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
 	private int rowCur = -1, colCur = -1;
-	String wordSelected="";
+	String wordSelected=""; // saves the word the user has selected
+
 //	if(isHost)
 //	{
-	private GameManager gamemanger;
+	private static GameManager gamemanger;
 //	}
 
 	public Model() {
@@ -21,38 +22,38 @@ public class Model extends Observable {
 		gamemanger.addPlayer(new Player(1));
 		gamemanger.startGame();
 		board = gamemanger.getBoard();
-//		assignLetterScores();
+		assignLetterScores();
 		this.boardState = "";
 	}
 
-//	private void assignLetterScores() {
-//		letterScores.put('A', 1);
-//		letterScores.put('B', 3);
-//		letterScores.put('C', 3);
-//		letterScores.put('D', 2);
-//		letterScores.put('E',1);
-//		letterScores.put('F',4);
-//		letterScores.put('G',2);
-//		letterScores.put('H',4);
-//		letterScores.put('I',1);
-//		letterScores.put('J',8);
-//		letterScores.put('K',5);
-//		letterScores.put('L',1);
-//		letterScores.put('M',3);
-//		letterScores.put('N',1);
-//		letterScores.put('O',1);
-//		letterScores.put('P',3);
-//		letterScores.put('Q',10);
-//		letterScores.put('R',1);
-//		letterScores.put('S',1);
-//		letterScores.put('T',1);
-//		letterScores.put('U',1);
-//		letterScores.put('V',4);
-//		letterScores.put('W',4);
-//		letterScores.put('X',8);
-//		letterScores.put('Y',4);
-//		letterScores.put('Z',10);
-//	}
+	private void assignLetterScores() {
+		letterScores.put('A', 1);
+		letterScores.put('B', 3);
+		letterScores.put('C', 3);
+		letterScores.put('D', 2);
+		letterScores.put('E',1);
+		letterScores.put('F',4);
+		letterScores.put('G',2);
+		letterScores.put('H',4);
+		letterScores.put('I',1);
+		letterScores.put('J',8);
+		letterScores.put('K',5);
+		letterScores.put('L',1);
+		letterScores.put('M',3);
+		letterScores.put('N',1);
+		letterScores.put('O',1);
+		letterScores.put('P',3);
+		letterScores.put('Q',10);
+		letterScores.put('R',1);
+		letterScores.put('S',1);
+		letterScores.put('T',1);
+		letterScores.put('U',1);
+		letterScores.put('V',4);
+		letterScores.put('W',4);
+		letterScores.put('X',8);
+		letterScores.put('Y',4);
+		letterScores.put('Z',10);
+	}
 
 	public void updateBoardState(String newBoardState) {
 		this.boardState = newBoardState;
@@ -92,6 +93,8 @@ public class Model extends Observable {
 
 	public void confirmSelected() {
 		this.confirm = "confirmed";
+		this.rowCur = -1;
+		this.colCur = -1;
 		setChanged();
 		notifyObservers(this.confirm);
 	}
@@ -124,6 +127,7 @@ public class Model extends Observable {
 	public void cleanList() {
 		characterList.clear();
 		wordTiles.clear();
+		gamemanger.refillBag();
 	}
 
 

@@ -14,7 +14,7 @@ public class Player {
         this.score = 0;
         this.hand = new ArrayList<>();
     }
-
+    // get
     public int getId() {
         return id;
     }
@@ -23,12 +23,12 @@ public class Player {
         return score;
     }
 
-    public void incrementScore(int score) {
-        this.score += score;
-    }
-
     public ArrayList<Tile> gethand() {
         return hand;
+    }
+    // useful functions
+    public void incrementScore(int score) {
+        this.score += score;
     }
 
     public void refillBag(Tile.Bag tileBag) {
@@ -44,5 +44,13 @@ public class Player {
 
     public void resetScore() {
         score = 0;
+    }
+
+    public void removeWord(Word w)
+    {
+        	for(Tile t:w.getTiles())
+        	{
+        		hand.remove(t);
+        	}
     }
 }
