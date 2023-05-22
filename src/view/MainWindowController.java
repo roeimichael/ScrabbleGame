@@ -1,10 +1,13 @@
 package view;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,8 +18,11 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import test.CharacterData;
 import viewmodel.ViewModel;
+import javafx.fxml.FXMLLoader;
 
 public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
@@ -107,8 +113,19 @@ public class MainWindowController extends Observable implements Observer   {
 
     @FXML
     public void showHelp() {
-        System.out.println("Help button pressed"); // just a check to see if the button works
-        vm.applyString(); // activates the applyString function from the viewmodel
+            // Creating new window
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("HelpWindowController.fxml"));
+                Parent root1 = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.initModality(Modality.APPLICATION_MODAL);  // this will block interaction with the parent window until this one is closed
+                stage.setTitle("Help Menu");
+                stage.setScene(new Scene(root1, 500,500)); // Use the width and height of the mainStage
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
     }
     @FXML
     public void showConfirm() {
