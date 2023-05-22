@@ -64,23 +64,35 @@ public class Board extends Canvas {
 		}
 		return false;
 	}
-	
+
+	private boolean check(int i, int j)
+	{
+		boolean ch1=tiles[i][j]!= null;
+		boolean ch2=(inBoard(i + 1, j) && tiles[i + 1][j] != null);
+		boolean ch3=(inBoard(i + 1, j + 1) && tiles[i + 1][j + 1] != null);
+		boolean ch4=(inBoard(i, j + 1) && tiles[i][j + 1] != null);
+		boolean ch5=(inBoard(i - 1, j + 1) && tiles[i - 1][j + 1] != null);
+		boolean ch6=(inBoard(i - 1, j) && tiles[i - 1][j] != null);
+		boolean ch7=(inBoard(i - 1, j - 1) && tiles[i - 1][j - 1] != null);
+		boolean ch8=(inBoard(i, j - 1) && tiles[i][j - 1] != null);
+		boolean ch9=(inBoard(i + 1, j - 1) && tiles[i + 1][j - 1] != null);
+		//System.out.println("checks:"+ch1+" "+ch2+" "+ch3+" "+ch4+" "+ch5+" "+ch6+" "+ch7+" "+ch8+" "+ch9);
+//		return tiles[i][j] != null ||
+//				(inBoard(i + 1, j) && tiles[i + 1][j] != null) ||
+//				(inBoard(i + 1, j + 1) && tiles[i + 1][j + 1] != null) ||
+//				(inBoard(i, j + 1) && tiles[i][j + 1] != null) ||
+//				(inBoard(i - 1, j + 1) && tiles[i - 1][j + 1] != null) ||
+//				(inBoard(i - 1, j) && tiles[i - 1][j] != null) ||
+//				(inBoard(i - 1, j - 1) && tiles[i - 1][j - 1] != null) ||
+//				(inBoard(i, j - 1) && tiles[i][j - 1] != null) ||
+//				(inBoard(i + 1, j - 1) && tiles[i + 1][j - 1] != null);
+		return ch1 || ch2 || ch3 || ch4 || ch5 || ch6 || ch7 || ch8 || ch9;
+	}
 	private boolean crossTile(Word w) {
 		int i=w.getRow(),j=w.getCol();
 		for(int k=0;k<w.getTiles().length;k++) {			
-
-			if(tiles[i][j]!=null || 
-					(inBoard(i+1, j) 	&& tiles[i+1][j]!=null)   ||
-					(inBoard(i+1, j+1) 	&& tiles[i+1][j+1]!=null) ||
-					(inBoard(i, j+1) 	&& tiles[i][j+1]!=null)   ||
-					(inBoard(i-1, j+1) 	&& tiles[i-1][j+1]!=null) ||
-					(inBoard(i-1, j) 	&& tiles[i-1][j]!=null)   ||
-					(inBoard(i-1, j-1) 	&& tiles[i-1][j-1]!=null) ||
-					(inBoard(i, j-1) 	&& tiles[i][j-1]!=null)   ||
-					(inBoard(i+1, j-1) 	&& tiles[i+1][j-1]!=null)
-					)
+			if(check(i,j))
 				return true;
-			
 			if(w.isVertical()) i++; else j++;
 		}
 		return false;
@@ -89,9 +101,21 @@ public class Board extends Canvas {
 	private boolean changesTile(Word w) {
 		int i=w.getRow(),j=w.getCol();
 		for(Tile t : w.getTiles()) {			
-			if(tiles[i][j]!=null && tiles[i][j]!=t)
-				return  true;
+			if(tiles[i][j]!=null && tiles[i][j]!=t)//
+			{
+				System.out.println("tiles[i][j]:"+tiles[i][j]+" t:"+t);
+				return true;
+			}
 			if(w.isVertical()) i++; else j++;
+		}
+		return false;
+	}
+
+	private boolean isNull(Word w) {
+		// check if there is a null tile in word
+		for(Tile t : w.getTiles()) {
+			if(t==null)
+				return true;
 		}
 		return false;
 	}
@@ -107,22 +131,43 @@ public class Board extends Canvas {
 		if(w.isVertical()) {
 			eCol=col;
 			eRow=row+w.getTiles().length-1;
+//			if(w.getTiles()[w.getTiles().length-1].!=null)
+//				return false;
+
 		}else {
 			eRow=row;
 			eCol=col+w.getTiles().length-1;		
-		}		
+		}
 		if(!inBoard(eRow, eCol))
-			return false;
-		
-		
-		if(isEmpty && !onStar(w))
+		{
+			System.out.println("out of board");
 			return false;
 
-		if(!isEmpty && !crossTile(w))
+		}
+
+//		if(isEmpty && onStar(w) && !isNull(w))
+//			return true;
+
+		if(isEmpty && !onStar(w))
+		{
+			System.out.println("board is empty but word is not on star");
 			return false;
+
+		}
+
+		if(!isEmpty && !crossTile(w)) //
+		{
+			System.out.println("board is not empty but word does not cross any tile");
+			return false;
+
+		}
 
 		if(changesTile(w))
+		{
+			System.out.println("word changes tile");
 			return false;
+
+		}
 
 		return true;
 	}

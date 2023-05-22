@@ -1,15 +1,11 @@
 package viewmodel;
 import javafx.beans.property.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.stream.Collectors;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
@@ -20,7 +16,7 @@ public class ViewModel extends Observable implements Observer {
 
 	Model m;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, res, letter, confirm, row, col, wordDirection; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
@@ -56,7 +52,9 @@ public class ViewModel extends Observable implements Observer {
 
 	public void undoSelected() {
 		m.undoSelected();
-
+	}
+	public void passSelected() {
+		m.passSelected();
 	}
 
 	public void setBonus_vm(byte[][] bonus) {
@@ -84,11 +82,13 @@ public class ViewModel extends Observable implements Observer {
 		System.out.println("ViewModel: " + newBoardState);
 
 		switch (newBoardState) {
-			case "help" -> handleHelpRequest();
+			//case "help" -> handleHelpRequest();
 			case "clear" -> handleClearRequest();
 			case "confirmed" -> handleConfirmation();
+			case "pass" -> handlePass();
 			case "undo" -> handleUndoRequest();
-			case "started" -> handleGameStarted();
+			case "started" -> updateLetterList();
+
 			default -> {
 				if (obj instanceof Character) {
 					handleLetterSelection();
@@ -97,7 +97,8 @@ public class ViewModel extends Observable implements Observer {
 		}
 	}
 
-	private void handleGameStarted() {
+	private void updateLetterList() {
+		// update the letters the player see
 		test.Player currentPlayer = m.getCurrentPlayer();
 		letterList.set(FXCollections.observableArrayList(currentPlayer.gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
 	}
@@ -112,8 +113,8 @@ public class ViewModel extends Observable implements Observer {
 		}
 	}
 
-	private void handleHelpRequest() {
-		res.set(m.getHelp());
+	private void getTilesLeft() {
+		tilesLeft.set(m.getTilesLeft());
 	}
 
 	private void handleClearRequest() {
@@ -143,8 +144,27 @@ public class ViewModel extends Observable implements Observer {
 		}
 		userInput.clear();
 		m.cleanList();
-		handleGameStarted();
+		updateLetterList();
+		getTilesLeft();
 	}
+
+	public void handlePass()
+	{
+		confirm.set("Passed Turn");
+		wordSelected.set("");
+		row.set("");
+		col.set("");
+		wordDirection.set("");
+		int wordSize = userInput.size();
+		for (int i = 0; i < wordSize; i++) {
+			m.undoSelected();
+		}
+		userInput.clear();
+		m.cleanList();
+		updateLetterList();
+		//getTilesLeft();
+	}
+
 
 	private void handleUndoRequest() {
 		if (userInput.size() > 0) {
@@ -203,7 +223,7 @@ public class ViewModel extends Observable implements Observer {
 	private void initializeProperties() {
 		board = new SimpleStringProperty[15][15];
 		confirm = new SimpleStringProperty();
-		res = new SimpleStringProperty();
+		tilesLeft = new SimpleStringProperty();
 		letter = new SimpleStringProperty();
 		wordSelected = new SimpleStringProperty();
 		row = new SimpleStringProperty();
@@ -222,4 +242,6 @@ public class ViewModel extends Observable implements Observer {
 			}
 		//		inputkey.addListener((o,ov,nv)->m.setInputKey((int)nv)
 	}
+
+
 }

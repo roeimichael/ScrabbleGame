@@ -28,13 +28,13 @@ public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
 
     @FXML
-    private Button helpButton, restartButton, confirmButton, undoButton;
+    private Button helpButton, restartButton, confirmButton, undoButton, PassButton;
     @FXML
     private ListView<String> letterList; // shows the letters the user has in his hand, right upper corner
     @FXML
     private GridPane gameBoard;
     @FXML
-    private Label resLabel, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
+    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
     private ListProperty<String>  currentHand = new SimpleListProperty<>(); // list of all the letters the user has in his hand, binds to letterList in vm
@@ -49,7 +49,7 @@ public class MainWindowController extends Observable implements Observer   {
         restartGame(); // shows the bonus tiles on the board
 
         confirmSelected.textProperty().bind(vm.confirm); // binds confirm to the confirm string in the viewmodel
-        resLabel.textProperty().bind(vm.res); // binds reslabel to the res string in the viewmodel
+        tilesLeft.textProperty().bind(vm.tilesLeft); // binds reslabel to the tilesLeft string in the viewmodel
         letterSelected.textProperty().bind(vm.letter); // binds letterSelected to the letterSelected string in the viewmodel
         wordAdded.textProperty().bind(vm.wordSelected); // binds wordAdded to the wordSelected string in the viewmodel
         colSelected.textProperty().bind(vm.col); // binds indexSelected to the x string in the viewmodel
@@ -136,10 +136,20 @@ public class MainWindowController extends Observable implements Observer   {
         //letterList.setItems(currentHand.get());
 
     }
+    @FXML
     public void undo() {
         System.out.println("Undo button pressed"); // just a check to see if the button works
         vm.undoSelected(); // activates the undoSelected function from the viewmodel
     }
+    @FXML
+    public void pass()
+    {
+        System.out.println("Pass button pressed"); // just a check to see if the button works
+
+        vm.passSelected(); // activates the undoSelected function from the viewmodel
+
+    }
+
 
     public void showLetterSelected(char letter, int row, int col) {
         System.out.println("letter:"+ letter);

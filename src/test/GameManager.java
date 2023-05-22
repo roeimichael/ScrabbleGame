@@ -17,6 +17,9 @@ public class GameManager {
         this.tileBag =  new Tile.Bag();
         this.numPassed=0;
     }
+    public byte[][] getBonusBoard(){
+        return board.getBonus();
+    }
     public void updateBoard(Board board) {
         this.board = board;
     }
@@ -40,26 +43,24 @@ public class GameManager {
         }
     }
 
-    public void nextTurn() {
-        // refill the player's hand
-        // then advance to the next player's turn
+
+    public int placeWord( Word word) {
+        // need to check if the word is legal
+        // if it is legal then place the word and return true
+        int score=0;
+        score = board.tryPlaceWord(word);
+        return score;
+    }
+    public void endTurn(int score, Word word){
+        players.get(currentPlayerIndex).incrementScore(score);
+        players.get(currentPlayerIndex).removeWord(word);
         players.get(currentPlayerIndex).refillBag(tileBag);
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
 
-    public boolean placeWord( Word word) {
-        // need to check if the word is legal
-        // if it is legal then place the word and return true
-        if (board.boardLegal(word)) {
-            int score = board.tryPlaceWord(word);
-            if (score != 0) {
-                players.get(currentPlayerIndex).incrementScore(score);
-                players.get(currentPlayerIndex).removeWord(word);
-                nextTurn();
-                return true;
-            }
-        }
-        return false;
+    public void passTurn(){
+        System.out.println("Player " + players.get(currentPlayerIndex).getId() + " has passed their turn");
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
     public Player getCurrentPlayer() {
         return players.get(currentPlayerIndex);
@@ -71,7 +72,7 @@ public class GameManager {
 
     private boolean isGameOver()
     { // need to check if any of the players have a word to place
-        if(numPassed == 2*players.size())
+        if(numPassed == (2*players.size()))
             return true;
         if(tileBag.size()==0)
             return true;
@@ -84,8 +85,41 @@ public class GameManager {
         return false;
     }
 
-    public void runGame()
+
+
+    private Player determineWinner() {
+        Player winner = players.get(0);
+        for (Player player : players) {
+            if (player.getScore() > winner.getScore()) {
+                winner = player;
+            }
+        }
+        return winner;
+    }
+
+    public void refillBag()
     {
+        players.get(currentPlayerIndex).refillBag(tileBag);
+    }
+    public void printScores()
+    {
+        System.out.println("**************************SCORES*********************************");
+
+        for(Player p:players)
+        {
+            System.out.println("Player " + p.getId() + " has a score of " + p.getScore());
+        }
+        System.out.println("***********************************************************");
+
+    }
+    public void printBoard()
+    {
+        board.print();
+    }
+
+
+    public void runGame()
+    { // main function that runs a scrabble game
         restartGame();
         while(!isGameOver())
         {
@@ -95,7 +129,7 @@ public class GameManager {
             if(currentPlayer.choice()==1)
             {
                 Word word = currentPlayer.getWord();
-                while(!placeWord(word))
+                while(placeWord(word)==0)
                 {
                     word = currentPlayer.getWord();
                 }
@@ -116,25 +150,7 @@ public class GameManager {
         System.out.println("The winner is player " + winner.getId() + " with a score of " + winner.getScore());
     }
 
-    private Player determineWinner() {
-        Player winner = players.get(0);
-        for (Player player : players) {
-            if (player.getScore() > winner.getScore()) {
-                winner = player;
-            }
-        }
-        return winner;
-    }
-
-    public void refillBag()
-    {
-        players.get(currentPlayerIndex).refillBag(tileBag);
-    }
-    public void printScores()
-    {
-        for(Player p:players)
-        {
-            System.out.println("Player " + p.getId() + " has a score of " + p.getScore());
-        }
+    public int getTilesLeftInBag() {
+        return tileBag.size();
     }
 }

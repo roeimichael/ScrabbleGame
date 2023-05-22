@@ -5,7 +5,7 @@ import test.*;
 public class Model extends Observable {
 	private String boardState, help, confirm;
 	private char letter;
-	private Board board;
+
 	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
 	private ArrayList<CharacterData> characterList = new ArrayList<>(); // saves the letters the user has selected to put on the board in the current turn
 	private Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
@@ -14,14 +14,16 @@ public class Model extends Observable {
 
 //	if(isHost)
 //	{
-	private static GameManager gamemanger;
+	private static GameManager gameManager;
+	private Board board;
 //	}
 
 	public Model() {
-		gamemanger = new GameManager();
-		gamemanger.addPlayer(new Player(1));
-		gamemanger.startGame();
-		board = gamemanger.getBoard();
+		gameManager = new GameManager();
+		gameManager.addPlayer(new Player(1));
+		gameManager.addPlayer(new Player(2));
+		gameManager.restartGame();
+		board = gameManager.getBoard();
 		assignLetterScores();
 		this.boardState = "";
 	}
@@ -98,6 +100,13 @@ public class Model extends Observable {
 		setChanged();
 		notifyObservers(this.confirm);
 	}
+	public void passSelected() {
+		gameManager.passTurn();
+		setChanged();
+		notifyObservers("pass");
+
+
+	}
 
 	public String getHelp() {
 		return help;
@@ -121,13 +130,13 @@ public class Model extends Observable {
 		return "";
 	}
 	public byte[][] getBonus() {
-		return board.getBonus();
+		return gameManager.getBonusBoard();
 	}
 
 	public void cleanList() {
 		characterList.clear();
 		wordTiles.clear();
-		gamemanger.refillBag();
+		gameManager.refillBag();
 	}
 
 
@@ -140,23 +149,25 @@ public class Model extends Observable {
 	}
 
 	public String getWordSelected() {
-		// transfer the word from the list to the actual word
+		// transform the word from characterList to actual word
 		if (characterList.size()==0)
+			// now word selected
 			return "";
 
 		// checck if the list is horizontal or vertical
+		// then add the letters to the wordSelected
 		if(getWordDirection().equals("horizontal"))
 		{
-			for (int i=0; i<characterList.size()-1; i++)
-			{
+			for (int i=0; i<characterList.size()-1; i++) {
 				CharacterData ch = characterList.get(i); // get the i item in the list
-				CharacterData ch1 = characterList.get(i+1); // get the i+1 item in the list
+				CharacterData ch1 = characterList.get(i + 1); // get the i+1 item in the list
 				Tile t = new Tile(ch.getLetter(), letterScores.get(ch.getLetter()));
 				wordTiles.add(t);
 				wordSelected += String.valueOf(ch.getLetter());
-				if (ch.getColumn()+1 != ch1.getColumn())
-				{
-					wordTiles.add(null); // means that there is an already existing letter in the board in the word
+				if (ch.getColumn() + 1 != ch1.getColumn()) {
+					int numOfNulls = ch1.getColumn() - ch.getColumn() - 1;
+					for (int j = 0; j < numOfNulls; j++)
+						wordTiles.add(null); // means that there is an already existing letter in the board in the word
 				}
 			}
 			CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
@@ -176,7 +187,9 @@ public class Model extends Observable {
 				wordSelected += String.valueOf(ch.getLetter());
 				if (ch.getRow()+1 != ch1.getRow())
 				{
-					wordTiles.add(null); // means that there is an already existing letter in the board in the word
+					int numOfNulls = ch1.getRow() - ch.getRow() - 1;
+					for (int j=0; j<numOfNulls; j++)
+						wordTiles.add(null); // means that there is an already existing letter in the board in the word
 				}
 			}
 			CharacterData ch = characterList.get(characterList.size()-1); // get the last item in the list
@@ -189,11 +202,12 @@ public class Model extends Observable {
 			return "";
 		}
 		System.out.println(wordTiles);
-
+		// need to make a tile array from the wordTiles
 		Tile[] array = new Tile[wordTiles.size()];
 		wordTiles.toArray(array);
 		Word word = new Word(array, characterList.get(0).getRow(), characterList.get(0).getColumn(), isVerticalWord(characterList));
-		int score = board.tryPlaceWord(word);// if score is 0 then the word is not valid
+
+		int score =gameManager.placeWord(word);// if score is 0 then the word is not valid
 		if (score==0) {
 			for(int i=0; i<wordTiles.size(); i++)
 			{
@@ -201,8 +215,11 @@ public class Model extends Observable {
 				notifyObservers("undo");
 			}
 		}
-		board.print();
-
+		else {
+			gameManager.endTurn(score,word);
+		}
+		gameManager.printBoard();
+		gameManager.printScores();
 		return wordSelected;
 	}
 
@@ -211,7 +228,7 @@ public class Model extends Observable {
 		characterList.clear();
 		wordSelected="";
 		rowCur=-1; colCur=-1;
-		gamemanger.restartGame();
+		gameManager.restartGame();
 		setChanged();
 		notifyObservers("started");
 	}
@@ -240,46 +257,44 @@ public class Model extends Observable {
 		return true;
 	}
 
-	private static boolean isContinuous(ArrayList<CharacterData> characterList, boolean direction) {
-		// param: direction - true if the word is horizontal, false if the word is vertical
-		if (direction) {
-			// word is horizontal so we need to check if the letters are continuous horizontally
-			characterList.sort(Comparator.comparingInt(CharacterData::getRow));
-			int previousColumn = characterList.get(0).getColumn();
-
-			for (int i = 1; i < characterList.size(); i++) {
-				int currentColumn = characterList.get(i).getColumn();
-
-				if (currentColumn != previousColumn + 1) {
-					return false;
-				}
-				previousColumn = currentColumn;
-			}
-		} else {
-			// word is vertical so we need to check if the letters are continuous vertically
-			characterList.sort(Comparator.comparingInt(CharacterData::getColumn));
-			int previousRow = characterList.get(0).getRow();
-			for (int i = 1; i < characterList.size(); i++) {
-				int currentRow = characterList.get(i).getRow();
-				if (currentRow != previousRow + 1) {
-					return false;
-				}
-				previousRow = currentRow;
-			}
-		}
-		return true;
-	}
+//	private static boolean isContinuous(ArrayList<CharacterData> characterList, boolean direction) {
+//		// param: direction - true if the word is horizontal, false if the word is vertical
+//		if (direction) {
+//			// word is horizontal so we need to check if the letters are continuous horizontally
+//			characterList.sort(Comparator.comparingInt(CharacterData::getRow));
+//			int previousColumn = characterList.get(0).getColumn();
+//
+//			for (int i = 1; i < characterList.size(); i++) {
+//				int currentColumn = characterList.get(i).getColumn();
+//
+//				if (currentColumn != previousColumn + 1) {
+//					return false;
+//				}
+//				previousColumn = currentColumn;
+//			}
+//		} else {
+//			// word is vertical so we need to check if the letters are continuous vertically
+//			characterList.sort(Comparator.comparingInt(CharacterData::getColumn));
+//			int previousRow = characterList.get(0).getRow();
+//			for (int i = 1; i < characterList.size(); i++) {
+//				int currentRow = characterList.get(i).getRow();
+//				if (currentRow != previousRow + 1) {
+//					return false;
+//				}
+//				previousRow = currentRow;
+//			}
+//		}
+//		return true;
+//	}
 
 	public String getWordDirection() {
 			// return the direction of the word
 			if(isHorizontalWord(characterList)) {
-				//if(isContinuous(characterList, true)) {
 					return "horizontal";
-				//}
+
 			} else if(isVerticalWord(characterList)) {
-				//if (isContinuous(characterList, false)) {
 					return "vertical";
-				//}
+
 			}
 		return "Illegal";
 
@@ -287,6 +302,12 @@ public class Model extends Observable {
 
 
 	public Player getCurrentPlayer() {
-		return gamemanger.getCurrentPlayer();
+		return gameManager.getCurrentPlayer();
 	}
+
+	public String getTilesLeft() {
+		return ""+gameManager.getTilesLeftInBag();
+	}
+
+
 }
