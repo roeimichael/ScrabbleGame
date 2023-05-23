@@ -55,8 +55,13 @@ public class GameManager {
     public int placeWord( Word word) {
         // need to check if the word is legal
         // if it is legal then place the word and return true
+        Board currentBoard = new Board(board);
         int score=0;
         score = board.tryPlaceWord(word);
+        if(score == 0){
+            board = currentBoard;
+        }
+
         return score;
     }
     public void endTurn(int score, Word word){

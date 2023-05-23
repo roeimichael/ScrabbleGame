@@ -44,7 +44,11 @@ public class DictionaryManager {
         		Dictionary newdictionary = new Dictionary(book);
         		bookToDictionaryMap.put(book,newdictionary);
         	}
-        	res = res || bookToDictionaryMap.get(book).query(word);
+            if (bookToDictionaryMap.get(book).query(word)) {
+                res = true;
+                System.out.println("Word found in: " + book);
+            }
+
         }
         return res;
     }
@@ -56,7 +60,7 @@ public class DictionaryManager {
         Boolean res = false;
         for (String book : books) {
         	fs.add(es.submit(()->{//searching every dictionary in order to update it				
-    			boolean found = bookToDictionaryMap.get(book).challenge(word);
+    			boolean found = bookToDictionaryMap.get(book).challenge(word.toUpperCase());
     			return found;
     		}));
         }

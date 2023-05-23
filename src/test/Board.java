@@ -3,13 +3,15 @@ package test;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 public class Board extends Canvas {
 
-	
-	// indexes
 	final byte dl=2;	// double letter
 	final byte tl=3;	// triple letter
 	final byte dw=20;	// double word
@@ -41,7 +43,26 @@ public class Board extends Canvas {
 		tiles=new Tile[15][15];
 		isEmpty=true;
 //		redraw();
-	}	
+	}
+
+	public Board(Board originalBoard) {
+		this.isEmpty = originalBoard.isEmpty;
+		this.bonus = new byte[15][15];
+		for (int i = 0; i < 15; i++) {
+			System.arraycopy(originalBoard.bonus[i], 0, this.bonus[i], 0, 15);
+		}
+		this.tiles = new Tile[15][15];
+		for (int i = 0; i < 15; i++) {
+			for (int j = 0; j < 15; j++) {
+				if (originalBoard.tiles[i][j] != null) {
+					this.tiles[i][j] = new Tile(originalBoard.tiles[i][j].letter,originalBoard.tiles[i][j].score); // Assuming the Tile class has a copy constructor
+				} else {
+					this.tiles[i][j] = null;
+				}
+			}
+		}
+	}
+
 
 	public byte[][] getBonus() {
 		return bonus;
@@ -119,8 +140,19 @@ public class Board extends Canvas {
 		}
 		return false;
 	}
-	
-	
+
+	public List<String> getAllFileNames(String folderPath) {
+		try {
+			return Files.walk(Paths.get(folderPath))
+					.filter(Files::isRegularFile)
+					.map(path -> path.getFileName().toString())
+					.collect(Collectors.toList());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
+
 	public boolean boardLegal(Word w) {
 		int row=w.getRow();
 		int col=w.getCol();
@@ -173,9 +205,20 @@ public class Board extends Canvas {
 	}
 	
 	public boolean dictionaryLegal(Word w) {
-		return  true;
+		String projectPath = System.getProperty("user.dir");
+		String searchFolderPath = projectPath + "/text_files";
+		List<String> bookNames = getAllFileNames(searchFolderPath);
+		bookNames.add(w.toString());
+		String[] args = bookNames.toArray(new String[0]);
+		boolean found = DictionaryManager.get().query(args);
+		if (found) {
+			System.out.println("Word found in at least one book.");
+		} else {
+			System.out.println("Word not found in any book.");
+		}
+		return found;
 	}
-	
+
 	
 	private ArrayList<Word> getAllWords(Tile[][] ts){
 		ArrayList<Word> ws=new ArrayList<>();

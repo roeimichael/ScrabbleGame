@@ -154,6 +154,9 @@ public class Model extends Observable {
 
 	public String getWordSelected() {
 		// transform the word from characterList to actual word
+		wordSelected = "";
+		System.out.println(" characterList: " + characterList.toString());
+
 		if (characterList.size()==0)
 			// now word selected
 			return "";

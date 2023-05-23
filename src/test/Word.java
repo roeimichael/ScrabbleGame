@@ -59,7 +59,7 @@ public class Word {
 		StringBuilder sb=new StringBuilder();
 		for(Tile t : tiles)
 			sb.append(t.letter);
-		sb.append(" ("+row+","+col+") "+(vertical?"vertical":"horizontal"));
+//		sb.append(" ("+row+","+col+") "+(vertical?"vertical":"horizontal"));
 		return sb.toString();
 	}
 	

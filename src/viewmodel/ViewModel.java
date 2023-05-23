@@ -128,6 +128,7 @@ public class ViewModel extends Observable implements Observer {
 
 	private void handleConfirmation() {
 		confirm.set(m.getConfirm());
+		wordSelected.set("");
 		wordSelected.set(m.getWordSelected());
 		row.set(m.getRow());
 		col.set(m.getCol());
