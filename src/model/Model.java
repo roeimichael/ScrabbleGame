@@ -94,6 +94,7 @@ public class Model extends Observable {
 	}
 
 	public void confirmSelected() {
+		// need to check if game is over
 		this.confirm = "confirmed";
 		this.rowCur = -1;
 		this.colCur = -1;
@@ -101,7 +102,10 @@ public class Model extends Observable {
 		notifyObservers(this.confirm);
 	}
 	public void passSelected() {
+		// need to check if game is over
+
 		gameManager.passTurn();
+		//gameManager.isGameOver();
 		setChanged();
 		notifyObservers("pass");
 
@@ -230,7 +234,7 @@ public class Model extends Observable {
 		rowCur=-1; colCur=-1;
 		gameManager.restartGame();
 		setChanged();
-		notifyObservers("started");
+		notifyObservers("restart");
 	}
 
 	private static boolean isHorizontalWord(ArrayList<CharacterData> characterList) {
@@ -306,7 +310,10 @@ public class Model extends Observable {
 	}
 
 	public String getTilesLeft() {
-		return ""+gameManager.getTilesLeftInBag();
+		return "Tiles left in the bag: "+gameManager.getTilesLeftInBag();
+	}
+	public String getPlayerScore() {
+		return gameManager.getScores();
 	}
 
 

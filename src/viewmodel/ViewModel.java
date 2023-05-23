@@ -5,6 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.stream.Collectors;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -16,7 +17,7 @@ public class ViewModel extends Observable implements Observer {
 
 	Model m;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
@@ -87,7 +88,7 @@ public class ViewModel extends Observable implements Observer {
 			case "confirmed" -> handleConfirmation();
 			case "pass" -> handlePass();
 			case "undo" -> handleUndoRequest();
-			case "started" -> updateLetterList();
+			case "restart" -> handleRestartRequest();
 
 			default -> {
 				if (obj instanceof Character) {
@@ -146,6 +147,7 @@ public class ViewModel extends Observable implements Observer {
 		m.cleanList();
 		updateLetterList();
 		getTilesLeft();
+		playerPoints.set(m.getPlayerScore());
 	}
 
 	public void handlePass()
@@ -176,6 +178,19 @@ public class ViewModel extends Observable implements Observer {
 			board[i][j].set("");
 			setBackground(i, j);
 		}
+	}
+	private void handleRestartRequest() {
+		updateLetterList();
+		confirm.set("");
+		wordSelected.set("");
+		row.set("");
+		col.set("");
+		wordDirection.set("");
+		userInput.clear();
+		m.cleanList();
+		getTilesLeft();
+		playerPoints.set(m.getPlayerScore());
+
 	}
 
 	private void handleLetterSelection() {
@@ -229,6 +244,7 @@ public class ViewModel extends Observable implements Observer {
 		row = new SimpleStringProperty();
 		col = new SimpleStringProperty();
 		wordDirection = new SimpleStringProperty();
+		playerPoints = new SimpleStringProperty(m.getPlayerScore());
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
 		//userBoardList = new ArrayList<>();

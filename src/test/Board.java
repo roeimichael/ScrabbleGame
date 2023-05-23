@@ -266,7 +266,11 @@ public class Board extends Canvas {
 		int row=w.getRow();
 		int col=w.getCol();
 		for(int i=0;i<ts.length;i++) {
-			if(ts[i]==null)
+			if(ts[i]==null && tiles[row][col]==null)
+			{
+				return 0;
+			}
+			else if(ts[i]==null && tiles[row][col]!=null)
 				ts[i]=tiles[row][col];
 			if(w.isVertical()) row++; else col++;
 		}

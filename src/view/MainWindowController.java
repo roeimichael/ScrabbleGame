@@ -34,7 +34,7 @@ public class MainWindowController extends Observable implements Observer   {
     @FXML
     private GridPane gameBoard;
     @FXML
-    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection;
+    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection, playerPoints;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
     private ListProperty<String>  currentHand = new SimpleListProperty<>(); // list of all the letters the user has in his hand, binds to letterList in vm
@@ -57,6 +57,7 @@ public class MainWindowController extends Observable implements Observer   {
         wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
         userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
         letterList.itemsProperty().bind(vm.letterList); // binds the letterList to the letterList in the viewmodel
+        playerPoints.textProperty().bind(vm.playerPoints); // binds the playerPoints to the playerPoints in the viewmodel
         //letterList.setItems(currentHand.get());
 
         for(int i=0;i<15;i++)

@@ -8,6 +8,7 @@ public class GameManager {
     private ArrayList<Player> players;
     private int currentPlayerIndex; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
+    private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
 
     private int numPassed; // number of players who have passed their turn
     public GameManager() {
@@ -29,10 +30,17 @@ public class GameManager {
     public void removePlayer(Player player) {
         players.remove(player);
     }
-    public void startGame() {
-        for (Player player : players) {
-            player.refillBag(tileBag);
+    public int getNumPlayers() {
+        return players.size();
+    }
+    public String getScores()
+    {
+        String scores="";
+        for(Player p:players)
+        {
+            scores+="Player "+p.getId()+" score: "+p.getScore()+"\n";
         }
+        return scores;
     }
     public void restartGame(){
         board = new Board();
@@ -60,17 +68,21 @@ public class GameManager {
 
     public void passTurn(){
         System.out.println("Player " + players.get(currentPlayerIndex).getId() + " has passed their turn");
+        numPassed++;
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
     public Player getCurrentPlayer() {
         return players.get(currentPlayerIndex);
+    }
+    public Player getNextPlayer() {
+        return players.get((currentPlayerIndex + 1) % players.size());
     }
 
     public Board getBoard() {
         return board;
     }
 
-    private boolean isGameOver()
+    public boolean isGameOver()
     { // need to check if any of the players have a word to place
         if(numPassed == (2*players.size()))
             return true;
