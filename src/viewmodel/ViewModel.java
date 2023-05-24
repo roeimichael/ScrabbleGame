@@ -17,11 +17,12 @@ public class ViewModel extends Observable implements Observer {
 
 	Model m;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
 	public ListProperty<CharacterData> userInput; // saves the letters the user has selected in the current turn
+	public ListProperty<CharacterData> lastEntry; // saves the letters the user has selected in the last turn
 
 	public ViewModel(Model m) {
 		this.m = m;
@@ -89,6 +90,7 @@ public class ViewModel extends Observable implements Observer {
 			case "pass" -> handlePass();
 			case "undo" -> handleUndoRequest();
 			case "restart" -> handleRestartRequest();
+			case "challenge accepted" -> handleChallengeAccepted();
 
 			default -> {
 				if (obj instanceof Character) {
@@ -96,6 +98,19 @@ public class ViewModel extends Observable implements Observer {
 				}
 			}
 		}
+	}
+
+	private void handleChallengeAccepted() {
+		confirm.set("Challenge Accepted");
+		wordSelected.set("");
+		System.out.println("lastEntry: " + lastEntry.get());
+		int wordSize = lastEntry.size();
+		for (int i = 0; i < wordSize; i++) {
+			board[lastEntry.get(i).getRow()][lastEntry.get(i).getColumn()].set("");
+			setBackground(lastEntry.get(i).getRow(), lastEntry.get(i).getColumn());
+		}
+
+		playerPoints.set(m.getPlayerScore());
 	}
 
 	private void updateLetterList() {
@@ -144,6 +159,9 @@ public class ViewModel extends Observable implements Observer {
 				m.undoSelected();
 			}
 		}
+		turn.set(m.getTurn());
+		lastEntry.clear();
+		lastEntry.addAll(userInput);
 		userInput.clear();
 		m.cleanList();
 		updateLetterList();
@@ -252,7 +270,9 @@ public class ViewModel extends Observable implements Observer {
 		wordDirection = new SimpleStringProperty();
 		playerPoints = new SimpleStringProperty(m.getPlayerScore());
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
+		lastEntry = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
+		turn = new SimpleStringProperty(m.getTurn());
 		//userBoardList = new ArrayList<>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
@@ -267,6 +287,9 @@ public class ViewModel extends Observable implements Observer {
 
 
 	public void challengeSelected() {
-		m.challenge();
+		if(!m.challenge())
+		{
+			turn.set(m.getTurn());
+		}
 	}
 }

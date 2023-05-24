@@ -16,6 +16,13 @@ public class Word {
 		this.col = col;
 		this.vertical = vertical;
 	}
+	public Word(Word w)
+	{
+		this.tiles = w.tiles;
+		this.row = w.row;
+		this.col = w.col;
+		this.vertical = w.vertical;
+	}
 
 	public Tile[] getTiles() {
 		return tiles;

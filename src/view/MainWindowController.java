@@ -34,7 +34,7 @@ public class MainWindowController extends Observable implements Observer   {
     @FXML
     private GridPane gameBoard;
     @FXML
-    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, rowSelected, colSelected, wordDirection, playerPoints;
+    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, turn, playerPoints;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
     private ListProperty<String>  currentHand = new SimpleListProperty<>(); // list of all the letters the user has in his hand, binds to letterList in vm
@@ -52,9 +52,8 @@ public class MainWindowController extends Observable implements Observer   {
         tilesLeft.textProperty().bind(vm.tilesLeft); // binds reslabel to the tilesLeft string in the viewmodel
         letterSelected.textProperty().bind(vm.letter); // binds letterSelected to the letterSelected string in the viewmodel
         wordAdded.textProperty().bind(vm.wordSelected); // binds wordAdded to the wordSelected string in the viewmodel
-        colSelected.textProperty().bind(vm.col); // binds indexSelected to the x string in the viewmodel
-        rowSelected.textProperty().bind(vm.row); // binds indexSelected to the x string in the viewmodel
-        wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
+        turn.textProperty().bind(vm.turn); // binds turn to the turn string in the viewmodel
+        //wordDirection.textProperty().bind(vm.wordDirection); // binds indexSelected to the x string in the viewmodel
         userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
         letterList.itemsProperty().bind(vm.letterList); // binds the letterList to the letterList in the viewmodel
         playerPoints.textProperty().bind(vm.playerPoints); // binds the playerPoints to the playerPoints in the viewmodel

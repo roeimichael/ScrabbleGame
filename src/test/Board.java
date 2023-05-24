@@ -39,11 +39,12 @@ public class Board extends Canvas {
 	Tile[][] tiles;
 	
 	boolean isEmpty;
-	private Word lastWord;
+	private ArrayList<Word> lastWords;
 	
 	public Board() {
 		tiles=new Tile[15][15];
 		isEmpty=true;
+		lastWords=new ArrayList<Word>();
 //		redraw();
 	}
 
@@ -127,6 +128,7 @@ public class Board extends Canvas {
 			if(tiles[i][j]!=null && tiles[i][j]!=t)//
 			{
 				System.out.println("tiles[i][j]:"+tiles[i][j]+" t:"+t);
+
 				return true;
 			}
 			if(w.isVertical()) i++; else j++;
@@ -195,8 +197,6 @@ public class Board extends Canvas {
 			return false;
 
 		}
-		lastWord=w;
-
 		return true;
 	}
 	
@@ -219,20 +219,29 @@ public class Board extends Canvas {
 
 	public boolean challenge() {
 		// challenge DictionaryManager using this.lastWord
-		// return true if word found, false if does not exist
+		// return true if word not found, false if found
+		if(this.lastWords==null || this.lastWords.size()==0)
+			return true;
 		String projectPath = System.getProperty("user.dir");
 		Path folderPath = Paths.get(projectPath, "text_files");
 		String searchFolderPath = folderPath.toString();
-		List<String> bookNames = getAllFileNames(searchFolderPath);
-		bookNames.add(this.lastWord.toString());
-		String[] args = bookNames.toArray(new String[0]);
-		boolean found = DictionaryManager.get().challenge(args);
-		if (found) {
-			System.out.println("Challenge: Word found in at least one book.");
-		} else {
-			System.out.println("Challenge: Not a Word in my book.");
+		//List<String> bookNames = getAllFileNames(searchFolderPath);
+		for(int i=0;i<this.lastWords.size();i++)
+		{
+			List<String> bookNamesTemp = getAllFileNames(searchFolderPath);
+			bookNamesTemp.add(this.lastWords.get(i).toString());
+			String[] args = bookNamesTemp.toArray(new String[0]);
+			boolean found = DictionaryManager.get().challenge(args);
+			if (found) {
+				System.out.println("Challenge: Word found in at least one book.");
+			} else {
+				System.out.println("Challenge: Not a Word in my book.");
+				return true;
+			}
+
+
 		}
-		return found;
+		return false;
 	}
 
 	
@@ -339,6 +348,15 @@ public class Board extends Canvas {
 		int sum=0;				
 		if(boardLegal(test) ) {
 			ArrayList<Word> newWords=getWords(test);
+			System.out.println("newWords: "+newWords);
+			System.out.println("lastWords: "+lastWords);
+			if(lastWords!=null)
+				lastWords.clear();
+			else {
+				lastWords=new ArrayList<>();
+			}
+
+			lastWords.addAll(newWords);
 			System.out.println("newWords: "+newWords);
 
 			for(Word nw : newWords) {				

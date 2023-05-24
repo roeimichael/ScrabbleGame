@@ -8,6 +8,7 @@ public class Model extends Observable {
 
 	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
 	private ArrayList<CharacterData> characterList = new ArrayList<>(); // saves the letters the user has selected to put on the board in the current turn
+	private ArrayList<CharacterData> lastEntry = new ArrayList<>(); // saves the letters the user has selected int his previous turn in order to undo in a later turn
 	private Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
 	private int rowCur = -1, colCur = -1;
 	String wordSelected=""; // saves the word the user has selected
@@ -224,6 +225,7 @@ public class Model extends Observable {
 			}
 		}
 		else {
+			lastEntry = new ArrayList<>(characterList);
 			gameManager.endTurn(score,word);
 		}
 		gameManager.printBoard();
@@ -294,17 +296,36 @@ public class Model extends Observable {
 
 
 	public boolean challenge() {
-		// true if challenge is successful
-		// false if challenge is not successful
+		//********** this method is not complete yet **********
+		// need to make it possible to run only once every turn
+		//*****************************************************
+		// returns true if the word doesnt exist
+		// returns false if the word does exist
+		System.out.println("character list: "+characterList.toString());
+		System.out.println("last entry: "+lastEntry.toString());
 		if(gameManager.challenge())
-		{// word does exist
+		{
+			// need to update GUI board accordingly
+			for(int i=0; i<lastEntry.size(); i++)
+			{
+				setChanged();
+				notifyObservers("challenge accepted");
+				wordSelected = "";
+				gameManager.printBoard();
+
+			}
+
+
 			return true;
 		}
 		else
-		{ // word dosn't exist
-			// need to update GUI board accordingly
+		{
 			return false;
 
 		}
+	}
+
+	public String getTurn() {
+		return "Player "+getCurrentPlayer().getId() + "'s turn";
 	}
 }

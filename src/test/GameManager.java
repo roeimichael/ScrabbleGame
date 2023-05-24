@@ -4,13 +4,15 @@ import java.util.ArrayList;
 
 public class GameManager {
 
-    private Board board;
+    private Board board; // the current board state
+    private Board lastTurnBoard; // the board state after the last turn
     private ArrayList<Player> players;
     private int currentPlayerIndex; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
     private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
     private int lastScore; // the score of the last word placed
     private int numPassed; // number of players who have passed their turn
+
     public GameManager() {
         this.board =  new Board();
         this.players = new ArrayList<>();
@@ -58,11 +60,11 @@ public class GameManager {
     public int placeWord(Word word) {
         // need to check if the word is legal
         // if it is legal then place the word and return true
-        Board currentBoard = new Board(board);
+        lastTurnBoard = new Board(board);
         int score=0;
         score = board.tryPlaceWord(word);
         if(score == 0){
-            board = currentBoard;
+            board = lastTurnBoard;
         }
         lastScore = score;
         return score;
@@ -177,19 +179,21 @@ public class GameManager {
     }
 
     public boolean challenge() {
-
-        if(board.challenge()) // word does exist
+        // returns true if the word doesnt exist
+        // returns false if the word does exist
+        if(board.challenge()) // word doesnt exist
         {
             // challenger loses his turn due to unsuccessful challenge
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+            players.get((currentPlayerIndex + players.size() - 1) % players.size()).incrementScore(-lastScore);
+            board = lastTurnBoard;
             return true;
         }
-        else // word does not exist
+        else // word does exist
         {
             // last player get a score of 0 for his last turn
             // i think that the player won't get back his tiles and will just get new ones instead
             // need to update the board accordingly
-            players.get((currentPlayerIndex -1) % players.size()).incrementScore(-lastScore);
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             return false;
 
         }
