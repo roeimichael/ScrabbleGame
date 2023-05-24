@@ -1,6 +1,7 @@
 package view;
 	
 import javafx.application.Application;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -16,13 +17,14 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			FXMLLoader fxl = new FXMLLoader();
-			BorderPane root = (BorderPane)fxl.load(getClass().getResource("MainWindow.fxml").openStream());
-			MainWindowController mwc = fxl.getController(); // view, getting the controller
+			Parent root = fxl.load(getClass().getResource("MainMenu.fxml").openStream());
+			MainMenuController mmw = fxl.getController(); // view, getting the controller
+			mmw.setStage(primaryStage);
 			Model m = new Model(); // modelModel m= new Model(); // our model
 			ViewModel vm = new ViewModel(m); // our view model
 			m.addObserver(vm); // adding the view model as an observer to the model
-			mwc.setViewModel(vm); // setting the view model in the view
-			vm.addObserver(mwc); // adding the view as an observer to the view model
+			mmw.setViewModel(vm); // setting the view model in the view
+			vm.addObserver(mmw); // adding the view as an observer to the view model
 			Scene scene = new Scene(root,600,600);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);

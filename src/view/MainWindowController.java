@@ -13,11 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ListView;
 import javafx.scene.input.*;
-import javafx.collections.FXCollections;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import test.CharacterData;
@@ -26,6 +23,7 @@ import javafx.fxml.FXMLLoader;
 
 public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
+    private Stage stage;
 
     @FXML
     private Button helpButton, restartButton, confirmButton, undoButton, PassButton, ChallengeButton;
@@ -117,15 +115,15 @@ public class MainWindowController extends Observable implements Observer   {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("HelpWindowController.fxml"));
                 Parent root1 = (Parent) fxmlLoader.load();
-                Stage stage = new Stage();
-                stage.initModality(Modality.APPLICATION_MODAL);  // this will block interaction with the parent window until this one is closed
-                stage.setTitle("Help Menu");
-                stage.setScene(new Scene(root1, 500,500)); // Use the width and height of the mainStage
+                HelpMenuController helpMenuController = fxmlLoader.getController();
+                helpMenuController.setStage(stage);
+                helpMenuController.setMainWindowController(this);
+                helpMenuController.setReturnTo("MainWindow");
+                stage.setScene(new Scene(root1));
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
     }
     @FXML
     public void showConfirm() {
@@ -171,5 +169,24 @@ public class MainWindowController extends Observable implements Observer   {
     }
     @Override
     public void update(Observable o, Object arg) {
-	    }
+    }
+
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void showMainMenu() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainMenu.fxml"));
+            BorderPane gameRoot = fxmlLoader.load();  // Changed Parent to BorderPane
+            MainMenuController mainMenuController = fxmlLoader.getController();
+            mainMenuController.setStage(this.stage);
+            this.stage.setScene(new Scene(gameRoot));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
