@@ -28,7 +28,7 @@ public class Dictionary {
 					bf.add(s.next().toUpperCase());
 				s.close();
 			}catch(Exception e) {
-				System.out.println("iuyhguiguyguyg.");
+				System.out.println("dictionary: cannot open book.");
 
 			}
 		}		

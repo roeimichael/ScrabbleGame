@@ -54,6 +54,10 @@ public class DictionaryManager {
     }
 
     public boolean challenge(String... args) {
+        // bloom filter can only return false positive but not false negative
+        // a query returns either "possibly in set" or "definitely not in set"
+        // so if a player drops a word, the next player can challenge it
+
     	ArrayList<Future<Boolean>> fs=new ArrayList<>();//for the results from IOSearchers
         String word = args[args.length - 1];
         String[] books = Arrays.copyOfRange(args, 0, args.length - 1);

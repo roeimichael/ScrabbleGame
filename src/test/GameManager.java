@@ -9,7 +9,7 @@ public class GameManager {
     private int currentPlayerIndex; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
     private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
-
+    private int lastScore; // the score of the last word placed
     private int numPassed; // number of players who have passed their turn
     public GameManager() {
         this.board =  new Board();
@@ -43,16 +43,19 @@ public class GameManager {
         return scores;
     }
     public void restartGame(){
+
         board = new Board();
         tileBag = new Tile.Bag();
+        lastScore = 0;
         for (Player player : players) {
+            player.removeTiles();
             player.resetScore();
             player.refillBag(tileBag);
         }
     }
 
 
-    public int placeWord( Word word) {
+    public int placeWord(Word word) {
         // need to check if the word is legal
         // if it is legal then place the word and return true
         Board currentBoard = new Board(board);
@@ -61,10 +64,11 @@ public class GameManager {
         if(score == 0){
             board = currentBoard;
         }
-
+        lastScore = score;
         return score;
     }
     public void endTurn(int score, Word word){
+        lastScore = score;
         players.get(currentPlayerIndex).incrementScore(score);
         players.get(currentPlayerIndex).removeWord(word);
         players.get(currentPlayerIndex).refillBag(tileBag);
@@ -73,6 +77,7 @@ public class GameManager {
 
     public void passTurn(){
         System.out.println("Player " + players.get(currentPlayerIndex).getId() + " has passed their turn");
+        lastScore=0;
         numPassed++;
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
@@ -89,7 +94,7 @@ public class GameManager {
 
     public boolean isGameOver()
     { // need to check if any of the players have a word to place
-        if(numPassed == (2*players.size()))
+        if(numPassed == players.size())
             return true;
         if(tileBag.size()==0)
             return true;
@@ -169,5 +174,24 @@ public class GameManager {
 
     public int getTilesLeftInBag() {
         return tileBag.size();
+    }
+
+    public boolean challenge() {
+
+        if(board.challenge()) // word does exist
+        {
+            // challenger loses his turn due to unsuccessful challenge
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+            return true;
+        }
+        else // word does not exist
+        {
+            // last player get a score of 0 for his last turn
+            // i think that the player won't get back his tiles and will just get new ones instead
+            // need to update the board accordingly
+            players.get((currentPlayerIndex -1) % players.size()).incrementScore(-lastScore);
+            return false;
+
+        }
     }
 }

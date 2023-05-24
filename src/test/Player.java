@@ -33,7 +33,12 @@ public class Player {
         this.score += score;
     }
 
+    public void removeTiles()
+    {
+        hand.clear();
+    }
     public void refillBag(Tile.Bag tileBag) {
+        // addding tiles to the hand until it reaches 7 tiles
         while (hand.size() < 7) {
             Tile tile = tileBag.getRand();
             if (tile != null) {

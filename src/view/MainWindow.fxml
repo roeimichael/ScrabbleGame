@@ -30,6 +30,7 @@
          <Button fx:id="confirmButton" mnemonicParsing="false" onAction="#showConfirm" prefHeight="25.0" prefWidth="86.0" text="Confirm" />
          <Button fx:id="undoButton" mnemonicParsing="false" onAction="#undo" prefHeight="25.0" prefWidth="86.0" text="Undo" />
          <Button fx:id="PassButton" mnemonicParsing="false" onAction="#pass" prefHeight="25.0" prefWidth="86.0" text="Pass" />
+         <Button fx:id="ChallengeButton" mnemonicParsing="false" onAction="#challenge" prefHeight="25.0" prefWidth="86.0" text="Challenge" />
          <Label fx:id="confirmSelected" prefHeight="17.0" prefWidth="77.0" text="Confirmation" />
          <Label fx:id="wordAdded" prefHeight="17.0" prefWidth="89.0" text="Word added" />
          <Label fx:id="rowSelected" text="Word start row" />

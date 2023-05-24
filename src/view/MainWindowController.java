@@ -28,7 +28,7 @@ public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
 
     @FXML
-    private Button helpButton, restartButton, confirmButton, undoButton, PassButton;
+    private Button helpButton, restartButton, confirmButton, undoButton, PassButton, ChallengeButton;
     @FXML
     private ListView<String> letterList; // shows the letters the user has in his hand, right upper corner
     @FXML
@@ -148,6 +148,14 @@ public class MainWindowController extends Observable implements Observer   {
         System.out.println("Pass button pressed"); // just a check to see if the button works
 
         vm.passSelected(); // activates the undoSelected function from the viewmodel
+
+    }
+    @FXML
+    public void challenge()
+    {
+        System.out.println("Challenge button pressed"); // just a check to see if the button works
+
+        vm.challengeSelected(); // activates the challengeSelected function from the viewmodel
 
     }
 

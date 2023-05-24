@@ -171,6 +171,11 @@ public class ViewModel extends Observable implements Observer {
 
 	private void handleUndoRequest() {
 		if (userInput.size() > 0) {
+			confirm.set("");
+			wordSelected.set("");
+			row.set("");
+			col.set("");
+			wordDirection.set("");
 			int index = userInput.size() - 1;
 			int i = userInput.get(index).getRow();
 			int j = userInput.get(index).getColumn();
@@ -261,4 +266,7 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 
+	public void challengeSelected() {
+		m.challenge();
+	}
 }

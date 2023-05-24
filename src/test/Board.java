@@ -4,6 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.IOException;
 import java.util.List;
@@ -38,6 +39,7 @@ public class Board extends Canvas {
 	Tile[][] tiles;
 	
 	boolean isEmpty;
+	private Word lastWord;
 	
 	public Board() {
 		tiles=new Tile[15][15];
@@ -132,14 +134,7 @@ public class Board extends Canvas {
 		return false;
 	}
 
-	private boolean isNull(Word w) {
-		// check if there is a null tile in word
-		for(Tile t : w.getTiles()) {
-			if(t==null)
-				return true;
-		}
-		return false;
-	}
+
 
 	public List<String> getAllFileNames(String folderPath) {
 		try {
@@ -200,13 +195,16 @@ public class Board extends Canvas {
 			return false;
 
 		}
+		lastWord=w;
 
 		return true;
 	}
 	
 	public boolean dictionaryLegal(Word w) {
+		// query DictionaryManager
 		String projectPath = System.getProperty("user.dir");
-		String searchFolderPath = projectPath + "/text_files";
+		Path folderPath = Paths.get(projectPath, "text_files");
+		String searchFolderPath = folderPath.toString();
 		List<String> bookNames = getAllFileNames(searchFolderPath);
 		bookNames.add(w.toString());
 		String[] args = bookNames.toArray(new String[0]);
@@ -215,6 +213,24 @@ public class Board extends Canvas {
 			System.out.println("Word found in at least one book.");
 		} else {
 			System.out.println("Word not found in any book.");
+		}
+		return found;
+	}
+
+	public boolean challenge() {
+		// challenge DictionaryManager using this.lastWord
+		// return true if word found, false if does not exist
+		String projectPath = System.getProperty("user.dir");
+		Path folderPath = Paths.get(projectPath, "text_files");
+		String searchFolderPath = folderPath.toString();
+		List<String> bookNames = getAllFileNames(searchFolderPath);
+		bookNames.add(this.lastWord.toString());
+		String[] args = bookNames.toArray(new String[0]);
+		boolean found = DictionaryManager.get().challenge(args);
+		if (found) {
+			System.out.println("Challenge: Word found in at least one book.");
+		} else {
+			System.out.println("Challenge: Not a Word in my book.");
 		}
 		return found;
 	}
@@ -366,29 +382,5 @@ public class Board extends Canvas {
 		}
 	}
 
-//	public void redraw()
-//	{ // redraw the board after a play
-//
-//		double W = getWidth();
-//		double H = getHeight();
-//		double w = W/15;
-//		double h = H/15;
-//
-//		GraphicsContext gc = getGraphicsContext2D();
-//		for(int i=0;i<15;i++)
-//			for(int j=0;j<15;j++)
-//				if(tiles[i][j]!=null)
-//				{ // if no tile is set on a square, it is null then we can show the bonus on this square
-//					if (bonus[i][j]!=0)
-//					{
-//						gc.setFill(Color.LIGHTBLUE);
-//						gc.fillRect(j*w, i*h, w, h);
-//					}
-//				}
-//				else
-//				{ // tile is set on square so we want to show the tile
-//					gc.fillRect(j*w, i*h, w, h);
-//				}
-//	}
 
 }

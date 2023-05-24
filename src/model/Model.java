@@ -220,6 +220,7 @@ public class Model extends Observable {
 			{
 				setChanged();
 				notifyObservers("undo");
+				wordSelected = "";
 			}
 		}
 		else {
@@ -264,35 +265,7 @@ public class Model extends Observable {
 		return true;
 	}
 
-//	private static boolean isContinuous(ArrayList<CharacterData> characterList, boolean direction) {
-//		// param: direction - true if the word is horizontal, false if the word is vertical
-//		if (direction) {
-//			// word is horizontal so we need to check if the letters are continuous horizontally
-//			characterList.sort(Comparator.comparingInt(CharacterData::getRow));
-//			int previousColumn = characterList.get(0).getColumn();
-//
-//			for (int i = 1; i < characterList.size(); i++) {
-//				int currentColumn = characterList.get(i).getColumn();
-//
-//				if (currentColumn != previousColumn + 1) {
-//					return false;
-//				}
-//				previousColumn = currentColumn;
-//			}
-//		} else {
-//			// word is vertical so we need to check if the letters are continuous vertically
-//			characterList.sort(Comparator.comparingInt(CharacterData::getColumn));
-//			int previousRow = characterList.get(0).getRow();
-//			for (int i = 1; i < characterList.size(); i++) {
-//				int currentRow = characterList.get(i).getRow();
-//				if (currentRow != previousRow + 1) {
-//					return false;
-//				}
-//				previousRow = currentRow;
-//			}
-//		}
-//		return true;
-//	}
+
 
 	public String getWordDirection() {
 			// return the direction of the word
@@ -320,4 +293,18 @@ public class Model extends Observable {
 	}
 
 
+	public boolean challenge() {
+		// true if challenge is successful
+		// false if challenge is not successful
+		if(gameManager.challenge())
+		{// word does exist
+			return true;
+		}
+		else
+		{ // word dosn't exist
+			// need to update GUI board accordingly
+			return false;
+
+		}
+	}
 }
