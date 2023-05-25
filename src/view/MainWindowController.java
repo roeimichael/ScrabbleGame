@@ -6,23 +6,21 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ListView;
 import javafx.scene.input.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import test.CharacterData;
 import viewmodel.ViewModel;
-import javafx.fxml.FXMLLoader;
+
 
 public class MainWindowController extends Observable implements Observer   {
     ViewModel vm;
+    private SceneController sceneController;
+
     private Stage stage;
 
     @FXML
@@ -108,28 +106,17 @@ public class MainWindowController extends Observable implements Observer   {
             gameBoard.requestLayout(); // Refresh the layout of the GridPane
         });
     }
-
+    public void setSceneController(SceneController sceneController) {
+        this.sceneController = sceneController;
+    }
     @FXML
     public void showHelp() {
-            // Creating new window
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("HelpWindowController.fxml"));
-                Parent root1 = (Parent) fxmlLoader.load();
-                HelpMenuController helpMenuController = fxmlLoader.getController();
-                helpMenuController.setStage(stage);
-                helpMenuController.setMainWindowController(this);
-                helpMenuController.setReturnTo("MainWindow");
-                stage.setScene(new Scene(root1));
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        sceneController.showHelpMenu();
     }
     @FXML
     public void showConfirm() {
         System.out.println("Confirm button pressed"); // just a check to see if the button works
         vm.confirmSelected(); // activates the confirmSelected function from the viewmodel
-
         userInput.clear(); // clears the list of letters the user has selected
         //letterList.setItems(currentHand.get());
 
@@ -177,15 +164,7 @@ public class MainWindowController extends Observable implements Observer   {
     }
 
     public void showMainMenu() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainMenu.fxml"));
-            BorderPane gameRoot = fxmlLoader.load();  // Changed Parent to BorderPane
-            MainMenuController mainMenuController = fxmlLoader.getController();
-            mainMenuController.setStage(this.stage);
-            this.stage.setScene(new Scene(gameRoot));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sceneController.showMainMenu();
     }
 
 
