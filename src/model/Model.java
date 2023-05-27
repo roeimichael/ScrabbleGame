@@ -3,11 +3,13 @@ import java.util.*;
 import test.*;
 
 public class Model extends Observable {
-	private String boardState, help, confirm;
+	public String boardState;
+	private String help;
+	private String confirm;
 	private char letter;
 
-	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
-	private ArrayList<CharacterData> characterList = new ArrayList<>(); // saves the letters the user has selected to put on the board in the current turn
+	public HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
+	public ArrayList<CharacterData> characterList = new ArrayList<>(); // saves the letters the user has selected to put on the board in the current turn
 	private ArrayList<CharacterData> lastEntry = new ArrayList<>(); // saves the letters the user has selected int his previous turn in order to undo in a later turn
 	private Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
 	private int rowCur = -1, colCur = -1;
@@ -29,7 +31,7 @@ public class Model extends Observable {
 		this.boardState = "";
 	}
 
-	private void assignLetterScores() {
+	public void assignLetterScores() {
 		letterScores.put('A', 1);
 		letterScores.put('B', 3);
 		letterScores.put('C', 3);

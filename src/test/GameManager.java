@@ -111,7 +111,7 @@ public class GameManager {
 
 
 
-    private Player determineWinner() {
+    public Player determineWinner() {
         Player winner = players.get(0);
         for (Player player : players) {
             if (player.getScore() > winner.getScore()) {
