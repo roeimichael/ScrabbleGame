@@ -22,11 +22,8 @@ public class Model extends Observable {
 //	}
 
 	public Model() {
-		gameManager = new GameManager();
-		;
-//		gameManager.addPlayer(new ScrabblePlayer(1));
-//		gameManager.addPlayer(new ScrabblePlayer(2));
-		gameManager.restartGame();
+		gameManager = GameManager.getInstance();
+//		gameManager.restartGame();
 		board = gameManager.getBoard();
 		assignLetterScores();
 		this.boardState = "";
@@ -339,4 +336,9 @@ public class Model extends Observable {
 	public String getNumPlayersConnected() {
 		return ""+gameManager.getNumPlayersConnected();
 	}
+
+	public ConnectionHandler getplayerbyid(int index) {
+		return gameManager.getPlayerById(index);
+	}
+
 }

@@ -10,21 +10,18 @@ import java.util.Observable;
 
 public class GameManager extends Observable {
     private static GameManager instance = null;
-    private Board board; // the current board state
-    private Board lastTurnBoard; // the board state after the last turn
-    //private ArrayList<Player> players;
-    //public static ArrayList<ScrabblePlayer> players;
+    private Board board;
+    private Board lastTurnBoard;
     public static ArrayList<ConnectionHandler> players;
-    private int currentPlayerIndex; // index of the current player's turn
-    private Tile.Bag tileBag; // the bag of tiles for the game
-    private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
-    private int lastScore; // the score of the last word placed
-    private int numPassed; // number of players who have passed their turn
+    private int currentPlayerIndex;
+    private Tile.Bag tileBag;
+    private BookScrabbleHandler bookScrabbleHandler;
+    private int lastScore;
+    private int numPassed;
 
     public GameManager() {
         this.board =  new Board();
         players = new ArrayList<>();
-        //connections = new ArrayList<>();
         this.currentPlayerIndex = 0;
         this.tileBag =  new Tile.Bag();
         this.numPassed=0;
@@ -43,25 +40,21 @@ public class GameManager extends Observable {
     public void updateBoard(Board board) {
         this.board = board;
     }
-//    public void addPlayer(Player player) {
-//        players.add(player);
-//    }
-//    public void addPlayer(ScrabblePlayer player) {
-//        players.add(player);
-//        for(int i=0; i<players.size();i++)
-//            System.out.println(players.get(i));
-//    }
+
     public void addPlayer(ConnectionHandler player) {
         players.add(player);
         for(int i=0; i<players.size();i++)
             System.out.println(i+":"+players.get(i));
     }
-    public void removePlayer(Player player) {
+
+    public void removePlayer(ConnectionHandler player) {
         players.remove(player);
     }
+
     public int getNumPlayers() {
         return players.size();
     }
+
     public String getScores()
     {
         String scores="";
@@ -72,7 +65,6 @@ public class GameManager extends Observable {
         return scores;
     }
     public void restartGame(){
-
         board = new Board();
         tileBag = new Tile.Bag();
         lastScore = 0;
@@ -135,7 +127,7 @@ public class GameManager extends Observable {
     }
 
     public boolean isGameOver()
-    { // need to check if any of the players have a word to place
+    {
         if(numPassed == players.size())
             return true;
         if(tileBag.size()==0)
@@ -144,12 +136,9 @@ public class GameManager extends Observable {
         {
             if(p.gethand().size()==0)
                 return true;
-
         }
         return false;
     }
-
-
 
     private ConnectionHandler determineWinner() {
         ConnectionHandler winner = players.get(0);
@@ -249,5 +238,9 @@ public class GameManager extends Observable {
             s += player.toString() + "\n";
         }
         return s;
+    }
+
+    public ConnectionHandler getPlayerById(int index) {
+        return players.get(index);
     }
 }

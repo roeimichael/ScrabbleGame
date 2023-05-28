@@ -3,6 +3,8 @@ package server;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Vector;
 
 import server.ClientHandler;
 import server.Server;
@@ -15,23 +17,26 @@ public class ConnectionHandler implements ClientHandler {
     private Socket client;
     private BufferedReader in;
     private PrintWriter out;
-    private int id;
-    private Server server;
 
-    private boolean isTurn;
+    // game manager initailization
+    private GameManager gameManager;
+
+    // player related shit
+    private int id;
     private int score;
     private ArrayList<Tile> hand;
+    private boolean isTurn;
 
-    private GameManager gameManager;
 
     public ConnectionHandler(Socket client, int id) {
         this.client = client;
         this.id = id + 1;
-        isTurn = false;
-        server = Server.getInstance();
-        gameManager = GameManager.getInstance();
-        this.hand = new ArrayList<>();
 
+        gameManager = GameManager.getInstance();
+
+        this.id = id;
+        this.score = 0;
+        this.hand = new ArrayList<>();
     }
 
     public void sendMessage(String mes) {
@@ -53,111 +58,47 @@ public class ConnectionHandler implements ClientHandler {
 
     @Override
     public void handleClient(InputStream inFromClient, OutputStream outToClient) {
-        try {
-            server = Server.getInstance();
-            gameManager = GameManager.getInstance();
-            gameManager.addPlayer(this);
-            out = new PrintWriter(outToClient, true);
-            in = new BufferedReader(new InputStreamReader(inFromClient));
-            isTurn = false;
 
-            if (this.id == 1) {
-                out.println("YOU ARE THE HOST");
-                //out.println("type 'start' to start the game");
-            } else {
-                out.println("YOU ARE NOT THE HOST");
-            }
-
-            out.println("Welcome to the server Player " + this.id + "!");
-            System.out.println("Client " + this.id + " has connected");
-            //server.broadcast("Client " + this.id + " has connected");
-
-            String message;
-            while ((message = in.readLine()) != null) {
-                switch(message){
-                    case protocols.NEW_GAME_AS_HOST:
-                        out.println("Creating game as host");
-                        server.broadcast("Game has been created");
-                        gameManager.restartGame();
-                        break;
-                    case protocols.JOIN_GAME_AS_CLIENT:
-                        gameManager.joinGame(this);
-                        out.println("Joining game as client");
-                        server.broadcast("Game has started");
-
-                        break;
-                    case protocols.START_GAME:
-                        if (id == 1) {
-                            server.broadcast("PLAYER 1 wants to start the game");
-
-                            server.setGameStarted();
-                            server.getConnections().get(server.getTurn()).isTurn = true;
-                            gameManager.restartGame();
-                        } else {
-                            out.println("You are not the host so be quiet");
-                        }
-                        break;
-                }
-//                if(message.equals(protocols.START_GAME_AS_HOST))
-//                {
-//                    out.println("Starting game as host");
-//                    server.broadcast("Game has started");
-//                }
-//                 else if (message.equals("start")) {
-//                    if (id == 1) {
-//                        server.broadcast("Game has started");
-//                        server.setGameStarted();
-//                        server.getConnections().get(server.getTurn()).isTurn = true;
-//                    } else {
-//                        out.println("You are not the host so be quiet");
-//                    }
-//                } else {
-//                    if (this.isTurn) {
-//                        System.out.println("Client " + id + " has sent: " + message);
-//                        server.broadcast("Client " + id + " has sent: " + message);
-//                        this.isTurn = false;
-//                        server.nextTurn();
-//                        server.getConnections().get(server.getTurn()).isTurn = true;
-//                    } else {
-//                        out.println("It is not your turn");
-//                    }
-
-            }
-        } catch (IOException e) {
-            shutdown();
+        gameManager.addPlayer(this);
+        out = new PrintWriter(outToClient, true);
+        in = new BufferedReader(new InputStreamReader(inFromClient));
+        out.println(id);
+        if (this.id == 1) {
+            out.println("YOU ARE THE HOST");
+        } else {
+            out.println("YOU ARE NOT THE HOST");
         }
+        out.println("Welcome to the server Player " + this.id + "!");
+        System.out.println("Client " + this.id + " has connected");
     }
-    public int getId()
-    {
-        return this.id;
+
+    @Override
+    public void close() {}
+    public int getId() {
+        return id;
     }
-    public boolean getisTurn()
-    {
-        return this.isTurn;
+    public int getScore() {
+        return score;
     }
-    public int getScore()
-    {
-        return this.score;
+    public ArrayList<Tile> gethand() {
+        return hand;
     }
-    public void removeTiles()
-    {
-        if (hand!=null && hand.size() > 0)
-            hand.clear();
+    public void incrementScore(int score) {
+        this.score += score;
+    }
+    public void removeTiles() {hand.clear();}
+    public void resetScore() {
+        score = 0;
     }
     public void refillBag(Tile.Bag tileBag) {
-        // addding tiles to the hand until it reaches 7 tiles
         while (hand.size() < 7) {
             Tile tile = tileBag.getRand();
             if (tile != null) {
                 hand.add(tile);
             } else {
-                break; // If no more tiles left in the bag
+                break;
             }
         }
-    }
-
-    public void resetScore() {
-        score = 0;
     }
 
     public void removeWord(Word w)
@@ -167,19 +108,40 @@ public class ConnectionHandler implements ClientHandler {
             hand.remove(t);
         }
     }
-    public void incrementScore(int score) {
-        this.score += score;
+    public Word getWord() {
+        Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
+        Scanner Scanner = new Scanner(System.in);
+        int input;
+        while (true) {
+            System.out.println(hand);
+            System.out.println("Enter the index of the char (enter '0' to stop):");
+            input = Scanner.nextInt();
+            if (input == 0) {
+                break;
+            } else {
+                wordTiles.add(hand.get(input-1));
+            }
+        }
+        System.out.println("Enter row");
+        int row = Scanner.nextInt();
+        System.out.println("Enter col");
+        int col = Scanner.nextInt();
+        System.out.println("Enter vertical or horizontal (1 for vertical, 2 for horizontal)");
+        int dir = Scanner.nextInt();
+        boolean vert;
+        if(dir==1)
+        {
+            vert=true;
+        }
+        else
+        {
+            vert=false;
+        }
+        Tile[] array = new Tile[wordTiles.size()];
+        wordTiles.toArray(array);
+        return new Word(array,row,col,vert);
     }
-
-    public ArrayList<Tile> gethand() {
-        return hand;
-    }
-    @Override
-    public void close() {
-
-    }
-
     public String toString() {
-        return "Client " + id;
+        return "Player " + id + " has a score of " + score;
     }
 }

@@ -53,10 +53,6 @@ public class Server implements Runnable{
     {
         return connections;
     }
-    public void nextTurn()
-    {
-        this.turn=(this.turn+1)%(connections.size());
-    }
 
     public void run()
     {
@@ -76,6 +72,7 @@ public class Server implements Runnable{
 
                         connections.add(handler);
                         handler.handleClient(client.getInputStream(),client.getOutputStream());
+
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -113,17 +110,11 @@ public class Server implements Runnable{
         }
         catch(IOException e)
         {
-
+            throw new RuntimeException(e);
         }
-
     }
 
 
-    public static void main(String[] args)
-    {
-        Server s = new Server();
-        s.run();
 
-    }
 
 }

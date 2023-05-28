@@ -17,6 +17,7 @@ import test.CharacterData;
 public class ViewModel extends Observable implements Observer {
 
 	Model m;
+	public int PlayerIndex;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
 	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn,numPlayersConnected; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
@@ -122,11 +123,7 @@ public class ViewModel extends Observable implements Observer {
 
 	private void updateLetterList() {
 		// update the letters the player see
-		letterList.set(FXCollections.observableArrayList(m.getCurrentPlayer().gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
-	}
-	private void updateLetterList(ConnectionHandler ch) {
-		// update the letters the player see
-		letterList.set(FXCollections.observableArrayList(ch.gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
+		letterList.set(FXCollections.observableArrayList(m.getplayerbyid(PlayerIndex).gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
 	}
 
 	private String getBoardState(Object obj) {
@@ -251,6 +248,10 @@ public class ViewModel extends Observable implements Observer {
 		}
 	}
 
+	public void loadGame() {
+		resetGameBoard();
+		handleRestartRequest();
+	}
 	public void restartGame() {
 		m.restart();
 		resetGameBoard();
@@ -308,4 +309,8 @@ public class ViewModel extends Observable implements Observer {
     public void startSelected() {
 		m.start();
     }
+
+	public void setPlayerID(String index) {
+		PlayerIndex = Integer.parseInt(index);
+	}
 }

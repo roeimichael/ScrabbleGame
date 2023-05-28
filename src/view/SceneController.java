@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 import model.Model;
 import model.ScrabblePlayer;
 import server.Client;
+import server.Server;
 import server.protocols;
 import test.GameManager;
 import viewmodel.ViewModel;
@@ -18,6 +19,7 @@ public class SceneController {
     private ViewModel viewModel;
     private Model model;
 
+    public String index;
     private GameManager gameManager;
 
     private Scene mainMenuScene;
@@ -78,26 +80,31 @@ public class SceneController {
 
     public void showGame() {
         System.out.println("Host button pressed");
-
         Client sp = new Client();
-        sp.startServer();
+        Server server = Server.getInstance();
+        new Thread(() -> server.run()).start();
+        try {
+            Thread.sleep(1000); // need a sleep to wait for server to start
+            index = sp.connectToServer();
+        } catch (InterruptedException e) {
+            System.out.println("Error starting server");
+            e.printStackTrace();
+        }
         sp.sendMessage(protocols.NEW_GAME_AS_HOST);
         primaryStage.setScene(gameScene);
         primaryStage.show();
+        viewModel.setPlayerID(index);
         viewModel.restartGame();
     }
 
     public void joinGame() {
         System.out.println("Join button pressed");
         Client sp = new Client();
-        sp.connectToServer();
+        index = sp.connectToServer();
         sp.sendMessage(protocols.JOIN_GAME_AS_CLIENT);
-//        if (viewModel.getGameStarted()) {
-//            System.out.println("Game already started");
-//            return;
-//        }
         primaryStage.setScene(gameScene);
         primaryStage.show();
-
+        viewModel.setPlayerID(index);
+        viewModel.loadGame();
     }
 }
