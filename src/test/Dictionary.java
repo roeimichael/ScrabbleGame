@@ -19,16 +19,19 @@ public class Dictionary {
 		this.fileNames=fileNames;
 		exists=new CacheManager(400, new LRU());
 		notExists=new CacheManager(100, new LFU());
-		bf = new BloomFilter(256, "MD5","SHA1");
+		//bf = new BloomFilter(131072, "MD5","SHA1");
+		bf = new BloomFilter(1024, "MD5","SHA1");
 
 		for(String fn : fileNames) {
 			try {
-				Scanner s=new Scanner(new File(fn));
+				Scanner s=new Scanner(new File("text_files/" +fn));
 				while(s.hasNext())
-					bf.add(s.next());
-
+					bf.add(s.next().toUpperCase());
 				s.close();
-			}catch(Exception e) {}
+			}catch(Exception e) {
+				System.out.println("dictionary: cannot open book.");
+
+			}
 		}		
 		searcher=new IOSearcher();
 	}

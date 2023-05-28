@@ -21,13 +21,15 @@ public class IOSearcher implements FileSearcher{
 		boolean found=false;
 		try {
 			for(int i=0;!stopMe && i<fileNames.length && !found; i++) {
-				Scanner s=new Scanner(new File(fileNames[i]));
+				Scanner s=new Scanner(new File("text_files/"+fileNames[i]));
 				while(s.hasNext() && !found && !stopMe)
-					if(s.next().equals(word))
+					if(s.next().toUpperCase().equals(word))
 						found=true;
 				s.close();
 			}
-		}catch(Exception e) {}
+		}catch(Exception e) {
+			System.out.println("cannot open book");
+		}
 		
 		return found;
 	}

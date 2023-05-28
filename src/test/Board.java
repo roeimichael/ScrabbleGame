@@ -1,11 +1,18 @@
 package test;
 
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 
-public class Board {
+public class Board extends Canvas {
 
-	
-	// indexes
 	final byte dl=2;	// double letter
 	final byte tl=3;	// triple letter
 	final byte dw=20;	// double word
@@ -32,12 +39,37 @@ public class Board {
 	Tile[][] tiles;
 	
 	boolean isEmpty;
+	private ArrayList<Word> lastWords;
 	
 	public Board() {
 		tiles=new Tile[15][15];
 		isEmpty=true;
-	}	
-	
+		lastWords=new ArrayList<Word>();
+//		redraw();
+	}
+
+	public Board(Board originalBoard) {
+		this.isEmpty = originalBoard.isEmpty;
+		this.bonus = new byte[15][15];
+		for (int i = 0; i < 15; i++) {
+			System.arraycopy(originalBoard.bonus[i], 0, this.bonus[i], 0, 15);
+		}
+		this.tiles = new Tile[15][15];
+		for (int i = 0; i < 15; i++) {
+			for (int j = 0; j < 15; j++) {
+				if (originalBoard.tiles[i][j] != null) {
+					this.tiles[i][j] = new Tile(originalBoard.tiles[i][j].letter,originalBoard.tiles[i][j].score); // Assuming the Tile class has a copy constructor
+				} else {
+					this.tiles[i][j] = null;
+				}
+			}
+		}
+	}
+
+
+	public byte[][] getBonus() {
+		return bonus;
+	}
 	public Tile[][] getTiles() {
 		return tiles.clone();
 	}
@@ -56,23 +88,35 @@ public class Board {
 		}
 		return false;
 	}
-	
+
+	private boolean check(int i, int j)
+	{
+		boolean ch1=tiles[i][j]!= null;
+		boolean ch2=(inBoard(i + 1, j) && tiles[i + 1][j] != null);
+		boolean ch3=(inBoard(i + 1, j + 1) && tiles[i + 1][j + 1] != null);
+		boolean ch4=(inBoard(i, j + 1) && tiles[i][j + 1] != null);
+		boolean ch5=(inBoard(i - 1, j + 1) && tiles[i - 1][j + 1] != null);
+		boolean ch6=(inBoard(i - 1, j) && tiles[i - 1][j] != null);
+		boolean ch7=(inBoard(i - 1, j - 1) && tiles[i - 1][j - 1] != null);
+		boolean ch8=(inBoard(i, j - 1) && tiles[i][j - 1] != null);
+		boolean ch9=(inBoard(i + 1, j - 1) && tiles[i + 1][j - 1] != null);
+		//System.out.println("checks:"+ch1+" "+ch2+" "+ch3+" "+ch4+" "+ch5+" "+ch6+" "+ch7+" "+ch8+" "+ch9);
+//		return tiles[i][j] != null ||
+//				(inBoard(i + 1, j) && tiles[i + 1][j] != null) ||
+//				(inBoard(i + 1, j + 1) && tiles[i + 1][j + 1] != null) ||
+//				(inBoard(i, j + 1) && tiles[i][j + 1] != null) ||
+//				(inBoard(i - 1, j + 1) && tiles[i - 1][j + 1] != null) ||
+//				(inBoard(i - 1, j) && tiles[i - 1][j] != null) ||
+//				(inBoard(i - 1, j - 1) && tiles[i - 1][j - 1] != null) ||
+//				(inBoard(i, j - 1) && tiles[i][j - 1] != null) ||
+//				(inBoard(i + 1, j - 1) && tiles[i + 1][j - 1] != null);
+		return ch1 || ch2 || ch3 || ch4 || ch5 || ch6 || ch7 || ch8 || ch9;
+	}
 	private boolean crossTile(Word w) {
 		int i=w.getRow(),j=w.getCol();
 		for(int k=0;k<w.getTiles().length;k++) {			
-
-			if(tiles[i][j]!=null || 
-					(inBoard(i+1, j) 	&& tiles[i+1][j]!=null)   ||
-					(inBoard(i+1, j+1) 	&& tiles[i+1][j+1]!=null) ||
-					(inBoard(i, j+1) 	&& tiles[i][j+1]!=null)   ||
-					(inBoard(i-1, j+1) 	&& tiles[i-1][j+1]!=null) ||
-					(inBoard(i-1, j) 	&& tiles[i-1][j]!=null)   ||
-					(inBoard(i-1, j-1) 	&& tiles[i-1][j-1]!=null) ||
-					(inBoard(i, j-1) 	&& tiles[i][j-1]!=null)   ||
-					(inBoard(i+1, j-1) 	&& tiles[i+1][j-1]!=null)
-					)
+			if(check(i,j))
 				return true;
-			
 			if(w.isVertical()) i++; else j++;
 		}
 		return false;
@@ -81,14 +125,31 @@ public class Board {
 	private boolean changesTile(Word w) {
 		int i=w.getRow(),j=w.getCol();
 		for(Tile t : w.getTiles()) {			
-			if(tiles[i][j]!=null && tiles[i][j]!=t)
-				return  true;
+			if(tiles[i][j]!=null && tiles[i][j]!=t)//
+			{
+				System.out.println("tiles[i][j]:"+tiles[i][j]+" t:"+t);
+
+				return true;
+			}
 			if(w.isVertical()) i++; else j++;
 		}
 		return false;
 	}
-	
-	
+
+
+
+	public List<String> getAllFileNames(String folderPath) {
+		try {
+			return Files.walk(Paths.get(folderPath))
+					.filter(Files::isRegularFile)
+					.map(path -> path.getFileName().toString())
+					.collect(Collectors.toList());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
+
 	public boolean boardLegal(Word w) {
 		int row=w.getRow();
 		int col=w.getCol();
@@ -99,30 +160,90 @@ public class Board {
 		if(w.isVertical()) {
 			eCol=col;
 			eRow=row+w.getTiles().length-1;
+//			if(w.getTiles()[w.getTiles().length-1].!=null)
+//				return false;
+
 		}else {
 			eRow=row;
 			eCol=col+w.getTiles().length-1;		
-		}		
+		}
 		if(!inBoard(eRow, eCol))
-			return false;
-		
-		
-		if(isEmpty && !onStar(w))
+		{
+			System.out.println("out of board");
 			return false;
 
-		if(!isEmpty && !crossTile(w))
+		}
+
+//		if(isEmpty && onStar(w) && !isNull(w))
+//			return true;
+
+		if(isEmpty && !onStar(w))
+		{
+			System.out.println("board is empty but word is not on star");
 			return false;
+
+		}
+
+		if(!isEmpty && !crossTile(w)) //
+		{
+			System.out.println("board is not empty but word does not cross any tile");
+			return false;
+
+		}
 
 		if(changesTile(w))
+		{
+			System.out.println("word changes tile");
 			return false;
 
+		}
 		return true;
 	}
 	
 	public boolean dictionaryLegal(Word w) {
-		return  true;
+		// query DictionaryManager
+		String projectPath = System.getProperty("user.dir");
+		Path folderPath = Paths.get(projectPath, "text_files");
+		String searchFolderPath = folderPath.toString();
+		List<String> bookNames = getAllFileNames(searchFolderPath);
+		bookNames.add(w.toString());
+		String[] args = bookNames.toArray(new String[0]);
+		boolean found = DictionaryManager.get().query(args);
+		if (found) {
+			System.out.println("Word found in at least one book.");
+		} else {
+			System.out.println("Word not found in any book.");
+		}
+		return found;
 	}
-	
+
+	public boolean challenge() {
+		// challenge DictionaryManager using this.lastWord
+		// return true if word not found, false if found
+		if(this.lastWords==null || this.lastWords.size()==0)
+			return true;
+		String projectPath = System.getProperty("user.dir");
+		Path folderPath = Paths.get(projectPath, "text_files");
+		String searchFolderPath = folderPath.toString();
+		//List<String> bookNames = getAllFileNames(searchFolderPath);
+		for(int i=0;i<this.lastWords.size();i++)
+		{
+			List<String> bookNamesTemp = getAllFileNames(searchFolderPath);
+			bookNamesTemp.add(this.lastWords.get(i).toString());
+			String[] args = bookNamesTemp.toArray(new String[0]);
+			boolean found = DictionaryManager.get().challenge(args);
+			if (found) {
+				System.out.println("Challenge: Word found in at least one book.");
+			} else {
+				System.out.println("Challenge: Not a Word in my book.");
+				return true;
+			}
+
+
+		}
+		return false;
+	}
+
 	
 	private ArrayList<Word> getAllWords(Tile[][] ts){
 		ArrayList<Word> ws=new ArrayList<>();
@@ -213,7 +334,11 @@ public class Board {
 		int row=w.getRow();
 		int col=w.getCol();
 		for(int i=0;i<ts.length;i++) {
-			if(ts[i]==null)
+			if(ts[i]==null && tiles[row][col]==null)
+			{
+				return 0;
+			}
+			else if(ts[i]==null && tiles[row][col]!=null)
 				ts[i]=tiles[row][col];
 			if(w.isVertical()) row++; else col++;
 		}
@@ -223,12 +348,28 @@ public class Board {
 		int sum=0;				
 		if(boardLegal(test) ) {
 			ArrayList<Word> newWords=getWords(test);
+			System.out.println("newWords: "+newWords);
+			System.out.println("lastWords: "+lastWords);
+			if(lastWords!=null)
+				lastWords.clear();
+			else {
+				lastWords=new ArrayList<>();
+			}
+
+			lastWords.addAll(newWords);
+			System.out.println("newWords: "+newWords);
+
 			for(Word nw : newWords) {				
 				if(dictionaryLegal(nw))
 					sum+=getScore(nw);
 				else
 					return 0;
 			}			
+		}
+		else{
+			System.out.println("Illegal");
+			return 0;
+
 		}
 
 		// the placement
@@ -243,6 +384,7 @@ public class Board {
 			isEmpty=false;
 			bonus[7][7]=0;
 		}
+		System.out.println("Score: "+sum);
 		return sum;
 	}
 
@@ -258,7 +400,5 @@ public class Board {
 		}
 	}
 
-	public byte[][] getBonus() {
-		return bonus;
-	}
+
 }

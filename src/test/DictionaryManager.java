@@ -44,19 +44,27 @@ public class DictionaryManager {
         		Dictionary newdictionary = new Dictionary(book);
         		bookToDictionaryMap.put(book,newdictionary);
         	}
-        	res = res || bookToDictionaryMap.get(book).query(word);
+            if (bookToDictionaryMap.get(book).query(word)) {
+                res = true;
+                System.out.println("Word found in: " + book);
+            }
+
         }
         return res;
     }
 
     public boolean challenge(String... args) {
+        // bloom filter can only return false positive but not false negative
+        // a query returns either "possibly in set" or "definitely not in set"
+        // so if a player drops a word, the next player can challenge it
+
     	ArrayList<Future<Boolean>> fs=new ArrayList<>();//for the results from IOSearchers
         String word = args[args.length - 1];
         String[] books = Arrays.copyOfRange(args, 0, args.length - 1);
         Boolean res = false;
         for (String book : books) {
         	fs.add(es.submit(()->{//searching every dictionary in order to update it				
-    			boolean found = bookToDictionaryMap.get(book).challenge(word);
+    			boolean found = bookToDictionaryMap.get(book).challenge(word.toUpperCase());
     			return found;
     		}));
         }

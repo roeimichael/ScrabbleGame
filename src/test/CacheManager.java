@@ -16,12 +16,12 @@ public class CacheManager {
 	}
 	
 	public boolean query(String word) {		
-		return cache.contains(word);
+		return cache.contains(word.toUpperCase());
 	}
 	
 	public void add(String word) {
-		crp.add(word);
-		cache.add(word);
+		crp.add(word.toUpperCase());
+		cache.add(word.toUpperCase());
 		if(cache.size()>size)
 			cache.remove(crp.remove());
 	}
