@@ -4,6 +4,7 @@ This is a Java-based Scrabble game developed with an MVVM
 (Model-View-ViewModel) architectural pattern and client-server
 connectivity. The game follows the original rules of Scrabble, where
 players take turns forming words on a 15x15 game board.
+![Game Board](src/view/BackGround.png)
 
 ## Features
 
