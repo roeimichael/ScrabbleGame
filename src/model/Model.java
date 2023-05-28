@@ -48,8 +48,8 @@ public class Model extends Observable {
 	public void startHost() {
 		isHost = true;
 		server = new Server();
+		gameManager = server.getGameManager();
 		//if(gameManager == null)
-		gameManager = new GameManager();
 		setChanged();
 		notifyObservers("host");
 		this.getBonus();
@@ -58,6 +58,9 @@ public class Model extends Observable {
 
 	public void startclient() {
 		isHost=false;
+		server= Server.getInstance();
+		//gameManager = server.getGameManager();
+
 	}
 
 	private void assignLetterScores() {

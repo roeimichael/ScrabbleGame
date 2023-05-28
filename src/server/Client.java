@@ -31,7 +31,7 @@ public class Client {
             String msg= in.readLine();
             while(!msg.equals(protocols.EXIT))
             {
-                msg= in.readLine();
+                //msg= in.readLine();
                 msg=protocols.EXIT;
             }
         } catch (IOException e) {

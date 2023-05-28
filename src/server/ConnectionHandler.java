@@ -30,10 +30,8 @@ public class ConnectionHandler implements ClientHandler {
 
     public ConnectionHandler(Socket client, int id) {
         this.client = client;
-        this.id = id + 1;
-
         gameManager = GameManager.getInstance();
-
+        System.out.println("aaa:"+id);
         this.id = id;
         this.score = 0;
         this.hand = new ArrayList<>();
@@ -69,20 +67,20 @@ public class ConnectionHandler implements ClientHandler {
 
         out.println(gameManager.getNumPlayers());
         in = new BufferedReader(new InputStreamReader(inFromClient));
-        if (this.id == 0) {
-            //out.println("YOU ARE THE HOST");
-        } else {
-            //out.println("YOU ARE NOT THE HOST");
-            //out.println(gameManager.players.get(this.id).);
-        }
-        if(gameManager.getNumPlayers()==1)
-        {
-            //out.println("WAITING FOR OTHER PLAYERS");
-        }
-        else
-        {
-            //out.println("STARTING GAME");
-        }
+//        if (this.id == 0) {
+//            //out.println("YOU ARE THE HOST");
+//        } else {
+//            //out.println("YOU ARE NOT THE HOST");
+//            //out.println(gameManager.players.get(this.id).);
+//        }
+//        if(gameManager.getNumPlayers()==1)
+//        {
+//            //out.println("WAITING FOR OTHER PLAYERS");
+//        }
+//        else
+//        {
+//            //out.println("STARTING GAME");
+//        }
         //out.println("Welcome to the server Player " + this.id + "!");
         System.out.println("Client " + this.id + " has connected");
         String msg= null;
@@ -116,6 +114,10 @@ public class ConnectionHandler implements ClientHandler {
                     case protocols.GET_HAND:
                         System.out.println("Getting hand");
                         out.println(GameManager.getInstance().getPlayerHand(id));
+                        break;
+                    case protocols.REFILL_HAND:
+                        System.out.println("Refilling hand");
+                        out.println(GameManager.getInstance().refillHand(id));
                         break;
                 }
                 msg = in.readLine();

@@ -23,6 +23,7 @@ public class protocols {
     public static final String START_GAME = "0006";
     public static final String EXIT = "0007";
     public static final String GET_HAND = "0008";
+    public static final String REFILL_HAND = "0009";
 
 
 }

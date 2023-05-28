@@ -102,13 +102,17 @@ public class SceneController {
 
     public void joinGame() {
         System.out.println("Join button pressed");
-        Client sp = new Client();
-        index = sp.connectToServer();
-        sp.sendMessage(protocols.JOIN_GAME_AS_CLIENT);
+        model.initClient();
+        model.connectClient();
+        index = Model.getClientIndex();
+
+        model.sendMessage(protocols.JOIN_GAME_AS_CLIENT);
 
         primaryStage.setScene(gameScene);
         primaryStage.show();
         model.startclient();
+        model.sendMessage(protocols.REFILL_HAND);
+        model.sendMessage(protocols.GET_HAND);
 
         viewModel.setPlayerID(index);
         viewModel.loadGame();

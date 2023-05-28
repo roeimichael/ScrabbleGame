@@ -62,6 +62,7 @@ public class Server implements Runnable{
     {
         return connections.get(id);
     }
+    public static int id = 0;
 
     public void run()
     {
@@ -75,7 +76,8 @@ public class Server implements Runnable{
             {
                 System.out.println("Waiting for client to connect");
                 Socket client = server.accept();
-                ConnectionHandler handler = new ConnectionHandler(client, connections.size());
+                ConnectionHandler handler = new ConnectionHandler(client, id);
+                id++;
                 handler.setGameManager(gameManager);
 
                 pool.execute(()-> {

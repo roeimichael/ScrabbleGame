@@ -153,6 +153,11 @@ public class GameManager extends Observable {
     {
         players.get(currentPlayerIndex).refillBag(tileBag);
     }
+    public String refillHand(int id) // returns the tiles that were added to the player's hand
+    {
+        players.get(currentPlayerIndex).refillBag(tileBag);
+        return getPlayerHandOut(id);
+    }
     public void printScores()
     {
         System.out.println("**************************SCORES*********************************");

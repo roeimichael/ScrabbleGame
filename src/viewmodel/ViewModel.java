@@ -249,7 +249,21 @@ public class ViewModel extends Observable implements Observer {
 		col.set("");
 		wordDirection.set("");
 		userInput.clear();
-		m.cleanList();
+		//m.cleanList();
+		//getTilesLeft();
+		//playerPoints.set(m.getPlayerScore());
+
+	}
+
+	private void RestartRequest() {
+		System.out.println("restart");
+		updateLetterList();
+		confirm.set("");
+		wordSelected.set("");
+		row.set("");
+		col.set("");
+		wordDirection.set("");
+		userInput.clear();
 		getTilesLeft();
 		playerPoints.set(m.getPlayerScore());
 
