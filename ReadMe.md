@@ -6,7 +6,7 @@ connectivity. The game follows the original rules of Scrabble, where
 players take turns forming words on a 15x15 game board.
 ![Game Board](src/view/BackGround.png)
 
-##Showcase
+## Showcase
 https://youtu.be/z1_ss3ksOLg
 
 ## Features
