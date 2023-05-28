@@ -6,6 +6,9 @@ connectivity. The game follows the original rules of Scrabble, where
 players take turns forming words on a 15x15 game board.
 ![Game Board](src/view/BackGround.png)
 
+##Showcase
+https://youtu.be/z1_ss3ksOLg
+
 ## Features
 
 - MVVM Structure: The project follows the MVVM architectural pattern,
