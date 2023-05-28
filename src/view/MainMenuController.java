@@ -17,6 +17,13 @@ public class MainMenuController implements Observer {
     @FXML
     public void startGame() {
         sceneController.showGame();
+
+    }
+
+    public void joinGame() {
+        // todo - change
+        // join already started game
+        sceneController.joinGame();
     }
 
     @FXML

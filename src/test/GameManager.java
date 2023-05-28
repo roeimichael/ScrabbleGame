@@ -1,12 +1,20 @@
 package test;
 
+import model.ScrabblePlayer;
+import server.Client;
+import server.ConnectionHandler;
+
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Observable;
 
-public class GameManager {
-
+public class GameManager extends Observable {
+    private static GameManager instance = null;
     private Board board; // the current board state
     private Board lastTurnBoard; // the board state after the last turn
-    private ArrayList<Player> players;
+    //private ArrayList<Player> players;
+    //public static ArrayList<ScrabblePlayer> players;
+    public static ArrayList<ConnectionHandler> players;
     private int currentPlayerIndex; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
     private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
@@ -15,19 +23,38 @@ public class GameManager {
 
     public GameManager() {
         this.board =  new Board();
-        this.players = new ArrayList<>();
+        players = new ArrayList<>();
+        //connections = new ArrayList<>();
         this.currentPlayerIndex = 0;
         this.tileBag =  new Tile.Bag();
         this.numPassed=0;
     }
+
+    public static GameManager getInstance() {
+        if(instance == null) {
+            instance = new GameManager();
+        }
+        return instance;
+    }
+
     public byte[][] getBonusBoard(){
         return board.getBonus();
     }
     public void updateBoard(Board board) {
         this.board = board;
     }
-    public void addPlayer(Player player) {
+//    public void addPlayer(Player player) {
+//        players.add(player);
+//    }
+//    public void addPlayer(ScrabblePlayer player) {
+//        players.add(player);
+//        for(int i=0; i<players.size();i++)
+//            System.out.println(players.get(i));
+//    }
+    public void addPlayer(ConnectionHandler player) {
         players.add(player);
+        for(int i=0; i<players.size();i++)
+            System.out.println(i+":"+players.get(i));
     }
     public void removePlayer(Player player) {
         players.remove(player);
@@ -38,7 +65,7 @@ public class GameManager {
     public String getScores()
     {
         String scores="";
-        for(Player p:players)
+        for(ConnectionHandler p:players)
         {
             scores+="Player "+p.getId()+" score: "+p.getScore()+"\n";
         }
@@ -49,12 +76,24 @@ public class GameManager {
         board = new Board();
         tileBag = new Tile.Bag();
         lastScore = 0;
-        for (Player player : players) {
+        for (ConnectionHandler player : players) {
             player.removeTiles();
             player.resetScore();
             player.refillBag(tileBag);
+            System.out.println("Player " + player.getId() + player.gethand());
+            setChanged();
+            notifyObservers("restart");
         }
     }
+
+    public void joinGame(ConnectionHandler player) {
+        players.add(player);
+        player.refillBag(tileBag);
+        System.out.println("Player " + player.getId() + " has joined the game");
+        setChanged();
+        notifyObservers("join");
+    }
+
 
 
     public int placeWord(Word word) {
@@ -83,10 +122,11 @@ public class GameManager {
         numPassed++;
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
     }
-    public Player getCurrentPlayer() {
+    public ConnectionHandler getCurrentPlayer() {
+        System.out.println("Current player is " + players.get(currentPlayerIndex).getId());
         return players.get(currentPlayerIndex);
     }
-    public Player getNextPlayer() {
+    public ConnectionHandler getNextPlayer() {
         return players.get((currentPlayerIndex + 1) % players.size());
     }
 
@@ -100,7 +140,7 @@ public class GameManager {
             return true;
         if(tileBag.size()==0)
             return true;
-        for(Player p:players)
+        for(ConnectionHandler p:players)
         {
             if(p.gethand().size()==0)
                 return true;
@@ -111,9 +151,9 @@ public class GameManager {
 
 
 
-    private Player determineWinner() {
-        Player winner = players.get(0);
-        for (Player player : players) {
+    private ConnectionHandler determineWinner() {
+        ConnectionHandler winner = players.get(0);
+        for (ConnectionHandler player : players) {
             if (player.getScore() > winner.getScore()) {
                 winner = player;
             }
@@ -129,7 +169,7 @@ public class GameManager {
     {
         System.out.println("**************************SCORES*********************************");
 
-        for(Player p:players)
+        for(ConnectionHandler p:players)
         {
             System.out.println("Player " + p.getId() + " has a score of " + p.getScore());
         }
@@ -142,37 +182,37 @@ public class GameManager {
     }
 
 
-    public void runGame()
-    { // main function that runs a scrabble game
-        restartGame();
-        while(!isGameOver())
-        {
-            // get the current player
-            Player currentPlayer = getCurrentPlayer();
-            board.print();
-            if(currentPlayer.choice()==1)
-            {
-                Word word = currentPlayer.getWord();
-                while(placeWord(word)==0)
-                {
-                    word = currentPlayer.getWord();
-                }
-                numPassed=0;
-            }
-            else
-            {
-                numPassed++;
-                if(numPassed==players.size())
-                {
-                    // if all players pass then the game is over
-                    break;
-                }
-            }
-            printScores();
-        }
-        Player winner = determineWinner();
-        System.out.println("The winner is player " + winner.getId() + " with a score of " + winner.getScore());
-    }
+//    public void runGame()
+//    { // main function that runs a scrabble game
+//        restartGame();
+//        while(!isGameOver())
+//        {
+//            // get the current player
+//            ConnectionHandler currentPlayer = getCurrentPlayer();
+//            board.print();
+//            if(currentPlayer.choice()==1)
+//            {
+//                Word word = currentPlayer.getWord();
+//                while(placeWord(word)==0)
+//                {
+//                    word = currentPlayer.getWord();
+//                }
+//                numPassed=0;
+//            }
+//            else
+//            {
+//                numPassed++;
+//                if(numPassed==players.size())
+//                {
+//                    // if all players pass then the game is over
+//                    break;
+//                }
+//            }
+//            printScores();
+//        }
+//        ScrabblePlayer winner = determineWinner();
+//        System.out.println("The winner is player " + winner.getId() + " with a score of " + winner.getScore());
+//    }
 
     public int getTilesLeftInBag() {
         return tileBag.size();
@@ -197,5 +237,17 @@ public class GameManager {
             return false;
 
         }
+    }
+
+    public String getNumPlayersConnected() {
+        return ""+players.size();
+    }
+
+    public String toString() {
+        String s = "";
+        for (ConnectionHandler player : players) {
+            s += player.toString() + "\n";
+        }
+        return s;
     }
 }

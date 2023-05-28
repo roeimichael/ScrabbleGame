@@ -5,6 +5,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.Model;
+import model.ScrabblePlayer;
+import server.Client;
+import server.protocols;
+import test.GameManager;
 import viewmodel.ViewModel;
 
 import java.io.IOException;
@@ -14,15 +18,20 @@ public class SceneController {
     private ViewModel viewModel;
     private Model model;
 
+    private GameManager gameManager;
+
     private Scene mainMenuScene;
     private Scene helpMenuScene;
     private Scene gameScene;
 
     public SceneController(Stage primaryStage) {
         this.primaryStage = primaryStage;
+
         this.model = new Model();
         this.viewModel = new ViewModel(model);
+        this.gameManager = GameManager.getInstance();
         model.addObserver(viewModel);
+        gameManager.addObserver(viewModel);
         this.primaryStage.setWidth(620);  // Width
         this.primaryStage.setHeight(620);  // Height
         this.primaryStage.setResizable(false); // Making sure the window is not resizable
@@ -68,7 +77,27 @@ public class SceneController {
     }
 
     public void showGame() {
+        System.out.println("Host button pressed");
+
+        Client sp = new Client();
+        sp.startServer();
+        sp.sendMessage(protocols.NEW_GAME_AS_HOST);
         primaryStage.setScene(gameScene);
         primaryStage.show();
+        viewModel.restartGame();
+    }
+
+    public void joinGame() {
+        System.out.println("Join button pressed");
+        Client sp = new Client();
+        sp.connectToServer();
+        sp.sendMessage(protocols.JOIN_GAME_AS_CLIENT);
+//        if (viewModel.getGameStarted()) {
+//            System.out.println("Game already started");
+//            return;
+//        }
+        primaryStage.setScene(gameScene);
+        primaryStage.show();
+
     }
 }

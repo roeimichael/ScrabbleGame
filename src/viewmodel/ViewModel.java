@@ -11,13 +11,14 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import model.Model;
+import server.ConnectionHandler;
 import test.CharacterData;
 
 public class ViewModel extends Observable implements Observer {
 
 	Model m;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn,numPlayersConnected; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
@@ -90,6 +91,7 @@ public class ViewModel extends Observable implements Observer {
 			case "pass" -> handlePass();
 			case "undo" -> handleUndoRequest();
 			case "restart" -> handleRestartRequest();
+			case "join" -> handleJoinRequest();
 			case "challenge accepted" -> handleChallengeAccepted();
 
 			default -> {
@@ -98,6 +100,11 @@ public class ViewModel extends Observable implements Observer {
 				}
 			}
 		}
+	}
+
+	private void handleJoinRequest() {
+		confirm.set("Join Request Sent");
+
 	}
 
 	private void handleChallengeAccepted() {
@@ -115,8 +122,11 @@ public class ViewModel extends Observable implements Observer {
 
 	private void updateLetterList() {
 		// update the letters the player see
-		test.Player currentPlayer = m.getCurrentPlayer();
-		letterList.set(FXCollections.observableArrayList(currentPlayer.gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
+		letterList.set(FXCollections.observableArrayList(m.getCurrentPlayer().gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
+	}
+	private void updateLetterList(ConnectionHandler ch) {
+		// update the letters the player see
+		letterList.set(FXCollections.observableArrayList(ch.gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
 	}
 
 	private String getBoardState(Object obj) {
@@ -204,6 +214,7 @@ public class ViewModel extends Observable implements Observer {
 		}
 	}
 	private void handleRestartRequest() {
+		System.out.println("restart");
 		updateLetterList();
 		confirm.set("");
 		wordSelected.set("");
@@ -272,7 +283,8 @@ public class ViewModel extends Observable implements Observer {
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		lastEntry = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
-		turn = new SimpleStringProperty(m.getTurn());
+		turn = new SimpleStringProperty();
+		numPlayersConnected = new SimpleStringProperty("0");
 		//userBoardList = new ArrayList<>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
@@ -292,4 +304,8 @@ public class ViewModel extends Observable implements Observer {
 			turn.set(m.getTurn());
 		}
 	}
+
+    public void startSelected() {
+		m.start();
+    }
 }

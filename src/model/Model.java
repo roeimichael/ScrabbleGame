@@ -1,5 +1,7 @@
 package model;
 import java.util.*;
+
+import server.ConnectionHandler;
 import test.*;
 
 public class Model extends Observable {
@@ -21,8 +23,9 @@ public class Model extends Observable {
 
 	public Model() {
 		gameManager = new GameManager();
-		gameManager.addPlayer(new Player(1));
-		gameManager.addPlayer(new Player(2));
+		;
+//		gameManager.addPlayer(new ScrabblePlayer(1));
+//		gameManager.addPlayer(new ScrabblePlayer(2));
 		gameManager.restartGame();
 		board = gameManager.getBoard();
 		assignLetterScores();
@@ -283,7 +286,8 @@ public class Model extends Observable {
 	}
 
 
-	public Player getCurrentPlayer() {
+	public ConnectionHandler getCurrentPlayer() {
+		System.out.println("current player: "+gameManager.getCurrentPlayer().getId());
 		return gameManager.getCurrentPlayer();
 	}
 
@@ -327,5 +331,12 @@ public class Model extends Observable {
 
 	public String getTurn() {
 		return "Player "+getCurrentPlayer().getId() + "'s turn";
+	}
+
+    public void start() {
+    }
+
+	public String getNumPlayersConnected() {
+		return ""+gameManager.getNumPlayersConnected();
 	}
 }

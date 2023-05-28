@@ -29,11 +29,14 @@ public class BookScrabbleHandler implements ClientHandler {
 			boolean res=false;
 			if(action.equals("Q"))
 			{ //we need to activate query
+				out.println("query");
 				res=dm.query(newArray);
 			}
 			else {
 				if(action.equals("C"))
 				{ //we need to activate challenge
+					out.println("challenge");
+
 					res=dm.challenge(newArray);
 				}
 			}

@@ -13,6 +13,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import model.ScrabblePlayer;
 import test.CharacterData;
 import viewmodel.ViewModel;
 
@@ -24,13 +25,13 @@ public class MainWindowController extends Observable implements Observer   {
     private Stage stage;
 
     @FXML
-    private Button helpButton, restartButton, confirmButton, undoButton, PassButton, ChallengeButton;
+    private Button helpButton, restartButton, confirmButton, undoButton, PassButton, ChallengeButton, startButton;
     @FXML
     private ListView<String> letterList; // shows the letters the user has in his hand, right upper corner
     @FXML
     private GridPane gameBoard;
     @FXML
-    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, turn, playerPoints;
+    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, turn, playerPoints, numPlayersConnected;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
     private ListProperty<String>  currentHand = new SimpleListProperty<>(); // list of all the letters the user has in his hand, binds to letterList in vm
@@ -42,7 +43,7 @@ public class MainWindowController extends Observable implements Observer   {
         this.vm = vm;
         bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
         bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
-        restartGame(); // shows the bonus tiles on the board
+
 
         confirmSelected.textProperty().bind(vm.confirm); // binds confirm to the confirm string in the viewmodel
         tilesLeft.textProperty().bind(vm.tilesLeft); // binds reslabel to the tilesLeft string in the viewmodel
@@ -53,6 +54,7 @@ public class MainWindowController extends Observable implements Observer   {
         userInput.bind(vm.userInput); // binds legal to the legal boolean in the viewmodel
         letterList.itemsProperty().bind(vm.letterList); // binds the letterList to the letterList in the viewmodel
         playerPoints.textProperty().bind(vm.playerPoints); // binds the playerPoints to the playerPoints in the viewmodel
+        numPlayersConnected.textProperty().bind(vm.numPlayersConnected); // binds the numPlayersConnected to the numPlayersConnected in the viewmodel
         //letterList.setItems(currentHand.get());
 
         for(int i=0;i<15;i++)
@@ -140,6 +142,14 @@ public class MainWindowController extends Observable implements Observer   {
         System.out.println("Challenge button pressed"); // just a check to see if the button works
 
         vm.challengeSelected(); // activates the challengeSelected function from the viewmodel
+
+    }
+    @FXML
+    public void start()
+    {
+        System.out.println("Start button pressed"); // just a check to see if the button works
+
+        vm.restartGame(); // activates the startSelected function from the viewmodel
 
     }
 
