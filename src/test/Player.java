@@ -105,4 +105,7 @@ public class Player {
         return new Word(array,row,col,vert);
 
     }
+    public String toString(){
+        return "Player "+id+" score: "+score;
+    }
 }

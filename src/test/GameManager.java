@@ -45,7 +45,7 @@ public class GameManager {
         return scores;
     }
     public void restartGame(){
-
+        numPassed = 0;
         board = new Board();
         tileBag = new Tile.Bag();
         lastScore = 0;

@@ -7,7 +7,7 @@ public class Model extends Observable {
 	private String help;
 	private String confirm;
 	private char letter;
-
+	Boolean isgameover = false;
 	public HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
 	public ArrayList<CharacterData> characterList = new ArrayList<>(); // saves the letters the user has selected to put on the board in the current turn
 	private ArrayList<CharacterData> lastEntry = new ArrayList<>(); // saves the letters the user has selected int his previous turn in order to undo in a later turn
@@ -106,9 +106,16 @@ public class Model extends Observable {
 	}
 	public void passSelected() {
 		// need to check if game is over
-
 		gameManager.passTurn();
-		//gameManager.isGameOver();
+
+		if (gameManager.isGameOver())
+		{
+			Player winner = gameManager.determineWinner();
+			System.out.println("Winner is: " + winner);
+			setChanged();
+			notifyObservers("endGame");
+		}
+
 		setChanged();
 		notifyObservers("pass");
 

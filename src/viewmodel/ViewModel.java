@@ -17,7 +17,7 @@ public class ViewModel extends Observable implements Observer {
 
 	Model m;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn,isGameOver; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
@@ -91,6 +91,7 @@ public class ViewModel extends Observable implements Observer {
 			case "undo" -> handleUndoRequest();
 			case "restart" -> handleRestartRequest();
 			case "challenge accepted" -> handleChallengeAccepted();
+			case "endGame" -> handleEndGame();
 
 			default -> {
 				if (obj instanceof Character) {
@@ -98,6 +99,10 @@ public class ViewModel extends Observable implements Observer {
 				}
 			}
 		}
+	}
+
+	private void handleEndGame() {
+		isGameOver.set("yes");
 	}
 
 	private void handleChallengeAccepted() {
@@ -261,6 +266,7 @@ public class ViewModel extends Observable implements Observer {
 
 	private void initializeProperties() {
 		board = new SimpleStringProperty[15][15];
+		isGameOver = new SimpleStringProperty();
 		confirm = new SimpleStringProperty();
 		tilesLeft = new SimpleStringProperty();
 		letter = new SimpleStringProperty();

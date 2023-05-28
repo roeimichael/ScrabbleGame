@@ -30,7 +30,7 @@ public class MainWindowController extends Observable implements Observer   {
     @FXML
     private GridPane gameBoard;
     @FXML
-    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, turn, playerPoints;
+    private Label tilesLeft, letterSelected, confirmSelected, wordAdded, turn, playerPoints,isGameOver;
     private TextField[][] slots;
     private IntegerProperty[][] bonusData;
     private ListProperty<String>  currentHand = new SimpleListProperty<>(); // list of all the letters the user has in his hand, binds to letterList in vm
@@ -43,7 +43,7 @@ public class MainWindowController extends Observable implements Observer   {
         bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
         bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
         restartGame(); // shows the bonus tiles on the board
-
+        isGameOver.textProperty().bind(vm.isGameOver);
         confirmSelected.textProperty().bind(vm.confirm); // binds confirm to the confirm string in the viewmodel
         tilesLeft.textProperty().bind(vm.tilesLeft); // binds reslabel to the tilesLeft string in the viewmodel
         letterSelected.textProperty().bind(vm.letter); // binds letterSelected to the letterSelected string in the viewmodel
@@ -132,6 +132,9 @@ public class MainWindowController extends Observable implements Observer   {
         System.out.println("Pass button pressed"); // just a check to see if the button works
 
         vm.passSelected(); // activates the undoSelected function from the viewmodel
+        if(isGameOver.getText()!= null && isGameOver.getText().equals("yes")){
+            sceneController.showMainMenu();
+        }
 
     }
     @FXML

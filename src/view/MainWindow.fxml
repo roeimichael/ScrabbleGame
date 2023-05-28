@@ -13,6 +13,8 @@
       <HBox fx:id="buttonContainer" alignment="CENTER" prefHeight="14.0" prefWidth="505.0">
          <children>
             <Label fx:id="tilesLeft" prefHeight="18.0" prefWidth="182.0" text="num of tiles in bag" />
+            <Label fx:id="isGameOver" prefHeight="18.0" prefWidth="182.0" text="." />
+
             <Button fx:id="helpButton" mnemonicParsing="false" onAction="#showHelp" prefHeight="26.0" prefWidth="51.0" text="Help" />
             <Button fx:id="restartButton" mnemonicParsing="false" onAction="#restartGame" prefHeight="26.0" prefWidth="96.0" text="Restart Game" />
             <Label fx:id="letterSelected" prefHeight="13.0" prefWidth="47.0" text="letter" />
