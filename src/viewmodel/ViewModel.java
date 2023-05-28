@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import model.Model;
+import server.Client;
 import server.ConnectionHandler;
 import test.CharacterData;
 
@@ -151,7 +153,7 @@ public class ViewModel extends Observable implements Observer {
 
 	private void updateLetterList() {
 		// update the letters the player see
-		letterList.set(FXCollections.observableArrayList(m.getplayerbyid(PlayerIndex).gethand().stream().map(test.Tile::toString).collect(Collectors.toList())));
+		letterList.set(FXCollections.observableArrayList(Model.getClient().getClientHand()));
 	}
 
 	private String getBoardState(Object obj) {
@@ -217,7 +219,7 @@ public class ViewModel extends Observable implements Observer {
 		}
 		userInput.clear();
 		m.cleanList();
-		updateLetterList();
+		//TODO: notice that "updateLetterList();" was used for 2 players in 1 screen
 		//getTilesLeft();
 	}
 

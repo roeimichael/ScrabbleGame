@@ -10,10 +10,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Client {
     private Socket client;
     private BufferedReader in;
+    private static Client instance;
     private PrintWriter out;
     public String index;
     public String connectToServer() {
@@ -22,12 +24,10 @@ public class Client {
             client = new Socket("127.0.0.1", 9999);
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            InputHandler inHandler = new InputHandler();
             index = in.readLine();
             System.out.println(index);
 
-            Thread t = new Thread(inHandler);
-            t.start();
+
             String msg= in.readLine();
             while(!msg.equals(protocols.EXIT))
             {
@@ -41,8 +41,27 @@ public class Client {
         return index;
     }
 
+    public static Client getClientInstance(){
+        if(instance == null)
+            instance = new Client();
+        return instance;
+    }
     public void sendMessage(String message) {
         out.println(message);
+    }
+    public ArrayList<String> getClientHand(){
+        out.println(protocols.GET_HAND);
+        ArrayList<String> hand=new ArrayList<>();
+        //TODO: make sure that we will get in the following format: A,B,C,D,E,F,G
+        try {
+            String[] letters=in.readLine().split(",");
+            for(String letter:letters)
+                hand.add(letter);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return hand;
     }
 
     public void shutdown() {
@@ -58,6 +77,10 @@ public class Client {
         }
     }
 
+    public String getIndex() {
+        return index;
+    }
+
     class InputHandler implements Runnable {
         public void run() {
             try {
@@ -70,4 +93,5 @@ public class Client {
             }
         }
     }
+
 }

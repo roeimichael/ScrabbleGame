@@ -246,8 +246,13 @@ public class GameManager extends Observable {
 
     public String getPlayerHand(int id) {
         String hand = "";
-        for(int i=0; i<players.get(id).gethand().size();i++)
-            hand+=players.get(id).gethand().get(i).getLetter();
+        for(int i=0; i<players.get(id).gethand().size();i++) {
+            hand += players.get(id).gethand().get(i).getLetter();
+            if(i!=players.get(id).gethand().size()-1)
+                hand += ",";
+        }
+        hand+= "\n";
+
         return hand;
     }
 }

@@ -1,6 +1,7 @@
 package model;
 import java.util.*;
 
+import server.Client;
 import server.ConnectionHandler;
 import server.Server;
 import test.*;
@@ -19,17 +20,31 @@ public class Model extends Observable {
 	static Server server;
 	boolean isHost = false;
 
+	private static Client client;
+
 //	if(isHost)
 //	{
 	private static GameManager gameManager;
 	private Board board;
+
+	public static String getClientIndex() {
+		return client.getIndex();
+	}
 //	}
 
+	public void initClient(){
+		client = new Client();
+	}
 	public Model() {
 
 		assignLetterScores();
 		this.boardState = "";
 	}
+
+	public static Client getClient() {
+		return client;
+	}
+
 	public void startHost() {
 		isHost = true;
 		server = new Server();
@@ -368,5 +383,11 @@ public class Model extends Observable {
 	}
 
 
+	public void sendMessage(String message) {
+		client.sendMessage(message);
+	}
 
+	public void connectClient() {
+		client.connectToServer();
+	}
 }

@@ -70,20 +70,20 @@ public class ConnectionHandler implements ClientHandler {
         out.println(gameManager.getNumPlayers());
         in = new BufferedReader(new InputStreamReader(inFromClient));
         if (this.id == 0) {
-            out.println("YOU ARE THE HOST");
+            //out.println("YOU ARE THE HOST");
         } else {
-            out.println("YOU ARE NOT THE HOST");
+            //out.println("YOU ARE NOT THE HOST");
             //out.println(gameManager.players.get(this.id).);
         }
         if(gameManager.getNumPlayers()==1)
         {
-            out.println("WAITING FOR OTHER PLAYERS");
+            //out.println("WAITING FOR OTHER PLAYERS");
         }
         else
         {
-            out.println("STARTING GAME");
+            //out.println("STARTING GAME");
         }
-        out.println("Welcome to the server Player " + this.id + "!");
+        //out.println("Welcome to the server Player " + this.id + "!");
         System.out.println("Client " + this.id + " has connected");
         String msg= null;
         try {
@@ -94,11 +94,11 @@ public class ConnectionHandler implements ClientHandler {
                 {
                     case protocols.NEW_GAME_AS_HOST:
                         System.out.println("Starting new game as host");
-                        gameManager.startNewGame();
+                        //gameManager.startNewGame();
                         break;
                     case protocols.JOIN_GAME_AS_CLIENT:
                         System.out.println("Joining game as client");
-                        gameManager.joinGame();
+                        //gameManager.joinGame();
                         break;
                     case protocols.HELP:
                         System.out.println("Helping");
@@ -118,6 +118,7 @@ public class ConnectionHandler implements ClientHandler {
                         out.println(GameManager.getInstance().getPlayerHand(id));
                         break;
                 }
+                msg = in.readLine();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

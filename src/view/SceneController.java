@@ -80,17 +80,19 @@ public class SceneController {
 
     public void showGame() {
         System.out.println("Host button pressed");
-        Client sp = new Client();
+        model.initClient();
         Server server = Server.getInstance();
         new Thread(server).start();
         try {
             Thread.sleep(1000); // need a sleep to wait for server to start
-            index = sp.connectToServer();
+            model.connectClient();
+            index = Model.getClientIndex();
+            System.out.println("Client index: " + index);
         } catch (InterruptedException e) {
             System.out.println("Error starting server");
             e.printStackTrace();
         }
-        sp.sendMessage(protocols.NEW_GAME_AS_HOST);
+        model.sendMessage(protocols.NEW_GAME_AS_HOST);
         primaryStage.setScene(gameScene);
         primaryStage.show();
         model.startHost();
