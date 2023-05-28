@@ -31,9 +31,9 @@ public class SceneController {
 
         this.model = new Model();
         this.viewModel = new ViewModel(model);
-        this.gameManager = GameManager.getInstance();
+        //this.gameManager = GameManager.getInstance();
         model.addObserver(viewModel);
-        gameManager.addObserver(viewModel);
+        //gameManager.addObserver(viewModel);
         this.primaryStage.setWidth(620);  // Width
         this.primaryStage.setHeight(620);  // Height
         this.primaryStage.setResizable(false); // Making sure the window is not resizable
@@ -82,7 +82,7 @@ public class SceneController {
         System.out.println("Host button pressed");
         Client sp = new Client();
         Server server = Server.getInstance();
-        new Thread(() -> server.run()).start();
+        new Thread(server).start();
         try {
             Thread.sleep(1000); // need a sleep to wait for server to start
             index = sp.connectToServer();
@@ -93,6 +93,7 @@ public class SceneController {
         sp.sendMessage(protocols.NEW_GAME_AS_HOST);
         primaryStage.setScene(gameScene);
         primaryStage.show();
+        model.startHost();
         viewModel.setPlayerID(index);
         viewModel.restartGame();
     }
@@ -102,8 +103,11 @@ public class SceneController {
         Client sp = new Client();
         index = sp.connectToServer();
         sp.sendMessage(protocols.JOIN_GAME_AS_CLIENT);
+
         primaryStage.setScene(gameScene);
         primaryStage.show();
+        model.startclient();
+
         viewModel.setPlayerID(index);
         viewModel.loadGame();
     }

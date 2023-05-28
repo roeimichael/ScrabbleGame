@@ -21,6 +21,8 @@ public class protocols {
     public static final String CHALLENGE = "0004";
     public static final String QUIT = "0005";
     public static final String START_GAME = "0006";
+    public static final String EXIT = "0007";
+    public static final String GET_HAND = "0008";
 
 
 }

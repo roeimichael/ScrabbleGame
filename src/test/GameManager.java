@@ -4,15 +4,13 @@ import model.ScrabblePlayer;
 import server.Client;
 import server.ConnectionHandler;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Observable;
+import java.util.*;
 
 public class GameManager extends Observable {
     private static GameManager instance = null;
     private Board board;
     private Board lastTurnBoard;
-    public static ArrayList<ConnectionHandler> players;
+    public List<ConnectionHandler> players ;
     private int currentPlayerIndex;
     private Tile.Bag tileBag;
     private BookScrabbleHandler bookScrabbleHandler;
@@ -21,14 +19,15 @@ public class GameManager extends Observable {
 
     public GameManager() {
         this.board =  new Board();
-        players = new ArrayList<>();
+        players = Collections.synchronizedList(new ArrayList<>());
         this.currentPlayerIndex = 0;
         this.tileBag =  new Tile.Bag();
         this.numPassed=0;
     }
 
-    public static GameManager getInstance() {
+    public static synchronized  GameManager getInstance() {
         if(instance == null) {
+            System.out.println("Creating new GameManager");
             instance = new GameManager();
         }
         return instance;
@@ -241,6 +240,14 @@ public class GameManager extends Observable {
     }
 
     public ConnectionHandler getPlayerById(int index) {
+        System.out.println(players);
         return players.get(index);
+    }
+
+    public String getPlayerHand(int id) {
+        String hand = "";
+        for(int i=0; i<players.get(id).gethand().size();i++)
+            hand+=players.get(id).gethand().get(i).getLetter();
+        return hand;
     }
 }

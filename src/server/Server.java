@@ -32,12 +32,17 @@ public class Server implements Runnable{
         gameManager = GameManager.getInstance();
     }
 
-    public static Server getInstance()
+    public static synchronized Server getInstance()
     {
         if(instance==null)
             instance = new Server();
         return instance;
     }
+
+    public GameManager getGameManager() {
+        return gameManager;
+    }
+
     public void setGameStarted() {
         isGameInProgress = true;
     }
@@ -53,11 +58,16 @@ public class Server implements Runnable{
     {
         return connections;
     }
+    public ConnectionHandler getPlayerById(int id)
+    {
+        return connections.get(id);
+    }
 
     public void run()
     {
         try {
             setGameStarted();
+
             System.out.println("Server is running");
             server = new ServerSocket(9999);
             pool = Executors.newCachedThreadPool();
@@ -66,10 +76,10 @@ public class Server implements Runnable{
                 System.out.println("Waiting for client to connect");
                 Socket client = server.accept();
                 ConnectionHandler handler = new ConnectionHandler(client, connections.size());
+                handler.setGameManager(gameManager);
 
                 pool.execute(()-> {
                     try {
-
                         connections.add(handler);
                         handler.handleClient(client.getInputStream(),client.getOutputStream());
 

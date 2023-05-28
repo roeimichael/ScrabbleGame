@@ -2,6 +2,7 @@ package model;
 import java.util.*;
 
 import server.ConnectionHandler;
+import server.Server;
 import test.*;
 
 public class Model extends Observable {
@@ -15,6 +16,9 @@ public class Model extends Observable {
 	private int rowCur = -1, colCur = -1;
 	String wordSelected=""; // saves the word the user has selected
 
+	static Server server;
+	boolean isHost = false;
+
 //	if(isHost)
 //	{
 	private static GameManager gameManager;
@@ -22,11 +26,23 @@ public class Model extends Observable {
 //	}
 
 	public Model() {
-		gameManager = GameManager.getInstance();
-//		gameManager.restartGame();
-		board = gameManager.getBoard();
+
 		assignLetterScores();
 		this.boardState = "";
+	}
+	public void startHost() {
+		isHost = true;
+		server = new Server();
+		//if(gameManager == null)
+		gameManager = new GameManager();
+		setChanged();
+		notifyObservers("host");
+		this.getBonus();
+
+	}
+
+	public void startclient() {
+		isHost=false;
 	}
 
 	private void assignLetterScores() {
@@ -338,7 +354,19 @@ public class Model extends Observable {
 	}
 
 	public ConnectionHandler getplayerbyid(int index) {
-		return gameManager.getPlayerById(index);
+		if(isHost)
+		{
+			gameManager=GameManager.getInstance();
+			return gameManager.getPlayerById(index);
+		}
+		else {
+			server = Server.getInstance();
+			return server.getPlayerById(index);
+
+		}
+
 	}
+
+
 
 }

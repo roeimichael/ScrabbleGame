@@ -3,6 +3,8 @@ package server;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import test.GameManager;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +28,12 @@ public class Client {
 
             Thread t = new Thread(inHandler);
             t.start();
+            String msg= in.readLine();
+            while(!msg.equals(protocols.EXIT))
+            {
+                msg= in.readLine();
+                msg=protocols.EXIT;
+            }
         } catch (IOException e) {
             System.out.println(e);
             System.out.println("Server is not running");

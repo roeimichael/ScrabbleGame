@@ -17,6 +17,27 @@ import test.CharacterData;
 public class ViewModel extends Observable implements Observer {
 
 	Model m;
+	final byte dl=2;	// double letter
+	final byte tl=3;	// triple letter
+	final byte dw=20;	// double word
+	final byte tw=30;	// triple word
+	private byte[][] bonus= {
+			{tw,0,0,dl,0,0,0,tw,0,0,0,dl,0,0,tw},
+			{0,dw,0,0,0,tl,0,0,0,tl,0,0,0,dw,0},
+			{0,0,dw,0,0,0,dl,0,dl,0,0,0,dw,0,0},
+			{dl,0,0,dw,0,0,0,dl,0,0,0,dw,0,0,dl},
+			{0,0,0,0,dw,0,0,0,0,0,dw,0,0,0,0},
+			{0,tl,0,0,0,tl,0,0,0,tl,0,0,0,tl,0},
+			{0,0,dl,0,0,0,dl,0,dl,0,0,0,dl,0,0},
+			{tw,0,0,dl,0,0,0,dw,0,0,0,dl,0,0,tw},
+			{0,0,dl,0,0,0,dl,0,dl,0,0,0,dl,0,0},
+			{0,tl,0,0,0,tl,0,0,0,tl,0,0,0,tl,0},
+			{0,0,0,0,dw,0,0,0,0,0,dw,0,0,0,0},
+			{dl,0,0,dw,0,0,0,dl,0,0,0,dw,0,0,dl},
+			{0,0,dw,0,0,0,dl,0,dl,0,0,0,dw,0,0},
+			{0,dw,0,0,0,tl,0,0,0,tl,0,0,0,dw,0},
+			{tw,0,0,dl,0,0,0,tw,0,0,0,dl,0,0,tw}
+	};
 	public int PlayerIndex;
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
 	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn,numPlayersConnected; // all strings that binded to labels in the view
@@ -65,6 +86,7 @@ public class ViewModel extends Observable implements Observer {
 		for (int i = 0; i < 15; i++)
 			for (int j = 0; j < 15; j++) {
 				bonus_vm[i][j] = new SimpleIntegerProperty();
+				//bonus_vm[i][j].set(bonus[i][j]);
 				bonus_vm[i][j].set(bonus[i][j]);
 			}
 
@@ -94,6 +116,7 @@ public class ViewModel extends Observable implements Observer {
 			case "restart" -> handleRestartRequest();
 			case "join" -> handleJoinRequest();
 			case "challenge accepted" -> handleChallengeAccepted();
+			case "host" -> handleHost();
 
 			default -> {
 				if (obj instanceof Character) {
@@ -101,6 +124,11 @@ public class ViewModel extends Observable implements Observer {
 				}
 			}
 		}
+	}
+
+	private void handleHost() {
+		setBonus_vm(m.getBonus());
+
 	}
 
 	private void handleJoinRequest() {
@@ -260,7 +288,7 @@ public class ViewModel extends Observable implements Observer {
 		for (int i = 0; i < 15; i++) {
 			for (int j = 0; j < 15; j++) {
 				board[i][j].set("");
-				switch (bonus_vm[i][j].getValue()) {
+				switch (bonus[i][j]) { //.getValue()
 					case 2 -> background[i][j].set(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
 					case 3 -> background[i][j].set(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
 					case 20 -> background[i][j].set(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
@@ -280,7 +308,7 @@ public class ViewModel extends Observable implements Observer {
 		row = new SimpleStringProperty();
 		col = new SimpleStringProperty();
 		wordDirection = new SimpleStringProperty();
-		playerPoints = new SimpleStringProperty(m.getPlayerScore());
+		playerPoints = new SimpleStringProperty();
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		lastEntry = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
@@ -289,7 +317,6 @@ public class ViewModel extends Observable implements Observer {
 		//userBoardList = new ArrayList<>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
-		setBonus_vm(m.getBonus());
 		for (int i = 0; i < 15; i++)
 			for (int j = 0; j < 15; j++) {
 				board[i][j] = new SimpleStringProperty();

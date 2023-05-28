@@ -39,6 +39,10 @@ public class ConnectionHandler implements ClientHandler {
         this.hand = new ArrayList<>();
     }
 
+    public void setGameManager(GameManager gameManager) {
+        this.gameManager = gameManager;
+    }
+
     public void sendMessage(String mes) {
         out.println(mes);
     }
@@ -61,15 +65,64 @@ public class ConnectionHandler implements ClientHandler {
 
         gameManager.addPlayer(this);
         out = new PrintWriter(outToClient, true);
-        in = new BufferedReader(new InputStreamReader(inFromClient));
         out.println(id);
-        if (this.id == 1) {
+
+        out.println(gameManager.getNumPlayers());
+        in = new BufferedReader(new InputStreamReader(inFromClient));
+        if (this.id == 0) {
             out.println("YOU ARE THE HOST");
         } else {
             out.println("YOU ARE NOT THE HOST");
+            //out.println(gameManager.players.get(this.id).);
+        }
+        if(gameManager.getNumPlayers()==1)
+        {
+            out.println("WAITING FOR OTHER PLAYERS");
+        }
+        else
+        {
+            out.println("STARTING GAME");
         }
         out.println("Welcome to the server Player " + this.id + "!");
         System.out.println("Client " + this.id + " has connected");
+        String msg= null;
+        try {
+            msg = in.readLine();
+            while(!msg.equals(protocols.EXIT))
+            {
+                switch (msg)
+                {
+                    case protocols.NEW_GAME_AS_HOST:
+                        System.out.println("Starting new game as host");
+                        gameManager.startNewGame();
+                        break;
+                    case protocols.JOIN_GAME_AS_CLIENT:
+                        System.out.println("Joining game as client");
+                        gameManager.joinGame();
+                        break;
+                    case protocols.HELP:
+                        System.out.println("Helping");
+                        out.println("Commands:\n" +
+                                "new game as host\n" +
+                                "join game as client\n" +
+                                "help\n" +
+                                "exit");
+                        break;
+                    case protocols.CONFIRM:
+                        System.out.println("Confirming");
+                        out.println("Confirmed");
+                        break;
+
+                    case protocols.GET_HAND:
+                        System.out.println("Getting hand");
+                        out.println(GameManager.getInstance().getPlayerHand(id));
+                        break;
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
