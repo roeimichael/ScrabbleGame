@@ -9,13 +9,14 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PlayerHandler implements ClientHandler, Observer {
+public class PlayerHandler implements ClientHandler{
     //private Socket client;
     private BufferedReader in;
     private PrintWriter out;
     private boolean exit=false;
     private int PlayerId;
     private static AtomicInteger connectedClients = new AtomicInteger(0);
+    private static AtomicInteger turn = new AtomicInteger(0);
     private static AtomicBoolean startGame = new AtomicBoolean(false);
 
     @Override
@@ -60,13 +61,16 @@ public class PlayerHandler implements ClientHandler, Observer {
                     mgm = miniGameManager.get();
                 } while (!startGame.get());
 //                out.println("game started");
-
+                // delay of 1 second to make sure the host has already started the game
+                Thread.sleep(1000);
             }
             mgm=miniGameManager.get();
 //            mgm.setPlayerLetters(PlayerId,randomLetters()); // a new player is connected, so we give him 7 random letters
             out.println(mgm.getPlayerLetters(PlayerId));
             System.out.println("client "+PlayerId+" has letters: "+mgm.getPlayerLetters(PlayerId));
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -75,6 +79,16 @@ public class PlayerHandler implements ClientHandler, Observer {
         // server waits for a message from the client
         while(!exit)
         {
+            // first send the turn to the client
+            out.println(turn.get());
+            System.out.println("turn: "+turn.get());
+            while(turn.get()!=PlayerId) {
+            }
+            // then send the board to the client
+            mgm=miniGameManager.get();
+            out.println(mgm.getBoard());
+            System.out.println("getBoard");
+
             try {
                 msgFromPlayer= in.readLine();
             } catch (IOException e) {
@@ -110,9 +124,9 @@ public class PlayerHandler implements ClientHandler, Observer {
                 }
                 case (protocols.ADD_WORD) -> {
                     mgm=miniGameManager.get();
-                    int turn= mgm.getTurn();
+                    turn.set(mgm.getTurn());
                     out.println(protocols.ADD_WORD);
-                    if(turn!=PlayerId)
+                    if(turn.get()!=PlayerId)
                     {
                         out.println("not your turn");
                         break;
@@ -125,6 +139,7 @@ public class PlayerHandler implements ClientHandler, Observer {
                         int position=Integer.parseInt(in.readLine());
                         mgm.addLetter(position,letter);
                         mgm.changeTurn();
+                        turn.set(mgm.getTurn());
 
                         mgm.printBoard();// print board in the server
                     } catch (IOException e) {
@@ -170,11 +185,4 @@ public class PlayerHandler implements ClientHandler, Observer {
         return randomLetters;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        miniGameManager mgm = miniGameManager.get();
-        out.println(mgm.getBoard());
-
-
-    }
 }

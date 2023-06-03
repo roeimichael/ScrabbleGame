@@ -38,6 +38,7 @@ public class newServer {
         try {
             Class<? extends ClientHandler> chClass = this.ch.getClass();
             ClientHandler chNew = chClass.getDeclaredConstructor().newInstance();
+
             OutputStream outputStream = client.getOutputStream();
             PrintWriter writer = new PrintWriter(outputStream, true);
             // first step: send the client his id

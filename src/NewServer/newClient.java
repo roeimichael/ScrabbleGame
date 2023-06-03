@@ -72,10 +72,29 @@ public class newClient{
             System.out.println("Game Started");
             letterList=in.readLine();
             System.out.println("Client "+this.id+": "+letterList);
-
+            int turn;
             // while loop until we get the exit message
             while(!msgFromServer.equals("bye"))
             {
+                turn = Integer.parseInt(in.readLine());
+                System.out.println("Turn: "+turn);
+                if(turn==id)
+                {
+                    System.out.println("Your turn");
+                }
+                else
+                {
+                    System.out.println("Waiting for other players");
+                }
+                // get the updated board
+                String board=in.readLine();
+                for(int i=0;i<9;i++){
+                    System.out.print(board.charAt(i));
+                    if(i%3==2){
+                        System.out.println();
+                    }
+                }
+
                 // getting a message from the user and sending it to the server
                 System.out.println("Choose your move:\n 1.confirm\n 2.exit\n 3.challenge\n 4.query\n 5.getHand\n 6.addWord\n 7.getBoard ");
                 BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
@@ -133,7 +152,7 @@ public class newClient{
 
                         }
                         case(protocols.GET_BOARD) -> {
-                            String board=in.readLine();
+                            board=in.readLine();
                             for(int i=0;i<9;i++){
                                 System.out.print(board.charAt(i));
                                 if(i%3==2){
@@ -151,6 +170,7 @@ public class newClient{
         } catch (IOException e) {
             System.out.println(e);
             System.out.println("Server is not running");
+
         }
 
 
