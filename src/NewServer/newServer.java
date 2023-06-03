@@ -41,7 +41,9 @@ public class newServer {
 
             OutputStream outputStream = client.getOutputStream();
             PrintWriter writer = new PrintWriter(outputStream, true);
+
             // first step: send the client his id
+
             writer.println(counter); // Send the ID to the client
             System.out.println("Client number "+counter+" connected");
             counter++;
