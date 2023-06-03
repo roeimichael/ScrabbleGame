@@ -71,6 +71,7 @@ public class PlayerHandler implements ClientHandler{
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
+            System.out.println("InterruptedException");
             throw new RuntimeException(e);
         }
 

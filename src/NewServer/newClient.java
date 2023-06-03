@@ -3,9 +3,12 @@ package NewServer;
 import server.Server;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class newClient{
+    private String ip;
+    private int port;
     private Socket client;
     private BufferedReader in;
     private PrintWriter out;
@@ -13,7 +16,31 @@ public class newClient{
     private String letterList;
     private boolean isHost=false;
 
+    public newClient(String ip, int port)
+    {
+        this.ip=ip;
+        this.port=port;
+    }
+    public void host() throws InterruptedException {
+        newServer server = new newServer(9999, new PlayerHandler());
+        server.start();
+        Thread.sleep(1000); // make sure the server is up before connecting to it
+    }
+    public void initializeClient() throws IOException {
+        out = new PrintWriter(client.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+    }
 
+    public void getPlayerID() throws IOException {
+        // messages: server -> client -> PlayerHandler
+
+        // first step: when the client connects to the server, the server sends him his id
+        this.id = Integer.parseInt(in.readLine());
+        System.out.println("Connected to server, client "+id);
+        isHost= id == 0;
+        // second step: sending it back to the playerHandler
+        out.println(id);
+    }
 
     public void connectToServer() {
         try {
@@ -22,12 +49,9 @@ public class newClient{
             out = new PrintWriter(client.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             // first step: when the client connects to the server, the server sends him his id
-            this.id = Integer.parseInt(in.readLine());
-            System.out.println("Connected to server, client "+id);
-            isHost= id == 0;
-            // getting id of the user and sending it to the server
-            out.println(id);
+            getPlayerID();
             // getting a message from the server and printing it
+
             String msgFromServer= in.readLine();
             System.out.println("[Server]: "+msgFromServer); // "you are the host" or "you are a guest"
             if(isHost)
@@ -105,66 +129,67 @@ public class newClient{
                 if((msgFromServer=in.readLine())!=null)
                 {
                     System.out.println("Server: "+msgFromServer);
-                    switch (msgFromServer) {
-                        case (protocols.CONFIRM) -> //confirm
-                        {
-                            System.out.println("confirm");
-                        }
-                        case (protocols.EXIT) -> { // exit
-                            out.println(id); // exising client sends his id to the server
-                            System.out.println("Client "+id+" is exiting");
-                            return;
-                        }
-                        case (protocols.CHALLENGE) -> { // challenge
-                            System.out.println("challenge");
-                        }
-                        case (protocols.QUERY) -> { // query
-                            System.out.println("query");
-                        }
-                        case (protocols.GET_HAND) -> { // getHand
-                            System.out.println("getHand");
-                            letterList=in.readLine();
-                            System.out.println("Client "+this.id+": "+letterList);
-                        }
-                        case (protocols.ADD_WORD) -> {
-                            System.out.println("addWord");
-                            String msg=in.readLine();
-                            if(msg.equals("not your turn"))
-                            {
-                                System.out.println("not your turn");
-                                break;
-                            }
-                            System.out.println(msg);//Choose a letter to add
-                            System.out.println(letterList);
-                            String letter=br.readLine();
-                            while(!letterList.contains(letter))
-                            {
-                                System.out.println("You don't have this letter, choose again");
-                                System.out.println(letterList);
-                                letter=br.readLine();
-
-                            }
-                            out.println(letter);
-                            System.out.println(in.readLine());//Choose a position to add
-                            int position=Integer.parseInt(br.readLine());
-                            out.println(position);
-
-
-                        }
-                        case(protocols.GET_BOARD) -> {
-                            board=in.readLine();
-                            for(int i=0;i<9;i++){
-                                System.out.print(board.charAt(i));
-                                if(i%3==2){
-                                    System.out.println();
-                                }
-                            }
-                        }
-                        default -> {
-                            msgFromServer="wait";
-                            System.out.println("Server is not running");
-                        }
-                    }
+                    chooseAction(msgFromServer);
+//                    switch (msgFromServer) {
+//                        case (protocols.CONFIRM) -> //confirm
+//                        {
+//                            System.out.println("confirm");
+//                        }
+//                        case (protocols.EXIT) -> { // exit
+//                            out.println(id); // exising client sends his id to the server
+//                            System.out.println("Client "+id+" is exiting");
+//                            return;
+//                        }
+//                        case (protocols.CHALLENGE) -> { // challenge
+//                            System.out.println("challenge");
+//                        }
+//                        case (protocols.QUERY) -> { // query
+//                            System.out.println("query");
+//                        }
+//                        case (protocols.GET_HAND) -> { // getHand
+//                            System.out.println("getHand");
+//                            letterList=in.readLine();
+//                            System.out.println("Client "+this.id+": "+letterList);
+//                        }
+//                        case (protocols.ADD_WORD) -> {
+//                            System.out.println("addWord");
+//                            String msg=in.readLine();
+//                            if(msg.equals("not your turn"))
+//                            {
+//                                System.out.println("not your turn");
+//                                break;
+//                            }
+//                            System.out.println(msg);//Choose a letter to add
+//                            System.out.println(letterList);
+//                            String letter=br.readLine();
+//                            while(!letterList.contains(letter))
+//                            {
+//                                System.out.println("You don't have this letter, choose again");
+//                                System.out.println(letterList);
+//                                letter=br.readLine();
+//
+//                            }
+//                            out.println(letter);
+//                            System.out.println(in.readLine());//Choose a position to add
+//                            int position=Integer.parseInt(br.readLine());
+//                            out.println(position);
+//
+//
+//                        }
+//                        case(protocols.GET_BOARD) -> {
+//                            board=in.readLine();
+//                            for(int i=0;i<9;i++){
+//                                System.out.print(board.charAt(i));
+//                                if(i%3==2){
+//                                    System.out.println();
+//                                }
+//                            }
+//                        }
+//                        default -> {
+//                            msgFromServer="wait";
+//                            System.out.println("Server is not running");
+//                        }
+//                    }
                 }
             }
         } catch (IOException e) {
@@ -205,8 +230,92 @@ public class newClient{
         return protocols.EXIT;
     }
 
+    public boolean serverExists() {
+        try {
+            Socket socket = new Socket("127.0.0.1", 9999);
+            socket.close();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+    public void createServer() {
+        newServer server = new newServer(9999, new PlayerHandler());
+        server.start();
+        System.out.println("Server created.");
+        return;
+    }
+
+    public void chooseAction(String msgFromServer) throws IOException {
+        System.out.println("Server: "+msgFromServer);
+        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+
+        switch (msgFromServer) {
+            case (protocols.CONFIRM) -> //confirm
+            {
+                System.out.println("confirm");
+            }
+            case (protocols.EXIT) -> { // exit
+                out.println(id); // exising client sends his id to the server
+                System.out.println("Client "+id+" is exiting");
+                return;
+            }
+            case (protocols.CHALLENGE) -> { // challenge
+                System.out.println("challenge");
+            }
+            case (protocols.QUERY) -> { // query
+                System.out.println("query");
+            }
+            case (protocols.GET_HAND) -> { // getHand
+                System.out.println("getHand");
+                letterList=in.readLine();
+                System.out.println("Client "+this.id+": "+letterList);
+            }
+            case (protocols.ADD_WORD) -> {
+                System.out.println("addWord");
+                String msg=in.readLine();
+                if(msg.equals("not your turn"))
+                {
+                    System.out.println("not your turn");
+                    break;
+                }
+                System.out.println(msg);//Choose a letter to add
+                System.out.println(letterList);
+                String letter=br.readLine();
+                while(!letterList.contains(letter))
+                {
+                    System.out.println("You don't have this letter, choose again");
+                    System.out.println(letterList);
+                    letter=br.readLine();
+
+                }
+                out.println(letter);
+                System.out.println(in.readLine());//Choose a position to add
+                int position=Integer.parseInt(br.readLine());
+                out.println(position);
+
+
+            }
+            case(protocols.GET_BOARD) -> {
+                String board=in.readLine();
+                for(int i=0;i<9;i++){
+                    System.out.print(board.charAt(i));
+                    if(i%3==2){
+                        System.out.println();
+                    }
+                }
+            }
+            default -> {
+                msgFromServer="wait";
+                System.out.println("Server is not running");
+            }
+        }
+
+
+    }
+
     public static void main(String[] args) {
-        newClient c=new newClient();
+        newClient c=new newClient("1",1);
         c.connectToServer();
     }
 }
