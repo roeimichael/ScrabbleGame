@@ -1,7 +1,6 @@
 package view;
 
-import NewServer.newServer;
-import NewServer.protocols;
+import NOT_USED.newServer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

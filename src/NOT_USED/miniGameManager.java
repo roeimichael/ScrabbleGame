@@ -16,7 +16,7 @@ public class miniGameManager {
     public int BoradSize=9;
 
 
-    public GameManager()
+    public miniGameManager()
     {
         board = new String[BoradSize];
         for(int i=0;i<BoradSize;i++){
@@ -26,11 +26,11 @@ public class miniGameManager {
         playerLetters = new HashMap<>();
 
     }
-    public static GameManager get()
+    public static miniGameManager get()
     {
         if(instance==null)
         {
-            instance = new GameManager();
+            instance = new miniGameManager();
         }
         return instance;
     }

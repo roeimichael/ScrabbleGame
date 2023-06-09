@@ -37,6 +37,9 @@ public class GameManager {
     public void addPlayer(Player player) {
         players.add(player);
     }
+    public void addPlayer(int id) {
+        players.add(new Player(id));
+    }
     public void removePlayer(Player player) {
         players.remove(player);
     }
@@ -95,6 +98,9 @@ public class GameManager {
         lastScore=0;
         numPassed++;
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+    }
+    public int getCurrentTurn(){
+        return currentPlayerIndex;
     }
     public Player getCurrentPlayer() {
         return players.get(currentPlayerIndex);
@@ -211,4 +217,6 @@ public class GameManager {
 
         }
     }
+
+
 }

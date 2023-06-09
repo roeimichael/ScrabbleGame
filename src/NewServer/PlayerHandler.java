@@ -13,6 +13,7 @@ public class PlayerHandler implements ClientHandler{
     private PrintWriter out;
     private boolean exit=false;
     private int PlayerId;
+    private GameManager gm;
     private static AtomicInteger connectedClients = new AtomicInteger(0);
     private static AtomicInteger turn = new AtomicInteger(0);
     private static AtomicBoolean startGame = new AtomicBoolean(false);
@@ -22,17 +23,17 @@ public class PlayerHandler implements ClientHandler{
 
         in=new BufferedReader(new InputStreamReader(inFromclient));
         out=new PrintWriter(outToClient,true);
-        GameManager mg = GameManager.get();
         int totalConnectedClients = connectedClients.incrementAndGet();
         System.out.println("[Server]Total connected clients: " + totalConnectedClients);
 
-        // first the server sends the new player his id
+        // first the server sends the new player his id and adds him to the game
         String msgFromPlayer= null;
         try {
+            gm=GameManager.get();
             msgFromPlayer=in.readLine();
             PlayerId= Integer.parseInt(msgFromPlayer);
             System.out.println("[Server]client "+msgFromPlayer);
-            //mg.setPlayerLetters(PlayerId,""); // a new player is connected, first we give him an empty string until game starts
+            gm.addPlayer(PlayerId);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -50,8 +51,8 @@ public class PlayerHandler implements ClientHandler{
             while(turn.get()!=PlayerId) {
             }
             // then send the board to the client
-            mg= GameManager.get();
-            out.println(mg.getBoard());
+            GameManager gm= GameManager.get();
+            out.println(gm.getBoard());
             System.out.println("getBoard");
 
             try {
@@ -74,41 +75,41 @@ public class PlayerHandler implements ClientHandler{
                     out.println(protocols.QUERY);
                     System.out.println("query");
                 }
-                case (protocols.GET_HAND) -> { // getHand
-                    out.println(protocols.GET_HAND);
-                    //mgm.setPlayerLetters(clientID, letters);
-                    out.println(GameManager.get().getPlayerLetters(PlayerId));
-                    System.out.println("getHand");
-                }
-                case (protocols.ADD_WORD) -> {
-                    mg= GameManager.get();
-                    turn.set(mg.getTurn());
-                    out.println(protocols.ADD_WORD);
-                    if(turn.get()!=PlayerId)
-                    {
-                        out.println("not your turn");
-                        break;
-                    }
-                    out.println("Choose a letter to add: ");
-                    String letter= null;
-                    try {
-                        letter = in.readLine();
-                        out.println("Choose a position to add: ");  // 0-8
-                        int position=Integer.parseInt(in.readLine());
-                        mg.addLetter(position,letter);
-                        mg.changeTurn();
-                        turn.set(mg.getTurn());
-
-                        mg.printBoard();// print board in the server
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    System.out.println("addWord");
-                }
+//                case (protocols.GET_HAND) -> { // getHand
+//                    out.println(protocols.GET_HAND);
+//                    //mgm.setPlayerLetters(clientID, letters);
+//                    out.println(GameManager.get().getPlayerLetters(PlayerId));
+//                    System.out.println("getHand");
+//                }
+//                case (protocols.ADD_WORD) -> {
+//                    gm= GameManager.get();
+//                    turn.set(gm.getCurrentTurn());
+//                    out.println(protocols.ADD_WORD);
+//                    if(turn.get()!=PlayerId)
+//                    {
+//                        out.println("not your turn");
+//                        break;
+//                    }
+//                    out.println("Choose a letter to add: ");
+//                    String letter= null;
+//                    try {
+//                        letter = in.readLine();
+//                        out.println("Choose a position to add: ");  // 0-8
+//                        int position=Integer.parseInt(in.readLine());
+//                        gm.addLetter(position,letter);
+//                        gm.changeTurn();
+//                        turn.set(gm.getTurn());
+//
+//                        gm.printBoard();// print board in the server
+//                    } catch (IOException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    System.out.println("addWord");
+//                }
                 case (protocols.GET_BOARD) -> { // getBoard
                     out.println(protocols.GET_BOARD);
-                    mg= GameManager.get();
-                    out.println(mg.getBoard());
+                    gm= GameManager.get();
+                    out.println(gm.getBoard());
                     System.out.println("getBoard");
                 }
             }
