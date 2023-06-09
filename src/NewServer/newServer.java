@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class newServer {
+    static newServer  instance;
     ServerSocket server;
     int port;
     ClientHandler ch;
@@ -25,6 +26,19 @@ public class newServer {
         this.threadPool = Executors.newFixedThreadPool(4);
         counter=0;
         clients=new ArrayList<>();
+    }
+    public static newServer get()
+    {
+        if (instance == null) {
+            instance = new newServer(9999, new PlayerHandler());
+            instance.start();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
     }
 
     public void start() {

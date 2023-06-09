@@ -1,8 +1,7 @@
-package NewServer;
+package NOT_USED;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Random;
 
 public class miniGameManager {
@@ -17,7 +16,7 @@ public class miniGameManager {
     public int BoradSize=9;
 
 
-    public miniGameManager()
+    public GameManager()
     {
         board = new String[BoradSize];
         for(int i=0;i<BoradSize;i++){
@@ -27,11 +26,11 @@ public class miniGameManager {
         playerLetters = new HashMap<>();
 
     }
-    public static miniGameManager get()
+    public static GameManager get()
     {
         if(instance==null)
         {
-            instance = new miniGameManager();
+            instance = new GameManager();
         }
         return instance;
     }
@@ -87,6 +86,8 @@ public class miniGameManager {
     }
 
     public void startGame() {
+        if(startGame)
+            return;
         startGame=true;
         numOfPlayers=playerLetters.size();
         for(int i=0; i<numOfPlayers;i++)

@@ -1,5 +1,6 @@
 package NewServer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,84 +11,86 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class newView extends Application {
-        private newModelClient model;
-        private newViewModel viewModel;
-        private static newServer server;
-        public static void main(String[] args) {
-            launch(args);
-        }
+    private newModelClient model;
+    private newViewModel viewModel;
+    private static newServer server;
 
-        @Override
-        public void start(Stage primaryStage) {
-            this.model = new newModelClient( "1",1);
-            this.viewModel = new newViewModel(model);
-            model.addObserver(viewModel);
-            primaryStage.setTitle("Game Window");
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-            // Create grid pane for layout
-            GridPane gridPane = new GridPane();
-            gridPane.setPadding(new Insets(10));
-            gridPane.setHgap(10);
-            gridPane.setVgap(10);
+    @Override
+    public void start(Stage primaryStage) {
+        this.model = new newModelClient("1", 1);
+        this.viewModel = new newViewModel(model);
+        model.addObserver(viewModel);
+        primaryStage.setTitle("Game Window");
 
-            // Add labels and text fields for IP and port
-            Label ipLabel = new Label("IP:");
-            TextField ipTextField = new TextField("127.0.0.1");
-            Label portLabel = new Label("Port:");
-            TextField portTextField = new TextField("9999");
+        // Create grid pane for layout
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
 
-            gridPane.add(ipLabel, 0, 0);
-            gridPane.add(ipTextField, 1, 0);
-            gridPane.add(portLabel, 0, 1);
-            gridPane.add(portTextField, 1, 1);
+        // Add labels and text fields for IP and port
+        Label ipLabel = new Label("IP:");
+        TextField ipTextField = new TextField("127.0.0.1");
+        Label portLabel = new Label("Port:");
+        TextField portTextField = new TextField("9999");
 
-            // Add "Start Game as Host" button
-            Button startHostButton = new Button("Start Game as Host");
-            // start game
-            startHostButton.setOnAction(event -> {
-                String ip = ipTextField.getText();
-                int port = Integer.parseInt(portTextField.getText());
-                server = new newServer(port, new PlayerHandler());
-                server.start();
-                new Thread(() -> {
-                    try {
-                        this.model.connectToServer();
-                        System.out.println("Starting game as host with IP: " + ip + " and port: " + port);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }).start();
+        gridPane.add(ipLabel, 0, 0);
+        gridPane.add(ipTextField, 1, 0);
+        gridPane.add(portLabel, 0, 1);
+        gridPane.add(portTextField, 1, 1);
 
-                showStartGameWindow();
-                primaryStage.close();
-            });
+        // Add "Start Game as Host" button
+        Button startHostButton = new Button("Start Game as Host");
+        // start game
+        startHostButton.setOnAction(event -> {
+            String ip = ipTextField.getText();
+            int port = Integer.parseInt(portTextField.getText());
+            server = new newServer(port, new PlayerHandler());
+            server.start();
+            new Thread(() -> {
+                try {
+                    this.model.connectToServer();
+                    System.out.println("Starting game as host with IP: " + ip + " and port: " + port);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
 
-            // Add "Join Game as Guest" button
-            Button joinGuestButton = new Button("Join Game as Guest");
-            // join game
-            joinGuestButton.setOnAction(event -> {
-                String ip = ipTextField.getText();
-                int port = Integer.parseInt(portTextField.getText());
-                new Thread(() -> {
-                    try {
-                        this.model.connectToServer();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }).start();
-                System.out.println("Joining game as guest with IP: " + ip + " and port: " + port);
-                showPleaseWaitWindow();
-                primaryStage.close();
+            showStartGameWindow();
+            primaryStage.close();
+        });
 
-            });
+        // Add "Join Game as Guest" button
+        Button joinGuestButton = new Button("Join Game as Guest");
+        // join game
+        joinGuestButton.setOnAction(event -> {
+            String ip = ipTextField.getText();
+            int port = Integer.parseInt(portTextField.getText());
+            new Thread(() -> {
+                try {
+                    this.model.connectToServer();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            System.out.println("Joining game as guest with IP: " + ip + " and port: " + port);
+            showPleaseWaitWindow();
+            primaryStage.close();
 
-            gridPane.add(startHostButton, 0, 2);
-            gridPane.add(joinGuestButton, 1, 2);
+        });
 
-            Scene scene = new Scene(gridPane, 300, 150);
-            primaryStage.setScene(scene);
-            primaryStage.show();
-        }
+        gridPane.add(startHostButton, 0, 2);
+        gridPane.add(joinGuestButton, 1, 2);
+
+        Scene scene = new Scene(gridPane, 300, 150);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
     private void showStartGameWindow() {
         Stage startGameStage = new Stage();
         startGameStage.setTitle("Start Game");
@@ -148,6 +151,7 @@ public class newView extends Application {
         gameBoardStage.setScene(scene);
         gameBoardStage.show();
     }
+
     private void showPleaseWaitWindow() {
         Stage pleaseWaitStage = new Stage();
 
@@ -163,17 +167,17 @@ public class newView extends Application {
         pleaseWaitStage.setScene(scene);
         pleaseWaitStage.show();
         //System.out.println(viewModel.gameStartedProperty().get());
-        new Thread(() -> {
-            miniGameManager mgm = miniGameManager.get();
+        viewModel.gameStartedProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                System.out.println("game started");
+                if (newValue) {
+                    pleaseWaitStage.close();
+                    showGameBoardWindow();
+                }
+            });
 
-            while (!mgm.isGameStarted()) {
-                mgm = miniGameManager.get();
-            }
-
-            pleaseWaitStage.close();
-            showGameBoardWindow();
-        }).start();
+        });
     }
-    }
+}
 
 

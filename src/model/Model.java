@@ -1,8 +1,24 @@
 package model;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.*;
+
+import NewServer.protocols;
 import test.*;
 
 public class Model extends Observable {
+	private int id;
+	private String ip;
+	private int port;
+	private Socket client;
+	private BufferedReader in;
+	private PrintWriter out;
+
+	private String letterList;
+	private boolean isHost = false;
 	private String boardState, help, confirm;
 	private char letter;
 
@@ -12,51 +28,91 @@ public class Model extends Observable {
 	private Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
 	private int rowCur = -1, colCur = -1;
 	String wordSelected=""; // saves the word the user has selected
-
-//	if(isHost)
-//	{
 	private static GameManager gameManager;
 	private Board board;
 //	}
 
-	public Model() {
-		gameManager = new GameManager();
-		gameManager.addPlayer(new Player(1));
-		gameManager.addPlayer(new Player(2));
-		gameManager.restartGame();
-		board = gameManager.getBoard();
+	public Model(String ip, int port) {
+//		gameManager = new GameManager();
+//		gameManager.addPlayer(new Player(1));
+//		gameManager.addPlayer(new Player(2));
+//		gameManager.restartGame();
+//		board = gameManager.getBoard();
 		assignLetterScores();
 		this.boardState = "";
+		this.ip = ip;
+		this.port = port;
+
+	}
+	public void connectToServer() {
+		try {
+			System.out.println("Connecting to server...");
+			client = new Socket("127.0.0.1", 9999);
+			out = new PrintWriter(client.getOutputStream(), true);
+			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+			// first step: when the client connects to the server, the server sends him his id
+			this.id = Integer.parseInt(in.readLine());
+			System.out.println("Connected to server, client " + id);
+			isHost = id == 0;
+			// second step: sending it back to the playerHandler
+			out.println(id);
+			String msgFromServer = null;
+			Thread getMsgFromServer = new Thread(()->{ // listen to the server, and acts accordingly
+				while(true)
+				{
+					try {
+						String msg = in.readLine();
+						switch (msg) {
+							case protocols.START_GAME:
+								this.setGameStarted(); // call function that starts the game for this client
+								break;
+							case protocols.GET_BOARD:
+								// gets the updated board from the server
+								out.println(gameManager.getBoard());
+								break;
+							case protocols.GET_HAND:
+								out.println();
+								break;
+							case protocols.GET_TURN:
+								int turn = Integer.parseInt(in.readLine());
+								if (turn == id) {
+									System.out.println("Your turn");
+								} else {
+									System.out.println("Waiting for other players");
+								}
+							case protocols.END_GAME:
+								out.println();
+								break;
+							case protocols.GET_SCORE:
+								out.println();
+								break;
+
+						}
+
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			});
+			getMsgFromServer.start();
+		} catch (IOException e) {
+			System.out.println(e);
+			System.out.println("Server is not running");
+
+		}
+
+
+	}
+	public void setGameStarted() {
+
+		gameManager=GameManager.get();
+
+		gameManager.restartGame();
+		setChanged();
+		notifyObservers(protocols.START_GAME);
+
 	}
 
-	private void assignLetterScores() {
-		letterScores.put('A', 1);
-		letterScores.put('B', 3);
-		letterScores.put('C', 3);
-		letterScores.put('D', 2);
-		letterScores.put('E',1);
-		letterScores.put('F',4);
-		letterScores.put('G',2);
-		letterScores.put('H',4);
-		letterScores.put('I',1);
-		letterScores.put('J',8);
-		letterScores.put('K',5);
-		letterScores.put('L',1);
-		letterScores.put('M',3);
-		letterScores.put('N',1);
-		letterScores.put('O',1);
-		letterScores.put('P',3);
-		letterScores.put('Q',10);
-		letterScores.put('R',1);
-		letterScores.put('S',1);
-		letterScores.put('T',1);
-		letterScores.put('U',1);
-		letterScores.put('V',4);
-		letterScores.put('W',4);
-		letterScores.put('X',8);
-		letterScores.put('Y',4);
-		letterScores.put('Z',10);
-	}
 
 	public void updateBoardState(String newBoardState) {
 		this.boardState = newBoardState;
@@ -327,5 +383,33 @@ public class Model extends Observable {
 
 	public String getTurn() {
 		return "Player "+getCurrentPlayer().getId() + "'s turn";
+	}
+	private void assignLetterScores() {
+		letterScores.put('A', 1);
+		letterScores.put('B', 3);
+		letterScores.put('C', 3);
+		letterScores.put('D', 2);
+		letterScores.put('E',1);
+		letterScores.put('F',4);
+		letterScores.put('G',2);
+		letterScores.put('H',4);
+		letterScores.put('I',1);
+		letterScores.put('J',8);
+		letterScores.put('K',5);
+		letterScores.put('L',1);
+		letterScores.put('M',3);
+		letterScores.put('N',1);
+		letterScores.put('O',1);
+		letterScores.put('P',3);
+		letterScores.put('Q',10);
+		letterScores.put('R',1);
+		letterScores.put('S',1);
+		letterScores.put('T',1);
+		letterScores.put('U',1);
+		letterScores.put('V',4);
+		letterScores.put('W',4);
+		letterScores.put('X',8);
+		letterScores.put('Y',4);
+		letterScores.put('Z',10);
 	}
 }

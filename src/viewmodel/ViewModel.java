@@ -1,4 +1,5 @@
 package viewmodel;
+import NewServer.protocols;
 import javafx.beans.property.*;
 
 import java.util.Observable;
@@ -16,6 +17,8 @@ import test.CharacterData;
 public class ViewModel extends Observable implements Observer {
 
 	Model m;
+	private BooleanProperty gameStartedProperty;
+
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
 	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
@@ -29,7 +32,13 @@ public class ViewModel extends Observable implements Observer {
 		m.addObserver(this);
 		initializeProperties();
 	}
-
+	public BooleanProperty gameStartedProperty() {
+		return gameStartedProperty;
+	}
+	public void setGameStarted(boolean gameStarted) {
+		gameStartedProperty.set(gameStarted);
+		m.setGameStarted();
+	}
 	public void makeMove(String move) {
 		m.updateBoardState(move);
 	}
@@ -91,6 +100,8 @@ public class ViewModel extends Observable implements Observer {
 			case "undo" -> handleUndoRequest();
 			case "restart" -> handleRestartRequest();
 			case "challenge accepted" -> handleChallengeAccepted();
+			case protocols.START_GAME -> gameStartedProperty.set(true);
+
 
 			default -> {
 				if (obj instanceof Character) {
@@ -260,6 +271,7 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 	private void initializeProperties() {
+		gameStartedProperty = new SimpleBooleanProperty(false);
 		board = new SimpleStringProperty[15][15];
 		confirm = new SimpleStringProperty();
 		tilesLeft = new SimpleStringProperty();
@@ -268,15 +280,15 @@ public class ViewModel extends Observable implements Observer {
 		row = new SimpleStringProperty();
 		col = new SimpleStringProperty();
 		wordDirection = new SimpleStringProperty();
-		playerPoints = new SimpleStringProperty(m.getPlayerScore());
+		playerPoints = new SimpleStringProperty();
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		lastEntry = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
-		turn = new SimpleStringProperty(m.getTurn());
+		turn = new SimpleStringProperty();
 		//userBoardList = new ArrayList<>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
-		setBonus_vm(m.getBonus());
+		//setBonus_vm(m.getBonus());
 		for (int i = 0; i < 15; i++)
 			for (int j = 0; j < 15; j++) {
 				board[i][j] = new SimpleStringProperty();

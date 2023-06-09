@@ -3,6 +3,7 @@ package test;
 import java.util.ArrayList;
 
 public class GameManager {
+    public static GameManager instance;
 
     private Board board; // the current board state
     private Board lastTurnBoard; // the board state after the last turn
@@ -12,7 +13,14 @@ public class GameManager {
     private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
     private int lastScore; // the score of the last word placed
     private int numPassed; // number of players who have passed their turn
-
+    public static GameManager get()
+    {
+        if(instance==null)
+        {
+            instance = new GameManager();
+        }
+        return instance;
+    }
     public GameManager() {
         this.board =  new Board();
         this.players = new ArrayList<>();
@@ -43,6 +51,11 @@ public class GameManager {
             scores+="Player "+p.getId()+" score: "+p.getScore()+"\n";
         }
         return scores;
+    }
+
+    public void startGame()
+    {
+
     }
     public void restartGame(){
 

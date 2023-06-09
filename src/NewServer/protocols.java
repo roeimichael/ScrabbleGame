@@ -8,14 +8,13 @@ public class protocols {
     public static final String JOIN_GAME_AS_CLIENT =    "JOIN_GAME_AS_CLIENT";
     public static final String HELP = "HELP";
     public static final String CONFIRM = "CONFIRM" ;
+
     public static final String CHALLENGE =  "CHALLENGE";
     public static final String QUERY = "QUERY";
     public static final String ADD_WORD = "ADD_WORD";
     public static final String GET_BOARD = "GET_BOARD";
     public static final String GET_SCORE = "GET_SCORE";
-    public static final String HOST_START_GAME = "HOST_START_GAME";
-
-    public static final String WAIT = "WAIT";
     public static final String START_GAME = "START_GAME";
-
+    public static final String GET_TURN =  "GET_TURN";
+    public static final String END_GAME =  "END_GAME";
 }

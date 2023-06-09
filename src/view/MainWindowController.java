@@ -42,7 +42,7 @@ public class MainWindowController extends Observable implements Observer   {
         this.vm = vm;
         bonusData = new IntegerProperty[15][15]; // creates a new array of integers for the bonus
         bonusData = vm.getBonus_vm(); // gets the bonus array from the viewmodel
-        restartGame(); // shows the bonus tiles on the board
+        //restartGame(); // shows the bonus tiles on the board
 
         confirmSelected.textProperty().bind(vm.confirm); // binds confirm to the confirm string in the viewmodel
         tilesLeft.textProperty().bind(vm.tilesLeft); // binds reslabel to the tilesLeft string in the viewmodel

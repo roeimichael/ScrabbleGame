@@ -16,11 +16,15 @@ public class SceneController {
 
     private Scene mainMenuScene;
     private Scene helpMenuScene;
+    private Scene HostWaitScene;
+    private Scene GuestWaitScene;
     private Scene gameScene;
 
     public SceneController(Stage primaryStage) {
+        String ip = "1";
+        int port = 1;// TODO:  need to change
         this.primaryStage = primaryStage;
-        this.model = new Model();
+        this.model = new Model(ip, port);// TODO:  need to make IP and Port dynamic
         this.viewModel = new ViewModel(model);
         model.addObserver(viewModel);
         this.primaryStage.setWidth(620);  // Width
@@ -34,6 +38,7 @@ public class SceneController {
         Parent mainMenuRoot = mainMenuLoader.load();
         MainMenuController mainMenuController = mainMenuLoader.getController();
         mainMenuController.setViewModel(viewModel);
+        mainMenuController.setModel(model);
         mainMenuController.setSceneController(this);
         viewModel.addObserver(mainMenuController);
         mainMenuScene = new Scene(mainMenuRoot);
@@ -47,6 +52,24 @@ public class SceneController {
         viewModel.addObserver(helpMenuController);
         helpMenuScene = new Scene(helpMenuRoot);
 
+        // Load Host Wait scene
+        FXMLLoader HostWaitLoader = new FXMLLoader(getClass().getResource("WaitingRoomHost.fxml"));
+        Parent HostWaitRoot = HostWaitLoader.load();
+        HostWindowController HostWaitController = HostWaitLoader.getController();
+        HostWaitController.setViewModel(viewModel);
+        HostWaitController.setSceneController(this);
+        viewModel.addObserver(HostWaitController);
+        HostWaitScene = new Scene(HostWaitRoot);
+
+        // Load Guest Wait scene
+        FXMLLoader GuestWaitLoader = new FXMLLoader(getClass().getResource("WaitingRoomGuest.fxml"));
+        Parent GuestWaitRoot = GuestWaitLoader.load();
+        GuestWindowController GuestWaitController = GuestWaitLoader.getController();
+        GuestWaitController.setViewModel(viewModel);
+        GuestWaitController.setSceneController(this);
+        viewModel.addObserver(GuestWaitController);
+        GuestWaitScene = new Scene(GuestWaitRoot);
+
         // Load game scene
         FXMLLoader gameLoader = new FXMLLoader(getClass().getResource("MainWindow.fxml"));
         Parent gameRoot = gameLoader.load();
@@ -55,6 +78,7 @@ public class SceneController {
         gameController.setSceneController(this);
         viewModel.addObserver(gameController);
         gameScene = new Scene(gameRoot);
+
     }
 
     public void showMainMenu() {
@@ -64,6 +88,14 @@ public class SceneController {
 
     public void showHelpMenu() {
         primaryStage.setScene(helpMenuScene);
+        primaryStage.show();
+    }
+    public void showHostWaitingRoom() {
+        primaryStage.setScene(HostWaitScene);
+        primaryStage.show();
+    }
+    public void showGuestWaitingRoom() {
+        primaryStage.setScene(GuestWaitScene);
         primaryStage.show();
     }
 
