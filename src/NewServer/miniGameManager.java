@@ -92,6 +92,7 @@ public class miniGameManager {
         for(int i=0; i<numOfPlayers;i++)
             this.setPlayerLetters(i, this.randomLetters());
     }
+
     public String randomLetters()
     {
         String letters="";

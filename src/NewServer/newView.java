@@ -8,17 +8,20 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 public class newView extends Application {
-        private newModel model;
+        private newModelClient model;
         private newViewModel viewModel;
+        private static newServer server;
         public static void main(String[] args) {
             launch(args);
         }
 
         @Override
         public void start(Stage primaryStage) {
-            this.model = new newModel();
+            this.model = new newModelClient( "1",1);
             this.viewModel = new newViewModel(model);
+            model.addObserver(viewModel);
             primaryStage.setTitle("Game Window");
 
             // Create grid pane for layout
@@ -44,11 +47,17 @@ public class newView extends Application {
             startHostButton.setOnAction(event -> {
                 String ip = ipTextField.getText();
                 int port = Integer.parseInt(portTextField.getText());
-                newServer server = new newServer(port, new PlayerHandler());
+                server = new newServer(port, new PlayerHandler());
                 server.start();
-                runClient(ip, port);
-                // Start game as host logic here
-                System.out.println("Starting game as host with IP: " + ip + " and port: " + port);
+                new Thread(() -> {
+                    try {
+                        this.model.connectToServer();
+                        System.out.println("Starting game as host with IP: " + ip + " and port: " + port);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+
                 showStartGameWindow();
                 primaryStage.close();
             });
@@ -59,8 +68,13 @@ public class newView extends Application {
             joinGuestButton.setOnAction(event -> {
                 String ip = ipTextField.getText();
                 int port = Integer.parseInt(portTextField.getText());
-                runClient(ip, port);
-                // Join game as guest logic here
+                new Thread(() -> {
+                    try {
+                        this.model.connectToServer();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
                 System.out.println("Joining game as guest with IP: " + ip + " and port: " + port);
                 showPleaseWaitWindow();
                 primaryStage.close();
@@ -81,6 +95,8 @@ public class newView extends Application {
         Button startGameButton = new Button("Start Game");
         startGameButton.setOnAction(event -> {
             // Move connected clients to the game board
+            server.sendMessagesToAllClients(protocols.START_GAME);
+            // send start game to all clients
             showGameBoardWindow();
             startGameStage.close();
             viewModel.setGameStarted(true);
@@ -134,13 +150,8 @@ public class newView extends Application {
     }
     private void showPleaseWaitWindow() {
         Stage pleaseWaitStage = new Stage();
-        viewModel.gameStartedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                pleaseWaitStage.close();
-                showGameBoardWindow();
-            }
-        });
-            pleaseWaitStage.setTitle("Please Wait");
+
+        pleaseWaitStage.setTitle("Please Wait");
 
         Label numOfPlayersLabel = new Label("Number of Players: " + 1);
         Label waitLabel = new Label("Please wait...");
@@ -151,19 +162,18 @@ public class newView extends Application {
         Scene scene = new Scene(vbox, 200, 100);
         pleaseWaitStage.setScene(scene);
         pleaseWaitStage.show();
+        //System.out.println(viewModel.gameStartedProperty().get());
+        new Thread(() -> {
+            miniGameManager mgm = miniGameManager.get();
 
+            while (!mgm.isGameStarted()) {
+                mgm = miniGameManager.get();
+            }
+
+            pleaseWaitStage.close();
+            showGameBoardWindow();
+        }).start();
     }
-
-        public void runClient(String ip, int port){
-            newClient client = new newClient(ip,port);
-            new Thread(() -> {
-                try {
-                    client.connectToServer();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        }
     }
 
 

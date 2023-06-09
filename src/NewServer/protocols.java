@@ -15,5 +15,7 @@ public class protocols {
     public static final String GET_SCORE = "GET_SCORE";
     public static final String HOST_START_GAME = "HOST_START_GAME";
 
-    public static final String WAIT = "WAIT"; ;
+    public static final String WAIT = "WAIT";
+    public static final String START_GAME = "START_GAME";
+
 }

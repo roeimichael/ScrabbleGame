@@ -88,6 +88,17 @@ public class newServer {
         stop = true;
         threadPool.shutdown();
     }
+    public void sendMessagesToAllClients(String msg){
+        for (Socket client:clients) {
+            try {
+                OutputStream outputStream = client.getOutputStream();
+                PrintWriter writer = new PrintWriter(outputStream, true);
+                writer.println(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public static void main(String[] args) {
         newServer server = new newServer(9999, new PlayerHandler());

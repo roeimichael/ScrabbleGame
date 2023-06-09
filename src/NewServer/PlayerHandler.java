@@ -39,39 +39,35 @@ public class PlayerHandler implements ClientHandler{
             // start game method
             // host needs to press a button to start the game
             // guest needs to wait for the host to start the game
-            if(PlayerId==0) // host
-            {
-                out.println("you are the host");
-//                while(!startGame){
-                out.println("Press anything to start the game");
-                msgFromPlayer = in.readLine();
-                if (msgFromPlayer.equals(protocols.HOST_START_GAME)) {
-                    startGame.set(true);
-                    out.println(protocols.HOST_START_GAME);
-                }
+//            if(PlayerId==0) // host
+//            {
+//
+//                msgFromPlayer = in.readLine();
+//                if (msgFromPlayer.equals(protocols.HOST_START_GAME)) {
+//                    startGame.set(true);
+//                    out.println(protocols.HOST_START_GAME);
+//                }
+//
+//                miniGameManager.get().startGame();
+//            }
+//            else
+//            {
+//                //guest
+//                out.println("you are a guest");
+//                out.println("Waiting for the host to start the game");
+//                do {
+//                    mgm = miniGameManager.get();
+//                } while (!startGame.get());
+////                out.println("game started");
+//                // delay of 1 second to make sure the host has already started the game
+//                Thread.sleep(1000);
+//            }
 
-                miniGameManager.get().startGame();
-            }
-            else
-            {
-                //guest
-                out.println("you are a guest");
-                out.println("Waiting for the host to start the game");
-                do {
-                    mgm = miniGameManager.get();
-                } while (!startGame.get());
-//                out.println("game started");
-                // delay of 1 second to make sure the host has already started the game
-                Thread.sleep(1000);
-            }
             mgm=miniGameManager.get();
 //            mgm.setPlayerLetters(PlayerId,randomLetters()); // a new player is connected, so we give him 7 random letters
             out.println(mgm.getPlayerLetters(PlayerId));
             System.out.println("client "+PlayerId+" has letters: "+mgm.getPlayerLetters(PlayerId));
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            System.out.println("InterruptedException");
             throw new RuntimeException(e);
         }
 

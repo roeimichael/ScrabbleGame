@@ -7,9 +7,9 @@ import java.util.Observable;
 import java.util.Observer;
 
 public class newViewModel implements Observer {
-    private newModel model;
+    private newModelClient model;
     private BooleanProperty gameStartedProperty;
-    public newViewModel(newModel model){
+    public newViewModel(newModelClient model){
         this.model=model;
         gameStartedProperty = new SimpleBooleanProperty(false);
     }
@@ -24,6 +24,13 @@ public class newViewModel implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        String updateFromModel = (String) arg;
+        System.out.println("ViewModel: " + updateFromModel);
+        switch (updateFromModel) {
+            case protocols.START_GAME:
+                gameStartedProperty.set(true);
+                break;
 
+        }
     }
 }
