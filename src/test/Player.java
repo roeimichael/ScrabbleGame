@@ -105,4 +105,14 @@ public class Player {
         return new Word(array,row,col,vert);
 
     }
+
+    public String getHand() { // used for playerHandler to send the hand to the model
+        String handString = "";
+       for (int i = 0; i < hand.size()-1; i++)
+        {
+            handString +=  hand.get(i) + ",";
+        }
+        handString +=  hand.get(hand.size()-1);
+        return handString;
+    }
 }

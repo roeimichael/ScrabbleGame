@@ -1,6 +1,5 @@
-package NOT_USED;
+package model;
 
-import NewServer.PlayerHandler;
 import test.ClientHandler;
 
 import java.io.*;
@@ -21,7 +20,7 @@ public class newServer {
     int counter;
     ExecutorService threadPool;
 
-    newServer(int port, ClientHandler ch) {
+    public newServer(int port, ClientHandler ch) {
         this.port = port;
         this.ch = ch;
         this.threadPool = Executors.newFixedThreadPool(4);

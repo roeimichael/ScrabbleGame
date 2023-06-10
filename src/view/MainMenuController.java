@@ -3,7 +3,7 @@ package view;
 import java.util.Observable;
 import java.util.Observer;
 
-import NOT_USED.newServer;
+import model.newServer;
 import javafx.fxml.FXML;
 import model.Model;
 import viewmodel.ViewModel;

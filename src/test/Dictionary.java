@@ -14,13 +14,14 @@ public class Dictionary {
 	BloomFilter bf;
 	private String[] fileNames;
 	IOSearcher searcher;
+	private final int BloomFilterSize = 1024;
 
 	public Dictionary(String...fileNames) {
 		this.fileNames=fileNames;
 		exists=new CacheManager(400, new LRU());
 		notExists=new CacheManager(100, new LFU());
 		//bf = new BloomFilter(131072, "MD5","SHA1");
-		bf = new BloomFilter(1024, "MD5","SHA1");
+		bf = new BloomFilter(BloomFilterSize, "MD5","SHA1");
 
 		for(String fn : fileNames) {
 			try {

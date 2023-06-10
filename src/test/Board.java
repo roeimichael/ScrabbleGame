@@ -400,5 +400,29 @@ public class Board extends Canvas {
 		}
 	}
 
+	public String toString() {
+		String boardState = "";
+		for(Tile[] ts : tiles) {
+			for(Tile t : ts) {
+				if(t!=null)
+					boardState+=(t.letter);
+				else
+					boardState+=("_");
+			}
+			//boardState+="\n";
+		}
+		return boardState;
+	}
+
+//	public void updateBoardFromString(String newState){
+//		String lines[] = newState.split("\n");
+//		for(int i=0;i<15;i++){
+//			for(int j=0;j<15;j++){
+//				if((this.tiles[i][j]==null&&lines[i])||!(lines[i].toCharArray()[j]==this.tiles[i][j].letter)){
+//
+//				}
+//			}
+//		}
+//	}
 
 }

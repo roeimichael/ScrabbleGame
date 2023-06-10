@@ -1,6 +1,6 @@
 package view;
 
-import NOT_USED.newServer;
+import model.newServer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,7 +37,7 @@ public class GuestWindowController extends Observable implements Observer {
         this.viewModel = viewModel;
         viewModel.gameStartedProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                System.out.println("game started");
+                //System.out.println("game started");
                 if (newValue) {
                     sceneController.showGame();
                 }

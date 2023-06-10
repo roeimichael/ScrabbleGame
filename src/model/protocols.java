@@ -1,4 +1,4 @@
-package NewServer;
+package model;
 
 public class protocols {
     public static final String EXIT = "EXIT";
@@ -17,4 +17,10 @@ public class protocols {
     public static final String START_GAME = "START_GAME";
     public static final String GET_TURN =  "GET_TURN";
     public static final String END_GAME =  "END_GAME";
+
+    // protocols that playerHandler sends to the model
+    public static final String BOARD_CHANGED = "BOARD_CHANGED" ;
+    public static final String HAND_CHANGED = "HAND_CHANGED" ;
+    public static final String NEW_GAME = "NEW_GAME" ;
+    public static final String GET_CURRENT_PLAYER =  "GET_CURRENT_PLAYER";
 }

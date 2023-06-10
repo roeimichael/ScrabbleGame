@@ -1,11 +1,11 @@
 package view;
-import NOT_USED.newServer;
+import model.newServer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import viewmodel.ViewModel;
-import NewServer.protocols;
+import model.protocols;
 import java.util.Observable;
 import java.util.Observer;
 

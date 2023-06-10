@@ -1,6 +1,6 @@
 package NOT_USED;
 
-import NewServer.protocols;
+import model.protocols;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 

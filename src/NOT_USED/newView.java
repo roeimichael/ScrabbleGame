@@ -1,6 +1,7 @@
 package NOT_USED;
-import NewServer.PlayerHandler;
-import NewServer.protocols;
+import model.PlayerHandler;
+import model.newServer;
+import model.protocols;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;

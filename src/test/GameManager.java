@@ -117,8 +117,8 @@ public class GameManager {
         return players.get((currentPlayerIndex + 1) % players.size());
     }
 
-    public Board getBoard() {
-        return board;
+    public String getBoard() {
+        return board.toString();
     }
 
     public boolean isGameOver()
@@ -226,5 +226,8 @@ public class GameManager {
         }
     }
 
+    public Player getPlayer(int index){
+        return players.get(index);
+    }
 
 }

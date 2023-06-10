@@ -1,7 +1,6 @@
 package NOT_USED;
 
-import NOT_USED.miniGameManager;
-import NewServer.protocols;
+import model.protocols;
 
 import java.io.BufferedReader;
 import java.io.IOException;
