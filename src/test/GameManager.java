@@ -58,13 +58,21 @@ public class GameManager {
 
     public void startGame()
     {
-
+        board = new Board();
+        tileBag = new Tile.Bag();
+        lastScore = 0;
+        numPassed=0;
+        for (Player player : players) {
+            player.resetScore();
+            player.refillBag(tileBag);
+        }
     }
     public void restartGame(){
 
         board = new Board();
         tileBag = new Tile.Bag();
         lastScore = 0;
+        numPassed=0;
         for (Player player : players) {
             player.removeTiles();
             player.resetScore();

@@ -7,7 +7,7 @@ import java.util.Vector;
 public class Player {
 
     private int id;
-    private int score;
+    private int score = 0;
     private ArrayList<Tile> hand;
     private boolean isTurn;
 

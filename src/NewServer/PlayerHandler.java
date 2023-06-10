@@ -47,13 +47,13 @@ public class PlayerHandler implements ClientHandler{
             // first send the turn to the client
             out.println(protocols.GET_TURN);
             out.println(turn.get());
-            System.out.println("turn: "+turn.get());
+//            System.out.println("turn: "+turn.get());
             while(turn.get()!=PlayerId) {
             }
             // then send the board to the client
             GameManager gm= GameManager.get();
             out.println(gm.getBoard());
-            System.out.println("getBoard");
+//            System.out.println("getBoard");
 
             try {
                 msgFromPlayer= in.readLine();

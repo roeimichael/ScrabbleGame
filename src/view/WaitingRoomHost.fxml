@@ -7,6 +7,6 @@
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.HostWindowController">
    <children>
       <Button fx:id="startGameButton" layoutX="178.0" layoutY="128.0" mnemonicParsing="false" onAction="#startGame" prefHeight="118.0" prefWidth="244.0" text="Start Game" />
-      <Label layoutX="176.0" layoutY="54.0" prefHeight="42.0" prefWidth="244.0" text="Number Of Players Connected" />
+      <Label fx:id="numberOfPlayersLabel" layoutX="176.0" layoutY="54.0" prefHeight="42.0" prefWidth="244.0" text="Number Of Players Connected" />
    </children>
 </AnchorPane>

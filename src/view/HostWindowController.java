@@ -39,6 +39,8 @@ public class HostWindowController extends Observable implements Observer {
 
     public void setViewModel(ViewModel viewModel) {
         this.viewModel = viewModel;
+        numberOfPlayersLabel.textProperty().bind(viewModel.numPlayers);
+        viewModel.getNumPlayers();
     }
 
     @Override

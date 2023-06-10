@@ -1,5 +1,6 @@
 package viewmodel;
 import NewServer.protocols;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 
 import java.util.Observable;
@@ -20,7 +21,7 @@ public class ViewModel extends Observable implements Observer {
 	private BooleanProperty gameStartedProperty;
 
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn, numPlayers; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
@@ -35,6 +36,7 @@ public class ViewModel extends Observable implements Observer {
 	public BooleanProperty gameStartedProperty() {
 		return gameStartedProperty;
 	}
+	// functions that activate the functions in the model
 	public void setGameStarted(boolean gameStarted) {
 		gameStartedProperty.set(gameStarted);
 		m.setGameStarted();
@@ -66,6 +68,9 @@ public class ViewModel extends Observable implements Observer {
 	}
 	public void passSelected() {
 		m.passSelected();
+	}
+	public void getNumPlayers() {
+		numPlayers.set("Number Of Players Connected: " +m.getNumPlayers());
 	}
 
 	public void setBonus_vm(byte[][] bonus) {
@@ -100,7 +105,8 @@ public class ViewModel extends Observable implements Observer {
 			case "undo" -> handleUndoRequest();
 			case "restart" -> handleRestartRequest();
 			case "challenge accepted" -> handleChallengeAccepted();
-			case protocols.START_GAME -> gameStartedProperty.set(true);
+			case protocols.START_GAME ->  handleStartGame();
+
 
 
 			default -> {
@@ -109,6 +115,22 @@ public class ViewModel extends Observable implements Observer {
 				}
 			}
 		}
+	}
+
+	private void handleStartGame() {
+		gameStartedProperty.set(true);
+		setBonus_vm(m.getBonus());
+		resetGameBoard();
+		updateLetterList();
+		confirm.set("");
+		wordSelected.set("");
+		row.set("");
+		col.set("");
+		wordDirection.set("");
+		userInput.clear();
+		m.cleanList();
+		getTilesLeft();
+		playerPoints.set(m.getPlayerScore());
 	}
 
 	private void handleChallengeAccepted() {
@@ -141,7 +163,8 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 	private void getTilesLeft() {
-		tilesLeft.set(m.getTilesLeft());
+		Platform.runLater(() -> tilesLeft.set(m.getTilesLeft()));
+
 	}
 
 	private void handleClearRequest() {
@@ -233,6 +256,7 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 	private void setBackground(int i, int j) {
+		// set the background color of a spesific tile
 		switch (bonus_vm[i][j].get()) {
 			case 2:
 				background[i][j].set(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
@@ -256,6 +280,7 @@ public class ViewModel extends Observable implements Observer {
 		resetGameBoard();
 	}
 	private void resetGameBoard() {
+		// reset all the game board
 		for (int i = 0; i < 15; i++) {
 			for (int j = 0; j < 15; j++) {
 				board[i][j].set("");
@@ -281,6 +306,7 @@ public class ViewModel extends Observable implements Observer {
 		col = new SimpleStringProperty();
 		wordDirection = new SimpleStringProperty();
 		playerPoints = new SimpleStringProperty();
+		numPlayers = new SimpleStringProperty();
 		userInput = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		lastEntry = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();

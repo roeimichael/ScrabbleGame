@@ -76,9 +76,9 @@ public class Model extends Observable {
 							case protocols.GET_TURN:
 								int turn = Integer.parseInt(in.readLine());
 								if (turn == id) {
-									System.out.println("Your turn");
+									//System.out.println("Your turn");
 								} else {
-									System.out.println("Waiting for other players");
+									//System.out.println("Waiting for other players");
 								}
 							case protocols.END_GAME:
 								out.println();
@@ -107,7 +107,7 @@ public class Model extends Observable {
 
 		gameManager=GameManager.get();
 
-		gameManager.restartGame();
+		gameManager.startGame();
 		setChanged();
 		notifyObservers(protocols.START_GAME);
 
@@ -340,6 +340,7 @@ public class Model extends Observable {
 
 
 	public Player getCurrentPlayer() {
+		gameManager = GameManager.get();
 		return gameManager.getCurrentPlayer();
 	}
 
@@ -411,5 +412,10 @@ public class Model extends Observable {
 		letterScores.put('X',8);
 		letterScores.put('Y',4);
 		letterScores.put('Z',10);
+	}
+
+	public String getNumPlayers() {
+		gameManager = GameManager.get();
+		return ""+gameManager.getNumPlayers();
 	}
 }

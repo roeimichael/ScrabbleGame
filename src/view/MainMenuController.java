@@ -26,15 +26,18 @@ public class MainMenuController implements Observer {
     }
     @FXML
     public void showHostWaitingRoom() {
+
         server = newServer.get();
 
         this.model.connectToServer();
+        vm.getNumPlayers();
         sceneController.showHostWaitingRoom();
     }
     @FXML
     public void showGuestWaitingRoom() {
-
         this.model.connectToServer();
+        vm.getNumPlayers();
+
         sceneController.showGuestWaitingRoom();
     }
 
