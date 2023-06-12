@@ -1,11 +1,7 @@
 package model;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.*;
-
 import test.*;
 
 public class Model extends Observable {
@@ -22,13 +18,18 @@ public class Model extends Observable {
 	// game attributes
 	private String letterList;
 	private ArrayList<String> newLetterList = new ArrayList<>();
+
+	// need to change every instance of gameManager to call to the playerHandler
 	private static GameManager gameManager;
 	private String[][] updatedBoard;
+	private int turn = 0;
+	private int lastScore = 0;
 	// labels
 	private String boardState, help, confirm;
 	private char letter;
 	private int rowCur = -1, colCur = -1;
 	String wordSelected=""; // saves the word the user has selected
+	private boolean isWordSelected = false; // saves whether the user has selected a word or not
 
 	// helper attributes
 	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
@@ -78,7 +79,7 @@ public class Model extends Observable {
 
 					try {
 						String msg = in.readLine();
-						System.out.println("msg from server: " + msg);
+						System.out.println("[Client] Msg from server: " + msg);
 						switch (msg) {
 
 							// protocol: server -> model -> playerHandler
@@ -121,10 +122,18 @@ public class Model extends Observable {
 								System.out.println("msg from server in get_board: " + msg);
 								this.updateBoard(msg);
 								break;
+							case protocols.GET_CURRENT_PLAYER:
+								this.turn = Integer.parseInt(in.readLine());
+								break;
+							case protocols.GET_LAST_SCORE:
+								this.lastScore = Integer.parseInt(in.readLine());
+								endTurn();
+								break;
 
 						}
 
 					} catch (IOException e) {
+						System.out.println("execption: " + e);
 						throw new RuntimeException(e);
 					}
 				}
@@ -256,19 +265,21 @@ public class Model extends Observable {
 		notifyObservers("undo");
 	}
 
-	public String getWordSelected() {
+
+	public void tryPlaceWord() {
 		// transform the word from characterList to actual word
 		wordSelected = "";
 		System.out.println(" characterList: " + characterList.toString());
 
 		if (characterList.size()==0)
-			// now word selected
-			return "";
+			this.isWordSelected = false;
 
 		// checck if the list is horizontal or vertical
 		// then add the letters to the wordSelected
 		if(getWordDirection().equals("horizontal"))
 		{
+			this.isWordSelected = true;
+
 			for (int i=0; i<characterList.size()-1; i++) {
 				CharacterData ch = characterList.get(i); // get the i item in the list
 				CharacterData ch1 = characterList.get(i + 1); // get the i+1 item in the list
@@ -289,6 +300,8 @@ public class Model extends Observable {
 		}
 		else if(getWordDirection().equals("vertical"))
 		{
+			this.isWordSelected = true;
+
 			for (int i=0; i<characterList.size()-1; i++)
 			{
 				CharacterData ch = characterList.get(i); // get the i item in the list
@@ -310,31 +323,68 @@ public class Model extends Observable {
 		}
 		else{
 			// not continuous word
-			return "";
+			this.isWordSelected = false;
+
 		}
-		System.out.println(wordTiles);
+
+		System.out.println("wordTiles: "+wordTiles);
 		// need to make a tile array from the wordTiles
 		Tile[] array = new Tile[wordTiles.size()];
 		wordTiles.toArray(array);
 		Word word = new Word(array, characterList.get(0).getRow(), characterList.get(0).getColumn(), isVerticalWord(characterList));
+		System.out.println("word: " + word);
+		//int score =gameManager.placeWord(word);// if score is 0 then the word is not valid
+		// send a msg to playerHandler to place the word on the board
+		// if score is 0 then the word is not valid
+		out.println(protocols.PLACE_WORD);
+		out.println(word);
 
-		int score =gameManager.placeWord(word);// if score is 0 then the word is not valid
-		if (score==0) {
-			for(int i=0; i<wordTiles.size(); i++)
+
+//		if (this.lastScore==0) {
+//			for(int i=0; i<wordTiles.size(); i++)
+//			{
+//				setChanged();
+//				notifyObservers("undo");
+//				wordSelected = "";
+//			}
+//		}
+
+//		else
+//		{
+//			lastEntry = new ArrayList<>(characterList);
+//			gameManager.endTurn(this.lastScore,word);
+//		}
+//		gameManager.printBoard();
+//		gameManager.printScores();
+//		return wordSelected;
+	}
+
+	public String endTurn()
+	{
+		if(this.lastScore==0 || !this.isWordSelected)
+		{
+			this.isWordSelected = false;
+			for(int i=0; i<wordSelected.length(); i++)
 			{
 				setChanged();
 				notifyObservers("undo");
-				wordSelected = "";
 			}
 		}
-		else {
-			lastEntry = new ArrayList<>(characterList);
-			gameManager.endTurn(score,word);
-		}
-		gameManager.printBoard();
-		gameManager.printScores();
+		wordSelected = "";
+
 		return wordSelected;
 	}
+//	public String endTurn() {
+//		// send a msg to playerHandler to end the turn
+//
+//
+//		lastEntry = new ArrayList<>(characterList);
+//		//gameManager.endTurn(this.lastScore,word);
+//
+//		gameManager.printBoard();
+//		gameManager.printScores();
+//		return wordSelected;
+//	}
 
 	public void restart() {
 		System.out.println("New Game");
@@ -386,10 +436,9 @@ public class Model extends Observable {
 	}
 
 
-	public Player getCurrentPlayer() {
-		out.println(protocols.GET_CURRENT_PLAYER);
-		return gameManager.getCurrentPlayer();
-	}
+//	public Player getCurrentPlayer() {
+//		return gameManager.getCurrentPlayer();
+//	}
 
 	public String getTilesLeft() {
 		return "Tiles left in the bag: "+gameManager.getTilesLeftInBag();
@@ -430,7 +479,8 @@ public class Model extends Observable {
 	}
 
 	public String getTurn() {
-		return "Player "+getCurrentPlayer().getId() + "'s turn";
+		out.println(protocols.GET_CURRENT_PLAYER);
+		return "Player "+this.turn + "'s turn";
 	}
 	private void assignLetterScores() {
 		letterScores.put('A', 1);
@@ -474,5 +524,23 @@ public class Model extends Observable {
 
 	public String[][] getUpdateBoard() {
 		return this.updatedBoard;
+	}
+
+	public void serverSendMessagesToAllClients(String msg) {
+		out.println(protocols.SERVER_SEND_MSG);
+		out.println(msg);
+
+}
+
+	public String getWordSelected() {
+		if(!this.isWordSelected || this.lastScore==0)
+		{
+			return "";
+		}
+		return this.wordSelected;
+	}
+
+	public ArrayList<CharacterData> getCharacterList() {
+		return this.characterList;
 	}
 }

@@ -37,7 +37,6 @@ public class MainMenuController implements Observer {
     public void showGuestWaitingRoom() {
         this.model.connectToServer();
         vm.getNumPlayers();
-
         sceneController.showGuestWaitingRoom();
     }
 

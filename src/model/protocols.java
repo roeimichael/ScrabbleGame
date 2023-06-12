@@ -4,9 +4,6 @@ public class protocols {
     public static final String EXIT = "EXIT";
     public static final String REFILL_HAND = "REFILL_HAND";
     public static final String GET_HAND = "GET_HAND";
-    public static final String NEW_GAME_AS_HOST = "NEW_GAME_AS_HOST" ;
-    public static final String JOIN_GAME_AS_CLIENT =    "JOIN_GAME_AS_CLIENT";
-    public static final String HELP = "HELP";
     public static final String CONFIRM = "CONFIRM" ;
 
     public static final String CHALLENGE =  "CHALLENGE";
@@ -23,4 +20,8 @@ public class protocols {
     public static final String HAND_CHANGED = "HAND_CHANGED" ;
     public static final String NEW_GAME = "NEW_GAME" ;
     public static final String GET_CURRENT_PLAYER =  "GET_CURRENT_PLAYER";
+    public static final String SERVER_SEND_MSG =  "SERVER_SEND_MSG";
+    public static final String PLACE_WORD = "PLACE_WORD";
+    public static final String PASS = "PASS";
+    public static final String GET_LAST_SCORE = "GET_LAST_SCORE";
 }

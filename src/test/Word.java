@@ -1,9 +1,11 @@
 package test;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Word {
+public class Word implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	private Tile[] tiles;
 	private int row,col;
@@ -65,8 +67,11 @@ public class Word {
 	public String toString() {
 		StringBuilder sb=new StringBuilder();
 		for(Tile t : tiles)
-			sb.append(t.letter);
-//		sb.append(" ("+row+","+col+") "+(vertical?"vertical":"horizontal"));
+			if (t!=null)
+				sb.append(t.letter);
+			else
+				sb.append("_");
+		sb.append(",").append(row).append(",").append(col).append(",").append(vertical);
 		return sb.toString();
 	}
 	

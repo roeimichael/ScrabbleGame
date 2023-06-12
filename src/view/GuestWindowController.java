@@ -20,6 +20,7 @@ public class GuestWindowController extends Observable implements Observer {
 
     @FXML
     private Label numberOfPlayersLabel;
+
     public static newServer server;
     private ViewModel viewModel;
 

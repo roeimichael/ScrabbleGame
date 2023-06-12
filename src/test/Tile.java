@@ -1,9 +1,11 @@
 package test;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Random;
 
-public class Tile {
+public class Tile implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	public final char letter;
 	public final int score;

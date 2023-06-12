@@ -13,6 +13,7 @@ public class GameManager {
     private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
     private int lastScore; // the score of the last word placed
     private int numPassed; // number of players who have passed their turn
+
     public static GameManager get()
     {
         if(instance==null)

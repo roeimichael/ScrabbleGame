@@ -5,10 +5,7 @@ import model.protocols;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
@@ -44,6 +41,7 @@ public class ViewModel extends Observable implements Observer {
 	public void letterSelected(char letter, int row, int col) {
 		board[row][col].set(Character.toString(letter)); // updates the board with the letter the user has selected
 		userInput.add(new CharacterData(letter, row, col)); // adds the letter to the list of letters the user has selected
+		System.out.println("userInput: "+userInput);
 		background[row][col].set(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null))); // changes the background of the letter to light blue
 		//userBoardList.add(Character.toString(letter)); // adds the letter to the list of letters the user has selected
 		letterList.remove(Character.toString(letter)); // removes the letter from the list of letters the user has in his hand
@@ -51,14 +49,18 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 	public void updateBoard(String[][] newBoard){
-		System.out.println(newBoard);
+		System.out.println(Arrays.deepToString(newBoard));
 		for(int i=0;i<15;i++){
 			for(int j=0;j<15;j++){
-				if(!newBoard[i][j].equals("_"))
-				{
-					board[i][j].set(newBoard[i][j]);
-					background[i][j].set(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null))); // changes the background of the letter to light blue
 
+					if(!newBoard[i][j].equals("_")) {
+						board[i][j].set(newBoard[i][j]);
+						background[i][j].set(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null))); // changes the background of the letter to light blue
+
+					}
+					else{
+						board[i][j].set("");
+						setBackground(i,j);
 				}
 
 			}
@@ -133,50 +135,65 @@ public class ViewModel extends Observable implements Observer {
 		col.set("");
 		wordDirection.set("");
 		userInput.clear();
+		System.out.println("userInput: "+userInput);
+
 		m.cleanList();
 		getTilesLeft();
 		playerPoints.set(m.getPlayerScore());
 	}
 	private void handleConfirmation() {
-		// update labels
-		confirm.set(m.getConfirm());
-		wordSelected.set("");
 
-		// this is the function that places the word on the board aka m.getWordSelected()
-		wordSelected.set(m.getWordSelected());
+		Platform.runLater(() -> {
+			// update labels
+			confirm.set(m.getConfirm());
+			wordSelected.set("");
 
-		// update labels
-		row.set(m.getRow());
-		col.set(m.getCol());
+			// this is the function that places the word on the board aka m.getWordSelected()
+			m.tryPlaceWord();
+			wordSelected.set(m.getWordSelected());
 
-		// sanity check
-		System.out.println("word selected: " + wordSelected.get());
-		// try to add the word to the board
-		if (!wordSelected.get().equals("") )
-		{
-			wordDirection.set(m.getWordDirection());
-		}
-		else {
-			int wordSize = userInput.size();
-			for (int i = 0; i < wordSize; i++) {
-				m.undoSelected();
+			// update labels
+			row.set(m.getRow());
+			col.set(m.getCol());
+
+			// sanity check
+			System.out.println("word selected: " + wordSelected.get());
+			// try to add the word to the board
+
+			// wordselcted is the word that the user has selected
+			// if wordSelcted="" then the word is not valid
+			// if wordSelected!="", then the word is valid
+			if (!wordSelected.get().equals("") )
+			{
+				wordDirection.set(m.getWordDirection());
 			}
-		}
+			else {
+				int wordSize = userInput.size();
+				for (int i = 0; i < wordSize; i++) {
+					m.undoSelected();
+				}
+			}
 
-		// after word is confirmed, the letters are added to the board
-		// now the server will tell all the players to update their boards
-		newServer.get().sendMessagesToAllClients(protocols.BOARD_CHANGED);
+			// after word is confirmed, the letters are added to the board
+			// now the server will tell all the players to update their boards
+			//newServer.get().sendMessagesToAllClients(protocols.BOARD_CHANGED);
+			m.serverSendMessagesToAllClients(protocols.BOARD_CHANGED);
 
-		turn.set(m.getTurn());
-		lastEntry.clear();
-		lastEntry.addAll(userInput);
-		userInput.clear();
-		Platform.runLater(() -> this.updateBoard(m.getUpdateBoard()));
+			lastEntry.clear();
+			lastEntry.addAll(userInput);
+			userInput.clear();
 
-		m.cleanList();
-		updateLetterList();
-		getTilesLeft();
-		playerPoints.set(m.getPlayerScore());
+			//this.updateBoard(m.getUpdateBoard());
+			turn.set(m.getTurn());
+			m.cleanList();
+			updateLetterList();
+			getTilesLeft();
+			playerPoints.set(m.getPlayerScore());
+
+				}
+		);
+
+
 	}
 
 	private void handleChallengeAccepted() {
@@ -236,6 +253,8 @@ public class ViewModel extends Observable implements Observer {
 			m.undoSelected();
 		}
 		userInput.clear();
+		System.out.println("userInput: "+userInput);
+
 		m.cleanList();
 		updateLetterList();
 		//getTilesLeft();
@@ -243,20 +262,28 @@ public class ViewModel extends Observable implements Observer {
 
 
 	private void handleUndoRequest() {
-		if (userInput.size() > 0) {
+//		Platform.runLater(() -> {
+		ArrayList<CharacterData> input = m.getCharacterList();
+
+		if (input.size() > 0) {
 			confirm.set("");
 			wordSelected.set("");
 			row.set("");
 			col.set("");
 			wordDirection.set("");
-			int index = userInput.size() - 1;
-			int i = userInput.get(index).getRow();
-			int j = userInput.get(index).getColumn();
-			letterList.add(Character.toString(userInput.get(index).getLetter()));
-			userInput.remove(index);
+			int index = input.size() - 1;
+			int i = input.get(index).getRow();
+			int j = input.get(index).getColumn();
+			letterList.add(Character.toString(input.get(index).getLetter()));
+			input.remove(index);
 			board[i][j].set("");
 			setBackground(i, j);
-		}
+			}
+			m.serverSendMessagesToAllClients(protocols.BOARD_CHANGED);
+
+//				}
+//		);
+
 	}
 	private void handleRestartRequest() {
 		updateLetterList();
@@ -266,6 +293,8 @@ public class ViewModel extends Observable implements Observer {
 		col.set("");
 		wordDirection.set("");
 		userInput.clear();
+		System.out.println("userInput: "+userInput);
+
 		m.cleanList();
 		getTilesLeft();
 		playerPoints.set(m.getPlayerScore());
