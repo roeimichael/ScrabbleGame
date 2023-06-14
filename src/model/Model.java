@@ -24,12 +24,14 @@ public class Model extends Observable {
 	private String[][] updatedBoard;
 	private int turn = 0;
 	private int lastScore = 0;
+	private String scores = "";
 	// labels
 	private String boardState, help, confirm;
 	private char letter;
 	private int rowCur = -1, colCur = -1;
 	String wordSelected=""; // saves the word the user has selected
 	private boolean isWordSelected = false; // saves whether the user has selected a word or not
+	private CharacterData undoLetter; // saves the letter the user has selected to undo
 
 	// helper attributes
 	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
@@ -41,11 +43,7 @@ public class Model extends Observable {
 //	}
 
 	public Model(String ip, int port) {
-//		gameManager = new GameManager();
-//		gameManager.addPlayer(new Player(1));
-//		gameManager.addPlayer(new Player(2));
-//		gameManager.restartGame();
-//		board = gameManager.getBoard();
+
 		assignLetterScores();
 		this.boardState = "";
 		this.ip = ip;
@@ -68,18 +66,25 @@ public class Model extends Observable {
 			// second step: sending it back to the playerHandler
 			out.println(id);
 			String msgFromServer = null;
+
 			Thread getMsgFromServer = new Thread(()->{ // listen to the server, and acts accordingly
+				//communication protocol: newServer -> model -> playerHandler
+				// 1. server sends message type
+				// 2. model sends message to playehandler requesting the content
+				// 3. playerhandler sends content to player
 				while(true)
 				{
-
-					//communication protocol: newServer -> model -> playerHandler
-					// 1. server sends message type
-					// 2. model sends message to playehandler requesting the content
-					// 3. playerhandler sends content to player
-
 					try {
-						String msg = in.readLine();
-						System.out.println("[Client] Msg from server: " + msg);
+						String fullMsg = in.readLine();
+						String[] messages = fullMsg.split(",");
+						String msg=messages[0];
+						String addMsg = "";
+						if (messages.length != 1) {
+							for (int i = 1; i < messages.length; i++) {
+								addMsg += messages[i];  // Concatenate the strings
+							}
+						}
+						System.out.println("[Client] Msg from server: " + fullMsg);
 						switch (msg) {
 
 							// protocol: server -> model -> playerHandler
@@ -98,35 +103,43 @@ public class Model extends Observable {
 							case protocols.HAND_CHANGED://hand sent from server
 
 								break;
+							case protocols.UPDATE_SCORE://score sent from server
+								out.println(protocols.GET_SCORE);
+								break;
+
+							case protocols.UPDATE_TURN://turn sent from server
+								out.println(protocols.GET_TURN);
+								break;
 
 							// protocol: playerHandler -> model
 							case protocols.NEW_GAME: // playerHandler sends the player's hand
-								msg = in.readLine(); // now msg includes the hand
-								this.updateHand(msg);
-
+								this.updateHand(addMsg);
 								this.setGameStarted();
 								break;
 							case protocols.END_GAME://message for game end sent from server
 								exit = true;
 								break;
 							case protocols.GET_SCORE://message containing score from server
-								msg = in.readLine();
-								this.updateScore(msg);
+								String[] scores = new String[messages.length - 1];
+								// Concatenate the strings
+								System.arraycopy(messages, 1, scores, 0, messages.length - 1);
+								this.updateScore(scores);
 								break;
 							case protocols.GET_HAND://message containing hand from server
-								msg = in.readLine();
-								this.updateHand(msg);
+								this.updateHand(addMsg);
 								break;
 							case protocols.GET_BOARD://message containing board from server
-								msg = in.readLine();
-								System.out.println("msg from server in get_board: " + msg);
-								this.updateBoard(msg);
+								this.updateBoard(addMsg);
 								break;
-							case protocols.GET_CURRENT_PLAYER:
-								this.turn = Integer.parseInt(in.readLine());
+							case protocols.GET_TURN:
+								this.turn = Integer.parseInt(addMsg);
+								System.out.println("msg from server in get_turn: " + turn);
+								setChanged();
+								notifyObservers(protocols.GET_TURN);
 								break;
 							case protocols.GET_LAST_SCORE:
-								this.lastScore = Integer.parseInt(in.readLine());
+								this.lastScore = Integer.parseInt(addMsg);
+								System.out.println("msg from server in get_last_score: " + lastScore);
 								endTurn();
 								break;
 
@@ -148,18 +161,17 @@ public class Model extends Observable {
 
 	}
 
-
-
-
 	// update methods that change the view
 	private void updateBoard(String msg) {
 		// msg is 15 strings, each string is 15 characters combined into one string
 		// we translate it to a 2d array of 15X15
+		System.out.println("[Update Board]: " + msg);
 		updatedBoard = new String[15][15];
 		for(int i=0; i<15; i++)
 		{
 			for(int j=0; j<15; j++)
 			{
+				//System.out.println("[Update Board]: "+msg.substring(i*15+j, i*15+j+1));
 				updatedBoard[i][j] = msg.substring(i*15+j, i*15+j+1);
 			}
 		}
@@ -168,14 +180,33 @@ public class Model extends Observable {
 
 	}
 	private void updateHand(String msg) {
+		// example: "a;b;c;d;e;f;g"
 		letterList=msg;
+		setChanged();
+		notifyObservers(protocols.GET_HAND);
 	}
-	private void updateScore(String msg) {
+	public void updateScore(String[] msg) {
+		// example: "1,3,5,13"
+		this.scores = "";
+		//String[] score = msg.split(",");
+		for(int i=0; i < msg.length; i++)
+		{
+			System.out.println("score: " + msg[i]);
+			this.scores+="Player " + i + ": " + msg[i] + "\n";
+		}
+		setChanged();
+		notifyObservers(protocols.GET_SCORE);
+	}
+	public String getScore()
+	{
+		return this.scores;
 	}
 
 	public void setGameStarted() {
 		setChanged();
 		notifyObservers(protocols.START_GAME);
+		setChanged();
+		notifyObservers(protocols.GET_TURN);
 
 	}
 
@@ -216,9 +247,7 @@ public class Model extends Observable {
 	}
 	public void passSelected() {
 		// need to check if game is over
-
-		gameManager.passTurn();
-		//gameManager.isGameOver();
+		out.println(protocols.PASS);
 		setChanged();
 		notifyObservers("pass");
 
@@ -253,13 +282,17 @@ public class Model extends Observable {
 	public void cleanList() {
 		characterList.clear();
 		wordTiles.clear();
-		//gameManager.refillBag();
+		//gameManager.refillHand();
 	}
 
 
 	public void undoSelected() {
 		if(characterList.size() > 0) {
+			undoLetter = characterList.get(characterList.size() - 1);
 			characterList.remove(characterList.size() - 1);
+		}
+		else {
+			undoLetter = null;
 		}
 		setChanged();
 		notifyObservers("undo");
@@ -270,6 +303,7 @@ public class Model extends Observable {
 		// transform the word from characterList to actual word
 		wordSelected = "";
 		System.out.println(" characterList: " + characterList.toString());
+		out.println(protocols.GET_TURN);
 
 		if (characterList.size()==0)
 			this.isWordSelected = false;
@@ -338,30 +372,11 @@ public class Model extends Observable {
 		// if score is 0 then the word is not valid
 		out.println(protocols.PLACE_WORD);
 		out.println(word);
-
-
-//		if (this.lastScore==0) {
-//			for(int i=0; i<wordTiles.size(); i++)
-//			{
-//				setChanged();
-//				notifyObservers("undo");
-//				wordSelected = "";
-//			}
-//		}
-
-//		else
-//		{
-//			lastEntry = new ArrayList<>(characterList);
-//			gameManager.endTurn(this.lastScore,word);
-//		}
-//		gameManager.printBoard();
-//		gameManager.printScores();
-//		return wordSelected;
 	}
 
 	public String endTurn()
 	{
-		if(this.lastScore==0 || !this.isWordSelected)
+		if(this.lastScore==0 || !this.isWordSelected || this.turn!=this.id)
 		{
 			this.isWordSelected = false;
 			for(int i=0; i<wordSelected.length(); i++)
@@ -370,21 +385,17 @@ public class Model extends Observable {
 				notifyObservers("undo");
 			}
 		}
+		else {
+			out.println(protocols.GET_HAND);
+			setChanged();
+			notifyObservers(protocols.GET_TURN);
+
+		}
 		wordSelected = "";
 
 		return wordSelected;
 	}
-//	public String endTurn() {
-//		// send a msg to playerHandler to end the turn
-//
-//
-//		lastEntry = new ArrayList<>(characterList);
-//		//gameManager.endTurn(this.lastScore,word);
-//
-//		gameManager.printBoard();
-//		gameManager.printScores();
-//		return wordSelected;
-//	}
+
 
 	public void restart() {
 		System.out.println("New Game");
@@ -479,7 +490,7 @@ public class Model extends Observable {
 	}
 
 	public String getTurn() {
-		out.println(protocols.GET_CURRENT_PLAYER);
+		//out.println(protocols.GET_CURRENT_PLAYER); // model will get current's player id
 		return "Player "+this.turn + "'s turn";
 	}
 	private void assignLetterScores() {
@@ -518,7 +529,7 @@ public class Model extends Observable {
 
 	public List<String> getLetterList() {
 
-		return new ArrayList<>(Arrays.asList(letterList.split(",")));
+		return new ArrayList<>(Arrays.asList(letterList.split(";")));
 
 	}
 
@@ -527,20 +538,24 @@ public class Model extends Observable {
 	}
 
 	public void serverSendMessagesToAllClients(String msg) {
-		out.println(protocols.SERVER_SEND_MSG);
-		out.println(msg);
+		out.println(protocols.SERVER_SEND_MSG+","+msg);
 
 }
 
 	public String getWordSelected() {
-		if(!this.isWordSelected || this.lastScore==0)
+		if(!this.isWordSelected || this.lastScore==0 || this.turn!=this.id)
 		{
 			return "";
 		}
 		return this.wordSelected;
 	}
 
-	public ArrayList<CharacterData> getCharacterList() {
-		return this.characterList;
+	public CharacterData getUndoLetter() {
+
+		return this.undoLetter;
+	}
+
+	public boolean isPlayerTurn() {
+		return this.turn==this.id;
 	}
 }

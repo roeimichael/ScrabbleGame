@@ -8,7 +8,7 @@ public class GameManager {
     private Board board; // the current board state
     private Board lastTurnBoard; // the board state after the last turn
     private ArrayList<Player> players;
-    private int currentPlayerIndex; // index of the current player's turn
+    private int turn; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
     private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
     private int lastScore; // the score of the last word placed
@@ -25,7 +25,7 @@ public class GameManager {
     public GameManager() {
         this.board =  new Board();
         this.players = new ArrayList<>();
-        this.currentPlayerIndex = 0;
+        this.turn = 0;
         this.tileBag =  new Tile.Bag();
         this.numPassed=0;
     }
@@ -52,7 +52,7 @@ public class GameManager {
         String scores="";
         for(Player p:players)
         {
-            scores+="Player "+p.getId()+" score: "+p.getScore()+"\n";
+            scores+=p.getScore()+",";
         }
         return scores;
     }
@@ -65,7 +65,7 @@ public class GameManager {
         numPassed=0;
         for (Player player : players) {
             player.resetScore();
-            player.refillBag(tileBag);
+            player.refillHand(tileBag);
         }
     }
     public void restartGame(){
@@ -77,7 +77,7 @@ public class GameManager {
         for (Player player : players) {
             player.removeTiles();
             player.resetScore();
-            player.refillBag(tileBag);
+            player.refillHand(tileBag);
         }
     }
 
@@ -96,26 +96,29 @@ public class GameManager {
     }
     public void endTurn(int score, Word word){
         lastScore = score;
-        players.get(currentPlayerIndex).incrementScore(score);
-        players.get(currentPlayerIndex).removeWord(word);
-        players.get(currentPlayerIndex).refillBag(tileBag);
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        players.get(turn).incrementScore(score);
+        players.get(turn).removeWord(word);
+        players.get(turn).refillHand(tileBag);
+        turn = (turn + 1) % players.size();
     }
 
     public void passTurn(){
-        System.out.println("Player " + players.get(currentPlayerIndex).getId() + " has passed their turn");
+        System.out.println("Player " + players.get(turn).getId() + " has passed their turn");
         lastScore=0;
         numPassed++;
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        turn = (turn + 1) % players.size();
     }
     public int getCurrentTurn(){
-        return currentPlayerIndex;
+        return turn;
+    }
+    public void nextTurn(){
+        turn = (turn + 1) % players.size();
     }
     public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
+        return players.get(turn);
     }
     public Player getNextPlayer() {
-        return players.get((currentPlayerIndex + 1) % players.size());
+        return players.get((turn + 1) % players.size());
     }
 
     public String getBoard() {
@@ -149,9 +152,9 @@ public class GameManager {
         return winner;
     }
 
-    public void refillBag()
+    public void refillBag(int id)
     {
-        players.get(currentPlayerIndex).refillBag(tileBag);
+        players.get(id).refillHand(tileBag);
     }
     public void printScores()
     {
@@ -212,7 +215,7 @@ public class GameManager {
         if(board.challenge()) // word doesnt exist
         {
             // challenger loses his turn due to unsuccessful challenge
-            players.get((currentPlayerIndex + players.size() - 1) % players.size()).incrementScore(-lastScore);
+            players.get((turn + players.size() - 1) % players.size()).incrementScore(-lastScore);
             board = lastTurnBoard;
             return true;
         }
@@ -221,7 +224,7 @@ public class GameManager {
             // last player get a score of 0 for his last turn
             // i think that the player won't get back his tiles and will just get new ones instead
             // need to update the board accordingly
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+            turn = (turn + 1) % players.size();
             return false;
 
         }

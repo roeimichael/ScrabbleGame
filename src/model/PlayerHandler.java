@@ -43,7 +43,6 @@ public class PlayerHandler implements ClientHandler{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // TODO - need to rewrite this part
         // game loop
         // server runs infinitely
         // server waits for a message from the client
@@ -55,17 +54,25 @@ public class PlayerHandler implements ClientHandler{
             // 2. model sends message to playehandler requesting the content
             // 3. playerhandler sends content to player
             try {
-                String msg = in.readLine();
-                System.out.println("[Server]Message from client: " + msg);
+                String fullMsg = in.readLine();
+                String[] messages = fullMsg.split(",");
+                String msg=messages[0];
+                String addMsg = "";
+                if(messages.length!=1)
+                {
+                    addMsg=messages[1];
+                    System.out.println("[Server]addMsg: "+addMsg);
+                }
+                System.out.println("[Server] Msg from server: " + fullMsg);
                 switch (msg) {
                     case protocols.NEW_GAME -> this.startGame();
-                    case protocols.SERVER_SEND_MSG-> this.serverSendMsg();
+                    case protocols.SERVER_SEND_MSG-> this.serverSendMsg(addMsg);
                     // gets
                     case protocols.GET_BOARD -> this.sendBoard();
                     case protocols.GET_TURN -> this.sendTurn();
                     case protocols.GET_HAND -> this.sendHand();
                     //case protocols.GET_LAST_SCORE -> this.sendLastScore();
-                    case protocols.GET_SCORE -> this.sendScore();
+                    case protocols.GET_SCORE -> this.sendScores();
                     case protocols.GET_CURRENT_PLAYER -> this.sendCurrentPlayer();
 
                     // actions
@@ -85,8 +92,8 @@ public class PlayerHandler implements ClientHandler{
     }
 
     private void sendLastScore(int lastScore) {
-        out.println( protocols.GET_LAST_SCORE);
-        out.println(lastScore);
+        out.println(protocols.GET_LAST_SCORE+","+lastScore);
+        //out.println(lastScore);
 
     }
 
@@ -94,6 +101,7 @@ public class PlayerHandler implements ClientHandler{
     }
 
     private void pass() {
+
     }
 
     private void placeWord() {
@@ -121,24 +129,34 @@ public class PlayerHandler implements ClientHandler{
 
             Word word = new Word(tileArray, row, col, isVertical);
             int score = gm.placeWord(word);
+            System.out.println("[PlayerHandler] score: " + score);
+            if(score != 0)
+            {
+                // meaning the word is okay and now we need to remove it from the player's hand
+                gm.getPlayer(playerId).removeWord(word);
+                gm.refillBag(playerId);
+                gm.getPlayer(playerId).incrementScore(score);
+                System.out.println("[PlayerHandler] Hand: " + gm.getPlayer(playerId).getHand());
+                gm.nextTurn();
+            }
+
+            this.sendHand();
             this.sendLastScore(score);
+            this.sendScores();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void serverSendMsg() {
-        try {
-            String msg = in.readLine();
-            this.server.sendMessagesToAllClients(msg);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private void serverSendMsg(String msg) {
+
+        this.server.sendMessagesToAllClients(msg);
+
     }
 
     private void sendCurrentPlayer() {
-        out.println(protocols.GET_CURRENT_PLAYER);
-        out.println(gm.getCurrentPlayer().getId());
+        out.println(protocols.GET_CURRENT_PLAYER+","+gm.getCurrentPlayer().getId());
+        //out.println(gm.getCurrentPlayer().getId());
     }
 
     private void startGame() {
@@ -151,30 +169,32 @@ public class PlayerHandler implements ClientHandler{
         else {
             System.out.println("waiting for host to start the game");
         }
-        out.println(protocols.NEW_GAME);
+        out.println(protocols.NEW_GAME+","+gm.getPlayer(this.playerId).getHand());
         // when starting the game all the players need to get their hand
-        out.println(gm.getPlayer(this.playerId).getHand());
+        //out.println(gm.getPlayer(this.playerId).getHand());
 
     }
 
     // send methods to send information to the model
-    private void sendScore() {
-        out.println(protocols.GET_SCORE);
-        out.println(gm.getPlayer(playerId).getScore());
+    private void sendScores() {
+        out.println(protocols.GET_SCORE+","+gm.getScores());
+//        out.println(gm.getScores());
     }
 
     private void sendHand() {
-        out.println(protocols.GET_HAND);
-        out.println(gm.getPlayer(playerId).getHand());
+        out.println(protocols.GET_HAND+","+gm.getPlayer(playerId).getHand());
+//        out.println(gm.getPlayer(playerId).getHand());
     }
 
     private void sendTurn() {
-
+        out.println(protocols.GET_TURN+","+gm.getCurrentTurn());
+//        out.println(gm.getCurrentTurn());
     }
 
     private void sendBoard() {// TODO - need to check if true
-        out.println(protocols.GET_BOARD);
-        out.println(gm.getBoard());
+        System.out.println("[PlayerHandler] board: " + gm.getBoard());
+        out.println(protocols.GET_BOARD+","+gm.getBoard());
+//        out.println(gm.getBoard());
     }
 
     @Override

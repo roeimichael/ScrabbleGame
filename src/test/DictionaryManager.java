@@ -46,7 +46,7 @@ public class DictionaryManager {
         	}
             if (bookToDictionaryMap.get(book).query(word)) {
                 res = true;
-                System.out.println("Word found in: " + book);
+                //System.out.println("Word found in: " + book);
             }
 
         }

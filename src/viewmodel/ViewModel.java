@@ -27,25 +27,77 @@ public class ViewModel extends Observable implements Observer {
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
 	public ListProperty<CharacterData> userInput; // saves the letters the user has selected in the current turn
 	public ListProperty<CharacterData> lastEntry; // saves the letters the user has selected in the last turn
-
+	public boolean isPlayerTurn;
 	public ViewModel(Model m) {
 		this.m = m;
 		m.addObserver(this);
 		initializeProperties();
 	}
+
+	@Override
+	public void update(Observable obs, Object obj) {
+		if (obs != m) {
+			return; // If the notification is not from Model, we simply return.
+		}
+
+		String newBoardState = getBoardState(obj);
+		setChanged();
+		notifyObservers(newBoardState);
+		System.out.println("ViewModel: " + newBoardState);
+
+		switch (newBoardState) {
+			//case "help" -> handleHelpRequest();
+			case protocols.START_GAME ->  handleStartGame();
+			case "confirmed" -> handleConfirmation();
+			case protocols.BOARD_CHANGED -> updateBoard(m.getUpdateBoard());
+			case protocols.GET_HAND -> updateLetterList();
+			case protocols.GET_SCORE -> updateScore();
+			case protocols.GET_TURN -> updateTurn();
+			case "clear" -> handleClearRequest();
+			case "pass" -> handlePass();
+			case "undo" -> handleUndoRequest();
+			case "challenge accepted" -> handleChallengeAccepted();
+			case "restart" -> handleRestartRequest();
+			default -> {
+				if (obj instanceof Character) {
+					handleLetterSelection();
+				}
+			}
+		}
+	}
+
+	private void updateTurn() {
+		isPlayerTurn = m.isPlayerTurn();
+	}
+
+	private void updateScore() {
+		Platform.runLater(() -> {
+
+			playerPoints.set(m.getScore());
+		}
+		);
+	}
+
 	public BooleanProperty gameStartedProperty() {
 		return gameStartedProperty;
 	}
 
 
 	public void letterSelected(char letter, int row, int col) {
-		board[row][col].set(Character.toString(letter)); // updates the board with the letter the user has selected
-		userInput.add(new CharacterData(letter, row, col)); // adds the letter to the list of letters the user has selected
-		System.out.println("userInput: "+userInput);
-		background[row][col].set(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null))); // changes the background of the letter to light blue
-		//userBoardList.add(Character.toString(letter)); // adds the letter to the list of letters the user has selected
-		letterList.remove(Character.toString(letter)); // removes the letter from the list of letters the user has in his hand
-		m.letterSelected(letter, row, col);
+		if(isPlayerTurn) {
+			board[row][col].set(Character.toString(letter)); // updates the board with the letter the user has selected
+			userInput.add(new CharacterData(letter, row, col)); // adds the letter to the list of letters the user has selected
+			System.out.println("userInput: "+userInput);
+			background[row][col].set(new Background(new BackgroundFill(Color.LIGHTYELLOW, null, null))); // changes the background of the letter to light blue
+			//userBoardList.add(Character.toString(letter)); // adds the letter to the list of letters the user has selected
+			letterList.remove(Character.toString(letter)); // removes the letter from the list of letters the user has in his hand
+			m.letterSelected(letter, row, col);
+		}
+		else{
+			System.out.println("Not your turn");
+			System.out.println("isPlayerTurn: "+ isPlayerTurn);
+		}
+
 	}
 
 	public void updateBoard(String[][] newBoard){
@@ -95,34 +147,7 @@ public class ViewModel extends Observable implements Observer {
 		return bonus_vm;
 	}
 
-	@Override
-	public void update(Observable obs, Object obj) {
-		if (obs != m) {
-			return; // If the notification is not from Model, we simply return.
-		}
 
-		String newBoardState = getBoardState(obj);
-		setChanged();
-		notifyObservers(newBoardState);
-		System.out.println("ViewModel: " + newBoardState);
-
-		switch (newBoardState) {
-			//case "help" -> handleHelpRequest();
-			case protocols.START_GAME ->  handleStartGame();
-			case "confirmed" -> handleConfirmation();
-			case protocols.BOARD_CHANGED -> updateBoard(m.getUpdateBoard());
-			case "clear" -> handleClearRequest();
-			case "pass" -> handlePass();
-			case "undo" -> handleUndoRequest();
-			case "challenge accepted" -> handleChallengeAccepted();
-			case "restart" -> handleRestartRequest();
-			default -> {
-				if (obj instanceof Character) {
-					handleLetterSelection();
-				}
-			}
-		}
-	}
 
 	private void handleStartGame() {
 		gameStartedProperty.set(true);
@@ -143,6 +168,8 @@ public class ViewModel extends Observable implements Observer {
 	}
 	private void handleConfirmation() {
 
+	if(isPlayerTurn)
+	{
 		Platform.runLater(() -> {
 			// update labels
 			confirm.set(m.getConfirm());
@@ -176,22 +203,26 @@ public class ViewModel extends Observable implements Observer {
 
 			// after word is confirmed, the letters are added to the board
 			// now the server will tell all the players to update their boards
-			//newServer.get().sendMessagesToAllClients(protocols.BOARD_CHANGED);
-			m.serverSendMessagesToAllClients(protocols.BOARD_CHANGED);
 
 			lastEntry.clear();
 			lastEntry.addAll(userInput);
 			userInput.clear();
 
-			//this.updateBoard(m.getUpdateBoard());
-			turn.set(m.getTurn());
 			m.cleanList();
-			updateLetterList();
-			getTilesLeft();
-			playerPoints.set(m.getPlayerScore());
+			m.serverSendMessagesToAllClients(protocols.BOARD_CHANGED);
+			System.out.println("Message sent: BOARD_CHANGED");
+			m.serverSendMessagesToAllClients(protocols.UPDATE_SCORE);
+			System.out.println("Message sent: UPDATE_SCORE");
+			m.serverSendMessagesToAllClients(protocols.UPDATE_TURN);
+			System.out.println("Message sent: UPDATE_TURN");
+			turn.set(m.getTurn());
 
 				}
 		);
+
+
+	}
+
 
 
 	}
@@ -212,8 +243,10 @@ public class ViewModel extends Observable implements Observer {
 	private void updateLetterList() {
 		// update the letters the player see
 		//test.Player currentPlayer = m.getCurrentPlayer();
-		ObservableList<String> newLetters = FXCollections.observableArrayList(m.getLetterList());
-		letterList.set(newLetters);
+		Platform.runLater(() -> {
+			ObservableList<String> newLetters = FXCollections.observableArrayList(m.getLetterList());
+			letterList.set(newLetters);
+		});
 	}
 
 	private String getBoardState(Object obj) {
@@ -262,27 +295,25 @@ public class ViewModel extends Observable implements Observer {
 
 
 	private void handleUndoRequest() {
-//		Platform.runLater(() -> {
-		ArrayList<CharacterData> input = m.getCharacterList();
+	Platform.runLater(() -> {
+		CharacterData input = m.getUndoLetter();
 
-		if (input.size() > 0) {
+		if (input!=null) {
 			confirm.set("");
 			wordSelected.set("");
 			row.set("");
 			col.set("");
 			wordDirection.set("");
-			int index = input.size() - 1;
-			int i = input.get(index).getRow();
-			int j = input.get(index).getColumn();
-			letterList.add(Character.toString(input.get(index).getLetter()));
-			input.remove(index);
+			int i = input.getRow();
+			int j = input.getColumn();
+			letterList.add(Character.toString(input.getLetter()));
 			board[i][j].set("");
 			setBackground(i, j);
 			}
-			m.serverSendMessagesToAllClients(protocols.BOARD_CHANGED);
+			//m.serverSendMessagesToAllClients(protocols.BOARD_CHANGED);
 
-//				}
-//		);
+				}
+		);
 
 	}
 	private void handleRestartRequest() {

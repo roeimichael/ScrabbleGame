@@ -37,7 +37,7 @@ public class Player {
     {
         hand.clear();
     }
-    public void refillBag(Tile.Bag tileBag) {
+    public void refillHand(Tile.Bag tileBag) {
         // addding tiles to the hand until it reaches 7 tiles
         while (hand.size() < 7) {
             Tile tile = tileBag.getRand();
@@ -110,7 +110,7 @@ public class Player {
         String handString = "";
        for (int i = 0; i < hand.size()-1; i++)
         {
-            handString +=  hand.get(i) + ",";
+            handString +=  hand.get(i) + ";";
         }
         handString +=  hand.get(hand.size()-1);
         return handString;

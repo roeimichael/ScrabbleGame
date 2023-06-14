@@ -24,4 +24,6 @@ public class protocols {
     public static final String PLACE_WORD = "PLACE_WORD";
     public static final String PASS = "PASS";
     public static final String GET_LAST_SCORE = "GET_LAST_SCORE";
+    public static final String UPDATE_SCORE =  "UPDATE_SCORE";
+    public static final String UPDATE_TURN =  "UPDATE_TURN";
 }
