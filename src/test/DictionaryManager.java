@@ -57,22 +57,25 @@ public class DictionaryManager {
         // bloom filter can only return false positive but not false negative
         // a query returns either "possibly in set" or "definitely not in set"
         // so if a player drops a word, the next player can challenge it
-
+        System.out.println("Challenge: " + Arrays.toString(args));
     	ArrayList<Future<Boolean>> fs=new ArrayList<>();//for the results from IOSearchers
-        String word = args[args.length - 1];
+        String fullWord = args[args.length - 1];
+        String[] temp = fullWord.split(",");
+        String word = temp[0];
         String[] books = Arrays.copyOfRange(args, 0, args.length - 1);
         Boolean res = false;
         for (String book : books) {
         	fs.add(es.submit(()->{//searching every dictionary in order to update it				
-    			boolean found = bookToDictionaryMap.get(book).challenge(word.toUpperCase());
-    			return found;
+                return bookToDictionaryMap.get(book).challenge(word.toUpperCase());
     		}));
         }
         
         for(Future<Boolean> f : fs) {//checks if found
 			try {
 				res|=f.get();
-			} catch (InterruptedException | ExecutionException e) {}
+			} catch (InterruptedException | ExecutionException e) {
+                System.out.println("Error in challenge: " + e.getMessage());
+            }
 		}
         //restarts es for the next challenge
         es.shutdown();

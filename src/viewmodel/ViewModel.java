@@ -53,6 +53,7 @@ public class ViewModel extends Observable implements Observer {
 			case protocols.GET_HAND -> updateLetterList();
 			case protocols.GET_SCORE -> updateScore();
 			case protocols.GET_TURN -> updateTurn();
+			case protocols.CHALLENGE -> handleChallengeRequest();
 			case "clear" -> handleClearRequest();
 			case "pass" -> handlePass();
 			case "undo" -> handleUndoRequest();
@@ -65,6 +66,8 @@ public class ViewModel extends Observable implements Observer {
 			}
 		}
 	}
+
+
 
 	private void updateTurn() {
 		isPlayerTurn = m.isPlayerTurn();
@@ -126,6 +129,9 @@ public class ViewModel extends Observable implements Observer {
 
 	public void undoSelected() {
 		m.undoSelected();
+	}
+	public void challengeSelected() {
+		m.challengeSelected();
 	}
 	public void passSelected() {
 		m.passSelected();
@@ -226,16 +232,20 @@ public class ViewModel extends Observable implements Observer {
 
 
 	}
+	private void handleChallengeRequest() {
+		confirm.set("Challenge");
+		wordSelected.set("");
+	}
 
 	private void handleChallengeAccepted() {
-		confirm.set("Challenge Accepted");
+		confirm.set("Challenge");
 		wordSelected.set("");
 		System.out.println("lastEntry: " + lastEntry.get());
-		int wordSize = lastEntry.size();
-		for (int i = 0; i < wordSize; i++) {
-			board[lastEntry.get(i).getRow()][lastEntry.get(i).getColumn()].set("");
-			setBackground(lastEntry.get(i).getRow(), lastEntry.get(i).getColumn());
-		}
+//		int wordSize = lastEntry.size();
+//		for (int i = 0; i < wordSize; i++) {
+//			board[lastEntry.get(i).getRow()][lastEntry.get(i).getColumn()].set("");
+//			setBackground(lastEntry.get(i).getRow(), lastEntry.get(i).getColumn());
+//		}
 
 		playerPoints.set(m.getPlayerScore());
 	}
@@ -276,21 +286,28 @@ public class ViewModel extends Observable implements Observer {
 
 	public void handlePass()
 	{
-		confirm.set("Passed Turn");
-		wordSelected.set("");
-		row.set("");
-		col.set("");
-		wordDirection.set("");
-		int wordSize = userInput.size();
-		for (int i = 0; i < wordSize; i++) {
-			m.undoSelected();
-		}
-		userInput.clear();
-		System.out.println("userInput: "+userInput);
+		if(isPlayerTurn) {
+			confirm.set("Passed Turn");
+			wordSelected.set("");
+			row.set("");
+			col.set("");
+			wordDirection.set("");
+			ArrayList<CharacterData> input = m.getCharacterList();
+			int wordSize = input.size();
+			for (CharacterData characterData : input) {
+				board[characterData.getRow()][characterData.getColumn()].set("");
+				setBackground(characterData.getRow(), characterData.getColumn());
+			}
+			userInput.clear();
+			System.out.println("userInput: " + userInput);
 
-		m.cleanList();
-		updateLetterList();
-		//getTilesLeft();
+			m.cleanList();
+			updateLetterList();
+			m.serverSendMessagesToAllClients(protocols.UPDATE_TURN);
+			System.out.println("Message sent: UPDATE_TURN");
+			turn.set(m.getTurn());
+			//getTilesLeft();
+		}
 	}
 
 
@@ -405,10 +422,5 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 
-	public void challengeSelected() {
-		if(!m.challenge())
-		{
-			turn.set(m.getTurn());
-		}
-	}
+
 }

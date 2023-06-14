@@ -97,10 +97,33 @@ public class PlayerHandler implements ClientHandler{
 
     }
 
-    private void challenge() {
+    private boolean challenge() {
+        // returns true if the word doesnt exist
+//        if(gm.challenge()){
+//            // board updates
+//            this.serverSendMsg(protocols.GET_BOARD+","+gm.getBoard());
+//            // the last player lost points
+//            this.serverSendMsg(protocols.GET_SCORE+","+gm.getScores());
+//            return true;
+//
+//        }
+//        else{
+//            // returns false if the word does exist
+//            // player loses his turn
+//            this.serverSendMsg(protocols.GET_TURN+","+gm.getCurrentPlayer().getId());
+//            return false;
+//        }
+        boolean a =gm.challenge();
+        System.out.println("[PlayerHandler] challenge: "+a );
+        this.serverSendMsg(protocols.GET_BOARD+","+gm.getBoard());
+        this.serverSendMsg(protocols.GET_SCORE+","+gm.getScores());
+        this.serverSendMsg(protocols.GET_TURN+","+gm.getCurrentPlayer().getId());
+        return true;
     }
 
     private void pass() {
+        gm.passTurn();
+        //out.println(protocols.UPDATE_TURN+","+gm.getCurrentPlayer());
 
     }
 
@@ -183,18 +206,15 @@ public class PlayerHandler implements ClientHandler{
 
     private void sendHand() {
         out.println(protocols.GET_HAND+","+gm.getPlayer(playerId).getHand());
-//        out.println(gm.getPlayer(playerId).getHand());
     }
 
     private void sendTurn() {
         out.println(protocols.GET_TURN+","+gm.getCurrentTurn());
-//        out.println(gm.getCurrentTurn());
     }
 
     private void sendBoard() {// TODO - need to check if true
         System.out.println("[PlayerHandler] board: " + gm.getBoard());
         out.println(protocols.GET_BOARD+","+gm.getBoard());
-//        out.println(gm.getBoard());
     }
 
     @Override

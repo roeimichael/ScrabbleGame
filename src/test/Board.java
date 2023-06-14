@@ -231,6 +231,7 @@ public class Board extends Canvas {
 			List<String> bookNamesTemp = getAllFileNames(searchFolderPath);
 			bookNamesTemp.add(this.lastWords.get(i).toString());
 			String[] args = bookNamesTemp.toArray(new String[0]);
+//			System.out.println("Challenge: "+this.lastWords.get(i).toString());
 			boolean found = DictionaryManager.get().challenge(args);
 			if (found) {
 				System.out.println("Challenge: Word found in at least one book.");

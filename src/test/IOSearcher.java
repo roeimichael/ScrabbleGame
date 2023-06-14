@@ -23,8 +23,14 @@ public class IOSearcher implements FileSearcher{
 			for(int i=0;!stopMe && i<fileNames.length && !found; i++) {
 				Scanner s=new Scanner(new File("text_files/"+fileNames[i]));
 				while(s.hasNext() && !found && !stopMe)
+				{
+//					System.out.println("searching "+fileNames[i]);
+//					System.out.println(s.next().toUpperCase()+","+word);
+
 					if(s.next().toUpperCase().equals(word))
 						found=true;
+				}
+
 				s.close();
 			}
 		}catch(Exception e) {
