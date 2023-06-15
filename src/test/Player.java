@@ -9,7 +9,6 @@ public class Player {
     private int id;
     private int score = 0;
     private ArrayList<Tile> hand;
-    private boolean isTurn;
 
     public Player(int id) {
         this.id = id;
@@ -114,5 +113,9 @@ public class Player {
         }
         handString +=  hand.get(hand.size()-1);
         return handString;
+    }
+
+    public String toString() {
+        return "Player " + id + " score: " + score ;
     }
 }

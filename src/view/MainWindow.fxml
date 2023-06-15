@@ -14,7 +14,6 @@
          <children>
             <Label fx:id="tilesLeft" prefHeight="18.0" prefWidth="182.0" text="num of tiles in bag" />
             <Button fx:id="helpButton" mnemonicParsing="false" onAction="#showHelp" prefHeight="26.0" prefWidth="51.0" text="Help" />
-            <Button fx:id="restartButton" mnemonicParsing="false" onAction="#restartGame" prefHeight="26.0" prefWidth="96.0" text="Restart Game" />
             <Label fx:id="letterSelected" prefHeight="13.0" prefWidth="47.0" text="letter" />
          </children>
       </HBox>
@@ -34,7 +33,7 @@
          <Label fx:id="turn" prefHeight="17.0" prefWidth="85.0" text="Turn" />
          <Label fx:id="confirmSelected" prefHeight="17.0" prefWidth="77.0" text="Confirmation" />
          <Label fx:id="wordAdded" prefHeight="17.0" prefWidth="89.0" text="Word added" />
-         <Label fx:id="playerPoints" prefHeight="37.0" prefWidth="128.0" text="Player's points" />
+         <Label fx:id="playerPoints" prefHeight="54.0" prefWidth="128.0" text="Player's points" />
 
       </VBox>
    </right>

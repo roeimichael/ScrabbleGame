@@ -101,6 +101,8 @@ public class newServer {
     public void close() {
         stop = true;
         threadPool.shutdown();
+        counter=0;
+        clients=new ArrayList<>();
     }
     public void sendMessagesToAllClients(String msg){
         for (Socket client:clients) {

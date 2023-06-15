@@ -2,6 +2,8 @@ package view;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
+
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -24,7 +26,7 @@ public class MainWindowController extends Observable implements Observer   {
     private Stage stage;
 
     @FXML
-    private Button helpButton, restartButton, confirmButton, undoButton, PassButton, ChallengeButton;
+    private Button helpButton, confirmButton, undoButton, PassButton, ChallengeButton;
     @FXML
     private ListView<String> letterList; // shows the letters the user has in his hand, right upper corner
     @FXML
@@ -63,6 +65,15 @@ public class MainWindowController extends Observable implements Observer   {
             }
 
         vm.addObserver(this);
+        vm.isGameOverProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                //System.out.println("game started");
+                if (newValue) {
+                    sceneController.endGame();
+                }
+            });
+
+        });
     }
     @FXML
     public void initialize() {
@@ -105,6 +116,7 @@ public class MainWindowController extends Observable implements Observer   {
             event.consume();
             gameBoard.requestLayout(); // Refresh the layout of the GridPane
         });
+
     }
     public void setSceneController(SceneController sceneController) {
         this.sceneController = sceneController;
@@ -150,10 +162,7 @@ public class MainWindowController extends Observable implements Observer   {
         vm.letterSelected(letter, row, col);
     }
 
-    @FXML
-    public void restartGame() {
-        vm.restartGame();
-    }
+
     @Override
     public void update(Observable o, Object arg) {
     }

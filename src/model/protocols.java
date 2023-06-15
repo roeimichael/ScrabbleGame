@@ -26,4 +26,6 @@ public class protocols {
     public static final String GET_LAST_SCORE = "GET_LAST_SCORE";
     public static final String UPDATE_SCORE =  "UPDATE_SCORE";
     public static final String UPDATE_TURN =  "UPDATE_TURN";
+    public static final String NEW_PLAYER =  "NEW_PLAYER";
+    public static final String GET_BONUS = "GET_BONUS" ;
 }

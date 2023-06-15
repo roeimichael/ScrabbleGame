@@ -8,7 +8,7 @@ import javafx.fxml.FXML;
 import model.Model;
 import viewmodel.ViewModel;
 
-public class MainMenuController implements Observer {
+public class MainMenuController {
 
     private SceneController sceneController;
     private newServer server;
@@ -28,15 +28,16 @@ public class MainMenuController implements Observer {
     public void showHostWaitingRoom() {
 
         server = newServer.get();
-
         this.model.connectToServer();
         vm.getNumPlayers();
+        vm.getId();
         sceneController.showHostWaitingRoom();
     }
     @FXML
     public void showGuestWaitingRoom() {
         this.model.connectToServer();
         vm.getNumPlayers();
+        vm.getId();
         sceneController.showGuestWaitingRoom();
     }
 
@@ -54,10 +55,6 @@ public class MainMenuController implements Observer {
         this.vm = vm;
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-
-    }
 
     public void setModel(Model m) {
         this.model = m;

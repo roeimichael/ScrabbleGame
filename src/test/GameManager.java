@@ -32,20 +32,18 @@ public class GameManager {
     public byte[][] getBonusBoard(){
         return board.getBonus();
     }
-    public void updateBoard(Board board) {
-        this.board = board;
-    }
     public void addPlayer(Player player) {
         players.add(player);
     }
     public void addPlayer(int id) {
         players.add(new Player(id));
     }
+    // function to get all the players in the game
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
     public void removePlayer(Player player) {
         players.remove(player);
-    }
-    public int getNumPlayers() {
-        return players.size();
     }
     public String getScores()
     {
@@ -94,13 +92,6 @@ public class GameManager {
         lastScore = score;
         return score;
     }
-    public void endTurn(int score, Word word){
-        lastScore = score;
-        players.get(turn).incrementScore(score);
-        players.get(turn).removeWord(word);
-        players.get(turn).refillHand(tileBag);
-        turn = (turn + 1) % players.size();
-    }
 
     public void passTurn(){
         System.out.println("Player " + players.get(turn).getId() + " has passed their turn");
@@ -117,9 +108,6 @@ public class GameManager {
     public Player getCurrentPlayer() {
         return players.get(turn);
     }
-    public Player getNextPlayer() {
-        return players.get((turn + 1) % players.size());
-    }
 
     public String getBoard() {
         return board.toString();
@@ -127,7 +115,7 @@ public class GameManager {
 
     public boolean isGameOver()
     { // need to check if any of the players have a word to place
-        if(numPassed == players.size())
+        if(numPassed == 2*players.size())
             return true;
         if(tileBag.size()==0)
             return true;
@@ -167,11 +155,6 @@ public class GameManager {
         System.out.println("***********************************************************");
 
     }
-    public void printBoard()
-    {
-        board.print();
-    }
-
 
     public void runGame()
     { // main function that runs a scrabble game
@@ -204,11 +187,6 @@ public class GameManager {
         Player winner = determineWinner();
         System.out.println("The winner is player " + winner.getId() + " with a score of " + winner.getScore());
     }
-
-    public int getTilesLeftInBag() {
-        return tileBag.size();
-    }
-
     public boolean challenge() {
         // returns true if the word doesnt exist
         // returns false if the word does exist

@@ -19,6 +19,7 @@ public class SceneController {
     private Scene HostWaitScene;
     private Scene GuestWaitScene;
     private Scene gameScene;
+    private Scene endScene;
 
     public SceneController(Stage primaryStage) {
         String ip = "1";
@@ -40,7 +41,6 @@ public class SceneController {
         mainMenuController.setViewModel(viewModel);
         mainMenuController.setModel(model);
         mainMenuController.setSceneController(this);
-        viewModel.addObserver(mainMenuController);
         mainMenuScene = new Scene(mainMenuRoot);
 
         // Load help menu scene
@@ -49,7 +49,7 @@ public class SceneController {
         HelpMenuController helpMenuController = helpMenuLoader.getController();
         helpMenuController.setViewModel(viewModel);
         helpMenuController.setSceneController(this);
-        viewModel.addObserver(helpMenuController);
+//        viewModel.addObserver(helpMenuController);
         helpMenuScene = new Scene(helpMenuRoot);
 
         // Load Host Wait scene
@@ -58,7 +58,7 @@ public class SceneController {
         HostWindowController HostWaitController = HostWaitLoader.getController();
         HostWaitController.setViewModel(viewModel);
         HostWaitController.setSceneController(this);
-        viewModel.addObserver(HostWaitController);
+//        viewModel.addObserver(HostWaitController);
         HostWaitScene = new Scene(HostWaitRoot);
 
         // Load Guest Wait scene
@@ -66,8 +66,9 @@ public class SceneController {
         Parent GuestWaitRoot = GuestWaitLoader.load();
         GuestWindowController GuestWaitController = GuestWaitLoader.getController();
         GuestWaitController.setViewModel(viewModel);
+        GuestWaitController.setModel(model);
         GuestWaitController.setSceneController(this);
-        viewModel.addObserver(GuestWaitController);
+//        viewModel.addObserver(GuestWaitController);
         GuestWaitScene = new Scene(GuestWaitRoot);
 
         // Load game scene
@@ -76,9 +77,17 @@ public class SceneController {
         MainWindowController gameController = gameLoader.getController();
         gameController.setViewModel(viewModel);
         gameController.setSceneController(this);
-        viewModel.addObserver(gameController);
+//        viewModel.addObserver(gameController);
         gameScene = new Scene(gameRoot);
 
+        // Load end scene
+        FXMLLoader endLoader = new FXMLLoader(getClass().getResource("EndGame.fxml"));
+        Parent endRoot = endLoader.load();
+        EndGameController endController = endLoader.getController();
+        endController.setViewModel(viewModel);
+        endController.setSceneController(this);
+//        viewModel.addObserver(gameController);
+        endScene = new Scene(endRoot);
     }
 
     public void showMainMenu() {
@@ -101,6 +110,12 @@ public class SceneController {
 
     public void showGame() {
         primaryStage.setScene(gameScene);
+        primaryStage.show();
+    }
+
+    public void endGame() {
+
+        primaryStage.setScene(endScene);
         primaryStage.show();
     }
 }

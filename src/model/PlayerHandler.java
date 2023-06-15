@@ -2,6 +2,7 @@ package model;
 import test.ClientHandler;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,6 +44,16 @@ public class PlayerHandler implements ClientHandler{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        this.serverSendMsg(protocols.NEW_PLAYER+","+connectedClients);
+
+        StringBuilder sb = new StringBuilder();
+        for (byte[] row : gm.getBonusBoard()) {
+            for (byte value : row) {
+                sb.append(value);
+                sb.append(",");
+            }
+        }
+        out.println(protocols.GET_BONUS+","+ sb);
         // game loop
         // server runs infinitely
         // server waits for a message from the client
@@ -79,6 +90,7 @@ public class PlayerHandler implements ClientHandler{
                     case protocols.PLACE_WORD -> this.placeWord();
                     case protocols.PASS -> this.pass();
                     case protocols.CHALLENGE -> this.challenge();
+                    case protocols.END_GAME -> this.endGame();
 
                 }
 
@@ -91,6 +103,10 @@ public class PlayerHandler implements ClientHandler{
 
     }
 
+    private void endGame() {
+        server.close();
+    }
+
     private void sendLastScore(int lastScore) {
         out.println(protocols.GET_LAST_SCORE+","+lastScore);
         //out.println(lastScore);
@@ -99,20 +115,7 @@ public class PlayerHandler implements ClientHandler{
 
     private boolean challenge() {
         // returns true if the word doesnt exist
-//        if(gm.challenge()){
-//            // board updates
-//            this.serverSendMsg(protocols.GET_BOARD+","+gm.getBoard());
-//            // the last player lost points
-//            this.serverSendMsg(protocols.GET_SCORE+","+gm.getScores());
-//            return true;
-//
-//        }
-//        else{
-//            // returns false if the word does exist
-//            // player loses his turn
-//            this.serverSendMsg(protocols.GET_TURN+","+gm.getCurrentPlayer().getId());
-//            return false;
-//        }
+
         boolean a =gm.challenge();
         System.out.println("[PlayerHandler] challenge: "+a );
         this.serverSendMsg(protocols.GET_BOARD+","+gm.getBoard());
@@ -123,7 +126,10 @@ public class PlayerHandler implements ClientHandler{
 
     private void pass() {
         gm.passTurn();
-        //out.println(protocols.UPDATE_TURN+","+gm.getCurrentPlayer());
+        if(gm.isGameOver())
+            this.serverSendMsg(protocols.END_GAME+","+gm.getScores());
+        else
+            out.println(protocols.PASS);
 
     }
 
@@ -219,6 +225,14 @@ public class PlayerHandler implements ClientHandler{
 
     @Override
     public void close() {
+        try {
+            // Close the input and output streams
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            // Handle the exception or log the error if necessary
+            e.printStackTrace();
+        }
 
     }
     private void assignLetterScores() {

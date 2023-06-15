@@ -1,4 +1,5 @@
 package viewmodel;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import model.newServer;
 import model.protocols;
@@ -14,14 +15,15 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Color;
 import model.Model;
 import test.CharacterData;
+import test.Player;
 
 public class ViewModel extends Observable implements Observer {
 
 	Model m;
-	private BooleanProperty gameStartedProperty;
+	private BooleanProperty gameStartedProperty, isGameOver;
 
 	public IntegerProperty[][] bonus_vm; // saves the bonus tiles
-	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn, numPlayers; // all strings that binded to labels in the view
+	public StringProperty wordSelected, tilesLeft, letter, confirm, row, col, wordDirection, playerPoints, turn, numPlayers, id; // all strings that binded to labels in the view
 	public SimpleStringProperty[][] board; // saves the letters on the board
 	public ObjectProperty<Background>[][] background; // saves the background of the board
 	public ListProperty<String> letterList; // saves the 7 letters in the user's hand, binds to currentHand in the view
@@ -48,6 +50,7 @@ public class ViewModel extends Observable implements Observer {
 		switch (newBoardState) {
 			//case "help" -> handleHelpRequest();
 			case protocols.START_GAME ->  handleStartGame();
+			case protocols.NEW_PLAYER -> handleNewPlayer();
 			case "confirmed" -> handleConfirmation();
 			case protocols.BOARD_CHANGED -> updateBoard(m.getUpdateBoard());
 			case protocols.GET_HAND -> updateLetterList();
@@ -55,10 +58,10 @@ public class ViewModel extends Observable implements Observer {
 			case protocols.GET_TURN -> updateTurn();
 			case protocols.CHALLENGE -> handleChallengeRequest();
 			case "clear" -> handleClearRequest();
-			case "pass" -> handlePass();
+			case protocols.PASS -> handlePass();
 			case "undo" -> handleUndoRequest();
-			case "challenge accepted" -> handleChallengeAccepted();
-			case "restart" -> handleRestartRequest();
+			case protocols.END_GAME -> handleEndGame();
+//			case "restart" -> handleRestartRequest();
 			default -> {
 				if (obj instanceof Character) {
 					handleLetterSelection();
@@ -67,6 +70,18 @@ public class ViewModel extends Observable implements Observer {
 		}
 	}
 
+	private void handleEndGame() {
+		System.out.println("Game Ended");
+		playerPoints.set(m.getScore());
+		isGameOver.set(true);
+	}
+
+	private void handleNewPlayer() {
+		System.out.println("hi");
+		Platform.runLater(() -> {
+			numPlayers.set("Number Of Player Connected: "+m.getNumPlayers());
+		});
+	}
 
 
 	private void updateTurn() {
@@ -83,6 +98,9 @@ public class ViewModel extends Observable implements Observer {
 
 	public BooleanProperty gameStartedProperty() {
 		return gameStartedProperty;
+	}
+	public BooleanProperty isGameOverProperty() {
+		return isGameOver;
 	}
 
 
@@ -124,17 +142,22 @@ public class ViewModel extends Observable implements Observer {
 	// functions that activate the functions in the model
 
 	public void confirmSelected() {
-		m.confirmSelected();
+
+		if (this.isPlayerTurn)
+			m.confirmSelected();
 	}
 
 	public void undoSelected() {
-		m.undoSelected();
+		if (this.isPlayerTurn)
+			m.undoSelected();
 	}
 	public void challengeSelected() {
-		m.challengeSelected();
+		if (this.isPlayerTurn)
+			m.challengeSelected();
 	}
 	public void passSelected() {
-		m.passSelected();
+		if (this.isPlayerTurn)
+			m.passSelected();
 	}
 	public void getNumPlayers() {
 		numPlayers.set("Number Of Players Connected: " +m.getNumPlayers());
@@ -287,6 +310,7 @@ public class ViewModel extends Observable implements Observer {
 	public void handlePass()
 	{
 		if(isPlayerTurn) {
+			Platform.runLater(() -> {
 			confirm.set("Passed Turn");
 			wordSelected.set("");
 			row.set("");
@@ -307,6 +331,7 @@ public class ViewModel extends Observable implements Observer {
 			System.out.println("Message sent: UPDATE_TURN");
 			turn.set(m.getTurn());
 			//getTilesLeft();
+			});
 		}
 	}
 
@@ -395,6 +420,7 @@ public class ViewModel extends Observable implements Observer {
 
 	private void initializeProperties() {
 		gameStartedProperty = new SimpleBooleanProperty(false);
+		isGameOver = new SimpleBooleanProperty(false);
 		board = new SimpleStringProperty[15][15];
 		confirm = new SimpleStringProperty();
 		tilesLeft = new SimpleStringProperty();
@@ -409,6 +435,7 @@ public class ViewModel extends Observable implements Observer {
 		lastEntry = new SimpleListProperty<CharacterData>(FXCollections.observableArrayList());
 		letterList = new SimpleListProperty<String>();
 		turn = new SimpleStringProperty();
+		id = new SimpleStringProperty();
 		//userBoardList = new ArrayList<>();
 		bonus_vm = new IntegerProperty[15][15];
 		background = new ObjectProperty[15][15];
@@ -422,5 +449,11 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 
-
+	public void getId() {
+		this.id.set(m.getId());
+	}
+	public String getPlayerPoints() {
+		System.out.println("playerPoints: "+this.playerPoints.get());
+		return this.playerPoints.get();
+	}
 }
