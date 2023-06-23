@@ -45,19 +45,17 @@ public class Model extends Observable {
 
 //	}
 
-	public Model(String ip, int port) {
-
+	public Model() {
 		assignLetterScores();
-		this.boardState = "";
-		this.ip = ip;
-		this.port = port;
 		updatedBoard = new String[15][15];
 
 	}
-	public void connectToServer() {
+	public void connectToServer(String ip, int port) {
 		try {
+			this.ip = ip;
+			this.port = port;
 			System.out.println("Connecting to server...");
-			client = new Socket("127.0.0.1", 9999);
+			client = new Socket(this.ip, this.port);
 			out = new PrintWriter(client.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
@@ -568,5 +566,10 @@ public class Model extends Observable {
 	}
 	public String getId() {
 		return "You Are Player "+this.id;
+	}
+
+	public void saveGame()
+	{
+		out.println(protocols.SAVE_GAME);
 	}
 }

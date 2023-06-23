@@ -25,7 +25,7 @@ public class SceneController {
         String ip = "1";
         int port = 1;// TODO:  need to change
         this.primaryStage = primaryStage;
-        this.model = new Model(ip, port);// TODO:  need to make IP and Port dynamic
+        this.model = new Model();// TODO:  need to make IP and Port dynamic
         this.viewModel = new ViewModel(model);
         model.addObserver(viewModel);
         this.primaryStage.setWidth(620);  // Width

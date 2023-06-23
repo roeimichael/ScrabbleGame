@@ -32,6 +32,10 @@ public class GameManager {
     public byte[][] getBonusBoard(){
         return board.getBonus();
     }
+    public Tile.Bag getTileBag()
+    {
+        return tileBag;
+    }
     public void addPlayer(Player player) {
         players.add(player);
     }

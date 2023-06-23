@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -20,6 +21,7 @@ import viewmodel.ViewModel;
 
 
 public class MainWindowController extends Observable implements Observer   {
+    public Button saveGameButton;
     ViewModel vm;
     private SceneController sceneController;
 
@@ -177,4 +179,9 @@ public class MainWindowController extends Observable implements Observer   {
     }
 
 
+    public void saveGame()
+    {
+        System.out.println("Save button pressed"); // just a check to see if the button works
+        vm.saveGame(); // activates the saveGame function from the viewmodel
+    }
 }

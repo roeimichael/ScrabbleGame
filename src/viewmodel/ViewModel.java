@@ -456,4 +456,9 @@ public class ViewModel extends Observable implements Observer {
 		System.out.println("playerPoints: "+this.playerPoints.get());
 		return this.playerPoints.get();
 	}
+
+	public void saveGame()
+	{
+		m.saveGame();
+	}
 }

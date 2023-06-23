@@ -3,6 +3,7 @@ package view;
 import java.util.Observable;
 import java.util.Observer;
 
+import javafx.scene.control.TextField;
 import model.newServer;
 import javafx.fxml.FXML;
 import model.Model;
@@ -10,10 +11,15 @@ import viewmodel.ViewModel;
 
 public class MainMenuController {
 
+    public TextField ipField;
+    public TextField portField;
     private SceneController sceneController;
     private newServer server;
     private ViewModel vm;
     private Model model;
+
+    private String ip;
+    private String port;
 
     public void setSceneController(SceneController sceneController) {
         this.sceneController = sceneController;
@@ -26,16 +32,19 @@ public class MainMenuController {
     }
     @FXML
     public void showHostWaitingRoom() {
-
+        this.port = portField.getText();
+        this.ip = ipField.getText();
         server = newServer.get();
-        this.model.connectToServer();
+        this.model.connectToServer(this.ip, Integer.parseInt(this.port));
         vm.getNumPlayers();
         vm.getId();
         sceneController.showHostWaitingRoom();
     }
     @FXML
     public void showGuestWaitingRoom() {
-        this.model.connectToServer();
+        this.port = portField.getText();
+        this.ip = ipField.getText();
+        this.model.connectToServer(this.ip, Integer.parseInt(this.port));
         vm.getNumPlayers();
         vm.getId();
         sceneController.showGuestWaitingRoom();
@@ -59,4 +68,6 @@ public class MainMenuController {
     public void setModel(Model m) {
         this.model = m;
     }
+
+
 }

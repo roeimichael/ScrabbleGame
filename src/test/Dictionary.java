@@ -14,7 +14,7 @@ public class Dictionary {
 	BloomFilter bf;
 	private String[] fileNames;
 	IOSearcher searcher;
-	private final int BloomFilterSize = 1024;
+	private final int BloomFilterSize = 131072;
 
 	public Dictionary(String...fileNames) {
 		this.fileNames=fileNames;

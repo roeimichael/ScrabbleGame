@@ -1,15 +1,17 @@
 package model;
-import test.ClientHandler;
+import test.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import test.GameManager;
-import test.Tile;
-import test.Word;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class PlayerHandler implements ClientHandler{
     //private Socket client;
@@ -90,6 +92,7 @@ public class PlayerHandler implements ClientHandler{
                     case protocols.PLACE_WORD -> this.placeWord();
                     case protocols.PASS -> this.pass();
                     case protocols.CHALLENGE -> this.challenge();
+                    case protocols.SAVE_GAME -> this.saveGame();
                     case protocols.END_GAME -> this.endGame();
 
                 }
@@ -100,6 +103,30 @@ public class PlayerHandler implements ClientHandler{
         }
 
 
+
+    }
+
+    private void saveGame()
+    {
+        // we need to save the game
+        // board state, players, scores, current player, bag
+        String board = gm.getBoard();
+        ArrayList<Player> players = gm.getPlayers();
+        int currentTurn = gm.getCurrentPlayer().getId();
+        Tile.Bag bag = gm.getTileBag();
+
+        JSONObject gameData = new JSONObject();
+        // Add data to the JSON object
+        gameData.put("board", gm.getBoard());
+        gameData.put("players", gm.getPlayers());
+        gameData.put("currentTurn", gm.getCurrentPlayer().getId());
+        gameData.put("bag", gm.getTileBag());
+        try (FileWriter fileWriter = new FileWriter("gameData.json")) {
+            // Write JSON object to file
+            fileWriter.write(gameData.toJSONString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
