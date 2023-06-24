@@ -95,7 +95,6 @@ public class Model extends Observable {
 								out.println(protocols.NEW_GAME);
 								break;
 							case protocols.GET_BONUS:
-//								System.out.println("msg from server in get_bonus: " + addMsg);
 								System.arraycopy(messages, 1, messages, 0, messages.length - 1);
 
 								bonus= new byte[15][15];
@@ -114,7 +113,7 @@ public class Model extends Observable {
 								out.println(protocols.GET_BOARD);
 								break;
 							case protocols.HAND_CHANGED://hand sent from server
-
+								out.println(protocols.GET_HAND);
 								break;
 							case protocols.UPDATE_SCORE://score sent from server
 								out.println(protocols.GET_SCORE);
@@ -571,5 +570,9 @@ public class Model extends Observable {
 	public void saveGame()
 	{
 		out.println(protocols.SAVE_GAME);
+	}
+
+	public void loadGame() {
+		out.println(protocols.LOAD_GAME);
 	}
 }

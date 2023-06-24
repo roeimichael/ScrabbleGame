@@ -461,4 +461,8 @@ public class ViewModel extends Observable implements Observer {
 	{
 		m.saveGame();
 	}
+
+	public void loadGame() {
+		m.loadGame();
+	}
 }

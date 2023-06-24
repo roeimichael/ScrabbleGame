@@ -184,4 +184,9 @@ public class MainWindowController extends Observable implements Observer   {
         System.out.println("Save button pressed"); // just a check to see if the button works
         vm.saveGame(); // activates the saveGame function from the viewmodel
     }
+
+    public void loadGame() {
+        System.out.println("Load button pressed"); // just a check to see if the button works
+        vm.loadGame(); // activates the loadGame function from the viewmodel
+    }
 }

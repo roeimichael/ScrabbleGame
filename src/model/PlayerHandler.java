@@ -84,7 +84,6 @@ public class PlayerHandler implements ClientHandler{
                     case protocols.GET_BOARD -> this.sendBoard();
                     case protocols.GET_TURN -> this.sendTurn();
                     case protocols.GET_HAND -> this.sendHand();
-                    //case protocols.GET_LAST_SCORE -> this.sendLastScore();
                     case protocols.GET_SCORE -> this.sendScores();
                     case protocols.GET_CURRENT_PLAYER -> this.sendCurrentPlayer();
 
@@ -93,6 +92,7 @@ public class PlayerHandler implements ClientHandler{
                     case protocols.PASS -> this.pass();
                     case protocols.CHALLENGE -> this.challenge();
                     case protocols.SAVE_GAME -> this.saveGame();
+                    case protocols.LOAD_GAME -> this.loadGame();
                     case protocols.END_GAME -> this.endGame();
 
                 }
@@ -110,17 +110,19 @@ public class PlayerHandler implements ClientHandler{
     {
         // we need to save the game
         // board state, players, scores, current player, bag
-        String board = gm.getBoard();
-        ArrayList<Player> players = gm.getPlayers();
-        int currentTurn = gm.getCurrentPlayer().getId();
-        Tile.Bag bag = gm.getTileBag();
+//        String board = gm.getBoard();
+//        ArrayList<Player> players = gm.getPlayers();
+//        int currentTurn = gm.getCurrentPlayer().getId();
 
         JSONObject gameData = new JSONObject();
         // Add data to the JSON object
         gameData.put("board", gm.getBoard());
-        gameData.put("players", gm.getPlayers());
+        gameData.put("lastTurnBoard", gm.getLastTurnBoard());
+        gameData.put("players", gm.getPlayersData());
         gameData.put("currentTurn", gm.getCurrentPlayer().getId());
         gameData.put("bag", gm.getTileBag());
+        gameData.put("numPassed", gm.getNumPassed());
+        gameData.put("lastScore", gm.getLastScore());
         try (FileWriter fileWriter = new FileWriter("gameData.json")) {
             // Write JSON object to file
             fileWriter.write(gameData.toJSONString());
@@ -128,6 +130,35 @@ public class PlayerHandler implements ClientHandler{
             e.printStackTrace();
         }
 
+    }
+    private void loadGame() {
+        try (FileReader fileReader = new FileReader("gameData.json")) {
+            // Read the JSON file
+            JSONParser parser = new JSONParser();
+            JSONObject gameData = (JSONObject) parser.parse(fileReader);
+
+            // Retrieve the data from the JSON object
+            String board = (String) gameData.get("board");
+            String lastTurnboard = (String) gameData.get("lastTurnBoard");
+            String playersArray = (String) gameData.get("players");
+            int currentTurn = ((Long) gameData.get("currentTurn")).intValue();
+            String bagString = (String) gameData.get("bag");
+            int numPassed = ((Long) gameData.get("numPassed")).intValue();
+            int lastScore = ((Long) gameData.get("lastScore")).intValue();
+
+            // Reconstruct the game state
+            gm.loadGame(board, lastTurnboard, playersArray, currentTurn, bagString, numPassed, lastScore, this.letterScores);
+
+            // now all the players need to be updated
+            this.serverSendMsg(protocols.GET_BOARD+","+gm.getBoard());
+            this.serverSendMsg(protocols.GET_SCORE+","+gm.getScores());
+            this.serverSendMsg(protocols.GET_TURN+","+gm.getCurrentPlayer().getId());
+            this.serverSendMsg(protocols.HAND_CHANGED);
+
+
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void endGame() {

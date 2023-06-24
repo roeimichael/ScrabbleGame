@@ -29,4 +29,5 @@ public class protocols {
     public static final String NEW_PLAYER =  "NEW_PLAYER";
     public static final String GET_BONUS = "GET_BONUS" ;
     public static final String SAVE_GAME = "SAVE_GAME" ;
+    public static final String LOAD_GAME = "LOAD_GAME" ;
 }

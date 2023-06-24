@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GameManager {
     public static GameManager instance;
@@ -10,7 +11,6 @@ public class GameManager {
     private ArrayList<Player> players;
     private int turn; // index of the current player's turn
     private Tile.Bag tileBag; // the bag of tiles for the game
-    private BookScrabbleHandler bookScrabbleHandler;// the bookscrabble handler will be used to check if a word is legal
     private int lastScore; // the score of the last word placed
     private int numPassed; // number of players who have passed their turn
 
@@ -29,12 +29,63 @@ public class GameManager {
         this.tileBag =  new Tile.Bag();
         this.numPassed=0;
     }
+    public void loadGame(String board, String lastTurnBoard, String players, int turn, String tileBag, int numPassed, int lastScore, HashMap<Character, Integer> letterScores)
+    {
+        // first the board
+        this.setBoard(board);
+        // second the last turn board
+        this.setLastTurnBoard(lastTurnBoard);
+
+        // third the players
+        String[] values = players.split(",");
+        ArrayList<Player> playersArr = new ArrayList<>(); // players will save all the players in the game
+        for(String value:values)
+        {
+            String[] playerData = value.split(":");
+            Player player = new Player(Integer.parseInt(playerData[0]));
+            String[] score_hand = playerData[1].split(";"); // hand will save all the tiles in the player's hand
+            player.incrementScore(Integer.parseInt(score_hand[0]));
+            for(int i=1; i<score_hand.length; i++)
+            {
+                String tile = score_hand[i];
+                player.addTile(new Tile(tile.charAt(0), letterScores.get(tile.charAt(0))));
+            }
+            playersArr.add(player);
+        }
+        this.players = playersArr;
+
+        // fourth the current turn
+        this.turn = turn;
+
+        // fifth the tile bag
+        char[] chars = tileBag.toCharArray();
+        Tile.Bag bag = new Tile.Bag();
+        for (char c : chars)
+        {
+            bag.put(new Tile(c, letterScores.get(c)));
+        }
+        this.tileBag = bag;
+
+        // sixth the number of passed players
+        this.numPassed = numPassed;
+
+        // seventh the last score
+        this.lastScore = lastScore;
+    }
+    public void setBoard(String board)
+    {
+        this.board = new Board(board);
+    }
+    public void setLastTurnBoard(String lastTurnBoard)
+    {
+        this.lastTurnBoard = new Board(lastTurnBoard);
+    }
     public byte[][] getBonusBoard(){
         return board.getBonus();
     }
-    public Tile.Bag getTileBag()
+    public String getTileBag()
     {
-        return tileBag;
+        return tileBag.toString();
     }
     public void addPlayer(Player player) {
         players.add(player);
@@ -45,6 +96,14 @@ public class GameManager {
     // function to get all the players in the game
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+    public String getPlayersData(){
+        String data="";
+        for(Player p:players)
+        {
+            data+=p.getId()+":"+p.getScore()+";"+p.getHand()+",";
+        }
+        return data;
     }
     public void removePlayer(Player player) {
         players.remove(player);
@@ -58,6 +117,7 @@ public class GameManager {
         }
         return scores;
     }
+
 
     public void startGame()
     {
@@ -115,6 +175,18 @@ public class GameManager {
 
     public String getBoard() {
         return board.toString();
+    }
+    public String getLastTurnBoard()
+    {
+        return lastTurnBoard.toString();
+    }
+    public int getLastScore()
+    {
+        return lastScore;
+    }
+    public int getNumPassed()
+    {
+        return numPassed;
     }
 
     public boolean isGameOver()

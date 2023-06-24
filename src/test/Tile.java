@@ -1,6 +1,7 @@
 package test;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 
@@ -9,12 +10,14 @@ public class Tile implements Serializable {
 
 	public final char letter;
 	public final int score;
-	
+
 	public Tile(char letter, int score) {
 		super();
+
 		this.letter = letter;
 		this.score = score;
 	}
+
 
 	@Override
 	public int hashCode() {
@@ -111,6 +114,18 @@ public class Tile implements Serializable {
 		
 		public int[] getQuantities() {
 			return quantities.clone();
+		}
+
+		public String toString() {
+			String s="";
+			for(int i=0;i<quantities.length;i++)
+			{
+				for(int j=0;j<quantities[i];j++)
+				{
+					s+=tiles[i].letter;
+				}
+			}
+			return s;
 		}
 		
 	}

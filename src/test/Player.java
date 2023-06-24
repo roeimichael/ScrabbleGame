@@ -23,6 +23,15 @@ public class Player {
     public int getScore() {
         return score;
     }
+    public String getHand() { // used for playerHandler to send the hand to the model
+        String handString = "";
+        for (int i = 0; i < hand.size()-1; i++)
+        {
+            handString +=  hand.get(i) + ";";
+        }
+        handString +=  hand.get(hand.size()-1);
+        return handString;
+    }
 
     public ArrayList<Tile> gethand() {
         return hand;
@@ -31,7 +40,10 @@ public class Player {
     public void incrementScore(int score) {
         this.score += score;
     }
-
+    public void addTile(Tile t)
+    {
+        hand.add(t);
+    }
     public void removeTiles()
     {
         hand.clear();
@@ -105,15 +117,7 @@ public class Player {
 
     }
 
-    public String getHand() { // used for playerHandler to send the hand to the model
-        String handString = "";
-       for (int i = 0; i < hand.size()-1; i++)
-        {
-            handString +=  hand.get(i) + ";";
-        }
-        handString +=  hand.get(hand.size()-1);
-        return handString;
-    }
+
 
     public String toString() {
         return "Player " + id + " score: " + score ;

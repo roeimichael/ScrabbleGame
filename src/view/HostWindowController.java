@@ -1,5 +1,6 @@
 package view;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import model.newServer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,7 +39,6 @@ public class HostWindowController extends Observable implements Observer {
         System.out.println("Starting game");
         sceneController.showGame();
         server.sendMessagesToAllClients(protocols.START_GAME);
-        //
     }
 
     public void setViewModel(ViewModel viewModel) {
@@ -47,18 +47,14 @@ public class HostWindowController extends Observable implements Observer {
         PlayerNumber.textProperty().bind(this.viewModel.id);
 
         viewModel.getNumPlayers();
-
-//        viewModel.gameStartedProperty().addListener((observable, oldValue, newValue) -> {
-//            Platform.runLater(() -> {
-//                //System.out.println("game started");
-//
-//            });
-//
-//        });
     }
 
     @Override
     public void update(Observable o, Object arg) {
+
+    }
+
+    public void loadGame() {
 
     }
 }

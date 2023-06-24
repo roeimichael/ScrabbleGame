@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -40,12 +41,30 @@ public class Board extends Canvas {
 	
 	boolean isEmpty;
 	private ArrayList<Word> lastWords;
-	
+	private HashMap<Character, Integer> letterScores = new HashMap<>(); // temporary saves the letter and its score
+
+
 	public Board() {
 		tiles=new Tile[15][15];
 		isEmpty=true;
 		lastWords=new ArrayList<Word>();
-//		redraw();
+		this.assignLetterScores();
+	}
+	public Board(String board)
+	{
+		this();
+		for(int i=0; i<15; i++)
+		{
+			for(int j=0; j<15; j++) {
+				char c=board.charAt(i*15+j);
+				if(c!='_')
+				{
+					isEmpty=false;
+					tiles[i][j]=new Tile(c,this.letterScores.get(c));
+				}
+
+			}
+		}
 	}
 
 	public Board(Board originalBoard) {
@@ -66,6 +85,34 @@ public class Board extends Canvas {
 		}
 	}
 
+	private void assignLetterScores() {
+		letterScores.put('A', 1);
+		letterScores.put('B', 3);
+		letterScores.put('C', 3);
+		letterScores.put('D', 2);
+		letterScores.put('E',1);
+		letterScores.put('F',4);
+		letterScores.put('G',2);
+		letterScores.put('H',4);
+		letterScores.put('I',1);
+		letterScores.put('J',8);
+		letterScores.put('K',5);
+		letterScores.put('L',1);
+		letterScores.put('M',3);
+		letterScores.put('N',1);
+		letterScores.put('O',1);
+		letterScores.put('P',3);
+		letterScores.put('Q',10);
+		letterScores.put('R',1);
+		letterScores.put('S',1);
+		letterScores.put('T',1);
+		letterScores.put('U',1);
+		letterScores.put('V',4);
+		letterScores.put('W',4);
+		letterScores.put('X',8);
+		letterScores.put('Y',4);
+		letterScores.put('Z',10);
+	}
 
 	public byte[][] getBonus() {
 		return bonus;
@@ -415,15 +462,6 @@ public class Board extends Canvas {
 		return boardState;
 	}
 
-//	public void updateBoardFromString(String newState){
-//		String lines[] = newState.split("\n");
-//		for(int i=0;i<15;i++){
-//			for(int j=0;j<15;j++){
-//				if((this.tiles[i][j]==null&&lines[i])||!(lines[i].toCharArray()[j]==this.tiles[i][j].letter)){
-//
-//				}
-//			}
-//		}
-//	}
+
 
 }
