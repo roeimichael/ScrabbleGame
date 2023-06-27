@@ -247,6 +247,11 @@ public class PlayerHandler implements ClientHandler{
     }
 
     private void startGame() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         // model sends the message to start the game
         gameStarted.set(true);
         if(this.playerId == 0) {

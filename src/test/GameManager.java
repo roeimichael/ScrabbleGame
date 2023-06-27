@@ -105,9 +105,6 @@ public class GameManager {
         }
         return data;
     }
-    public void removePlayer(Player player) {
-        players.remove(player);
-    }
     public String getScores()
     {
         String scores="";

@@ -61,7 +61,6 @@ public class ViewModel extends Observable implements Observer {
 			case protocols.PASS -> handlePass();
 			case "undo" -> handleUndoRequest();
 			case protocols.END_GAME -> handleEndGame();
-//			case "restart" -> handleRestartRequest();
 			default -> {
 				if (obj instanceof Character) {
 					handleLetterSelection();
@@ -72,8 +71,11 @@ public class ViewModel extends Observable implements Observer {
 
 	private void handleEndGame() {
 		System.out.println("Game Ended");
-		playerPoints.set(m.getScore());
-		isGameOver.set(true);
+		Platform.runLater(() -> {
+			playerPoints.set(m.getScore());
+
+			isGameOver.set(true);
+		});
 	}
 
 	private void handleNewPlayer() {
@@ -86,12 +88,16 @@ public class ViewModel extends Observable implements Observer {
 
 	private void updateTurn() {
 		isPlayerTurn = m.isPlayerTurn();
+		Platform.runLater(() -> {
+			turn.set(m.getTurn());
+		});
 	}
 
 	private void updateScore() {
 		Platform.runLater(() -> {
 
 			playerPoints.set(m.getScore());
+			turn.set(m.getTurn());
 		}
 		);
 	}
@@ -157,7 +163,11 @@ public class ViewModel extends Observable implements Observer {
 	}
 	public void passSelected() {
 		if (this.isPlayerTurn)
+		{
 			m.passSelected();
+
+		}
+
 	}
 	public void getNumPlayers() {
 		numPlayers.set("Number Of Players Connected: " +m.getNumPlayers());
@@ -176,24 +186,25 @@ public class ViewModel extends Observable implements Observer {
 		return bonus_vm;
 	}
 
-
-
 	private void handleStartGame() {
 		gameStartedProperty.set(true);
-		setBonus_vm(m.getBonus());
-		resetGameBoard();
-		updateLetterList();
-		confirm.set("");
-		wordSelected.set("");
-		row.set("");
-		col.set("");
-		wordDirection.set("");
-		userInput.clear();
-		System.out.println("userInput: "+userInput);
+		Platform.runLater(() ->{
+			setBonus_vm(m.getBonus());
+			resetGameBoard();
+			updateLetterList();
+			confirm.set("");
+			wordSelected.set("");
+			row.set("");
+			col.set("");
+			wordDirection.set("");
+			userInput.clear();
+			System.out.println("userInput: "+userInput);
 
-		m.cleanList();
-		getTilesLeft();
-		playerPoints.set(m.getPlayerScore());
+			m.cleanList();
+			playerPoints.set(m.getPlayerScore());
+
+		});
+
 	}
 	private void handleConfirmation() {
 
@@ -260,19 +271,6 @@ public class ViewModel extends Observable implements Observer {
 		wordSelected.set("");
 	}
 
-	private void handleChallengeAccepted() {
-		confirm.set("Challenge");
-		wordSelected.set("");
-		System.out.println("lastEntry: " + lastEntry.get());
-//		int wordSize = lastEntry.size();
-//		for (int i = 0; i < wordSize; i++) {
-//			board[lastEntry.get(i).getRow()][lastEntry.get(i).getColumn()].set("");
-//			setBackground(lastEntry.get(i).getRow(), lastEntry.get(i).getColumn());
-//		}
-
-		playerPoints.set(m.getPlayerScore());
-	}
-
 	private void updateLetterList() {
 		// update the letters the player see
 		//test.Player currentPlayer = m.getCurrentPlayer();
@@ -290,11 +288,6 @@ public class ViewModel extends Observable implements Observer {
 		} else {
 			return (String) obj;
 		}
-	}
-
-	private void getTilesLeft() {
-		Platform.runLater(() -> tilesLeft.set(m.getTilesLeft()));
-
 	}
 
 	private void handleClearRequest() {
@@ -330,7 +323,6 @@ public class ViewModel extends Observable implements Observer {
 			m.serverSendMessagesToAllClients(protocols.UPDATE_TURN);
 			System.out.println("Message sent: UPDATE_TURN");
 			turn.set(m.getTurn());
-			//getTilesLeft();
 			});
 		}
 	}
@@ -358,21 +350,6 @@ public class ViewModel extends Observable implements Observer {
 		);
 
 	}
-	private void handleRestartRequest() {
-		updateLetterList();
-		confirm.set("");
-		wordSelected.set("");
-		row.set("");
-		col.set("");
-		wordDirection.set("");
-		userInput.clear();
-		System.out.println("userInput: "+userInput);
-
-		m.cleanList();
-		getTilesLeft();
-		playerPoints.set(m.getPlayerScore());
-
-	}
 
 	private void handleLetterSelection() {
 		letter.set(String.valueOf(m.getLetter()));
@@ -381,26 +358,12 @@ public class ViewModel extends Observable implements Observer {
 	private void setBackground(int i, int j) {
 		// set the background color of a spesific tile
 		switch (bonus_vm[i][j].get()) {
-			case 2:
-				background[i][j].set(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-				break;
-			case 3:
-				background[i][j].set(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
-				break;
-			case 20:
-				background[i][j].set(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
-				break;
-			case 30:
-				background[i][j].set(new Background(new BackgroundFill(Color.DARKRED, null, null)));
-				break;
-			default:
-				background[i][j].set(new Background(new BackgroundFill(Color.WHITE, null, null)));
+			case 2 -> background[i][j].set(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+			case 3 -> background[i][j].set(new Background(new BackgroundFill(Color.DARKBLUE, null, null)));
+			case 20 -> background[i][j].set(new Background(new BackgroundFill(Color.LIGHTPINK, null, null)));
+			case 30 -> background[i][j].set(new Background(new BackgroundFill(Color.DARKRED, null, null)));
+			default -> background[i][j].set(new Background(new BackgroundFill(Color.WHITE, null, null)));
 		}
-	}
-
-	public void restartGame() {
-		m.restart();
-		resetGameBoard();
 	}
 	private void resetGameBoard() {
 		// reset all the game board

@@ -42,9 +42,6 @@ public class Model extends Observable {
 	private ArrayList<CharacterData> lastEntry = new ArrayList<>(); // saves the letters the user has selected int his previous turn in order to undo in a later turn
 	private Vector<Tile> wordTiles = new Vector<>(); // saves the tiles that are part of the word the user has selected
 
-
-//	}
-
 	public Model() {
 		assignLetterScores();
 		updatedBoard = new String[15][15];
@@ -66,7 +63,6 @@ public class Model extends Observable {
 
 			// second step: sending it back to the playerHandler
 			out.println(id);
-			String msgFromServer = null;
 
 			Thread getMsgFromServer = new Thread(()->{ // listen to the server, and acts accordingly
 				//communication protocol: newServer -> model -> playerHandler
@@ -91,86 +87,73 @@ public class Model extends Observable {
 
 							// protocol: server -> model -> playerHandler
 
-							case protocols.START_GAME:
-								out.println(protocols.NEW_GAME);
-								break;
-							case protocols.GET_BONUS:
+							case protocols.START_GAME -> out.println(protocols.NEW_GAME);
+							case protocols.GET_BONUS -> {
 								System.arraycopy(messages, 1, messages, 0, messages.length - 1);
-
-								bonus= new byte[15][15];
-								for(int i=0;i<15;i++)
-								{
-									for(int j=0;j<15;j++)
-									{
-										bonus[i][j]=Byte.parseByte(messages[i*15+j]);
+								bonus = new byte[15][15];
+								for (int i = 0; i < 15; i++) {
+									for (int j = 0; j < 15; j++) {
+										bonus[i][j] = Byte.parseByte(messages[i * 15 + j]);
 									}
 								}
-								break;
-							case protocols.BOARD_CHANGED:
+							}
+							case protocols.BOARD_CHANGED ->
 								//from server: notification that the board is changed
 								// to playehandler: get the updated board from the server
 								// gets the updated board from the playerhandler
-								out.println(protocols.GET_BOARD);
-								break;
-							case protocols.HAND_CHANGED://hand sent from server
-								out.println(protocols.GET_HAND);
-								break;
-							case protocols.UPDATE_SCORE://score sent from server
-								out.println(protocols.GET_SCORE);
-								break;
+									out.println(protocols.GET_BOARD);
+							case protocols.HAND_CHANGED ->//hand sent from server
+									out.println(protocols.GET_HAND);
+							case protocols.UPDATE_SCORE ->//score sent from server
+									out.println(protocols.GET_SCORE);
+							case protocols.UPDATE_TURN ->//turn sent from server
+									out.println(protocols.GET_TURN);
 
-							case protocols.UPDATE_TURN://turn sent from server
-								out.println(protocols.GET_TURN);
-								break;
 
 							// protocol: playerHandler -> model
-							case protocols.NEW_GAME: // playerHandler sends the player's hand
+							case protocols.NEW_GAME -> { // playerHandler sends the player's hand
 								this.updateHand(addMsg);
 								this.setGameStarted();
-								break;
-							case protocols.NEW_PLAYER:
-								this.numPlayers= Integer.parseInt(addMsg);
+							}
+							case protocols.NEW_PLAYER -> {
+								this.numPlayers = Integer.parseInt(addMsg);
 								setChanged();
 								notifyObservers(protocols.NEW_PLAYER);
-								break;
-							case protocols.END_GAME://message for game end sent from server
+							}
+							case protocols.END_GAME -> {//message for game end sent from server
 								//exit = true;
-								String [] finalScores = new String[messages.length - 1];
+								String[] finalScores = new String[messages.length - 1];
 								System.arraycopy(messages, 1, finalScores, 0, messages.length - 1);
 								this.updateScore(finalScores);
 								System.out.println("msg from server in end_game: " + Arrays.toString(finalScores));
 								setChanged();
 								notifyObservers(protocols.END_GAME);
-								break;
-
-								case protocols.GET_SCORE://message containing score from server
+							}
+							case protocols.GET_SCORE -> {//message containing score from server
 								String[] scores = new String[messages.length - 1];
 								// Concatenate the strings
 								System.arraycopy(messages, 1, scores, 0, messages.length - 1);
 								this.updateScore(scores);
-								break;
-							case protocols.GET_HAND://message containing hand from server
-								this.updateHand(addMsg);
-								break;
-							case protocols.GET_BOARD://message containing board from server
-								this.updateBoard(addMsg);
-								break;
-							case protocols.GET_TURN:
+							}
+							case protocols.GET_HAND ->//message containing hand from server
+									this.updateHand(addMsg);
+							case protocols.GET_BOARD ->//message containing board from server
+									this.updateBoard(addMsg);
+							case protocols.GET_TURN -> {
 								this.turn = Integer.parseInt(addMsg);
 								System.out.println("msg from server in get_turn: " + turn);
 								setChanged();
 								notifyObservers(protocols.GET_TURN);
-								break;
-							case protocols.GET_LAST_SCORE:
+							}
+							case protocols.GET_LAST_SCORE -> {
 								this.lastScore = Integer.parseInt(addMsg);
 								System.out.println("msg from server in get_last_score: " + lastScore);
 								endTurn();
-								break;
-							case protocols.PASS:
+							}
+							case protocols.PASS -> {
 								setChanged();
 								notifyObservers(protocols.PASS);
-								break;
-
+							}
 						}
 
 					} catch (IOException e) {
@@ -276,8 +259,7 @@ public class Model extends Observable {
 	public void passSelected() {
 		// need to check if game is over
 		out.println(protocols.PASS);
-//		setChanged();
-//		notifyObservers("pass");
+
 	}
 	public void challengeSelected() {
 		out.println(protocols.CHALLENGE);
@@ -308,13 +290,11 @@ public class Model extends Observable {
 	}
 	public byte[][] getBonus() {
 		return this.bonus;
-//		return gameManager.getBonusBoard();
 	}
 
 	public void cleanList() {
 		characterList.clear();
 		wordTiles.clear();
-		//gameManager.refillHand();
 	}
 
 
@@ -429,16 +409,6 @@ public class Model extends Observable {
 	}
 
 
-	public void restart() {
-		System.out.println("New Game");
-		characterList.clear();
-		wordSelected="";
-		rowCur=-1; colCur=-1;
-		gameManager.restartGame();
-		setChanged();
-		notifyObservers("restart");
-	}
-
 	private static boolean isHorizontalWord(ArrayList<CharacterData> characterList) {
 		// return true if the word is horizontal
 		characterList.sort(Comparator.comparing(CharacterData::getColumn));
@@ -477,21 +447,11 @@ public class Model extends Observable {
 		return "Illegal";
 
 	}
-
-
-//	public Player getCurrentPlayer() {
-//		return gameManager.getCurrentPlayer();
-//	}
-
-	public String getTilesLeft() {
-		return "Tiles left in the bag: "+this.numTilesLeft;
-	}
 	public String getPlayerScore() {
 		return this.scores;
 	}
 
 	public String getTurn() {
-		//out.println(protocols.GET_CURRENT_PLAYER); // model will get current's player id
 		return "Player "+this.turn + "'s turn";
 	}
 	private void assignLetterScores() {
@@ -524,8 +484,6 @@ public class Model extends Observable {
 	}
 
 	public String getNumPlayers() {
-//		gameManager = GameManager.get();
-//		return ""+gameManager.getNumPlayers();
 		return ""+this.numPlayers;
 	}
 
