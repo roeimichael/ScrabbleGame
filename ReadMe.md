@@ -1,3 +1,7 @@
+#Important Update!
+This is not the latest version of the game. Thew newest version include support for apache tomcat and hibernate, along with a simple android app.
+link to the new repository: https://github.com/Liad05/Scrabbler_game_android_app
+
 # Scrabble Game
 
 This is a Java-based Scrabble game developed with an MVVM (Model-View-ViewModel) architectural pattern. It follows the original rules of Scrabble, where players take turns forming words on a 15x15 game board. The game supports multi-platform gameplay, allowing for cross-play between PC and Android devices.
